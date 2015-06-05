@@ -1,0 +1,20 @@
+name: BukkitTesting
+version: 1.0.0
+main: bukkitTesting.BukkitTesting
+description: AntiXray + ArcaneMessage
+commands:
+  arcane:
+    description: Arcane help
+  arcanesurvival:
+    description: Arcane help
+    description: Arcane identify
+  arc:
+    description: Arcane shortcut
+  ytorgonak:
+   description: Ytorgonak!
+  ytor:
+   description: Ytorgonak alias!
+  sharpshootingace:
+   description: SharpshootingAce!
+  sharp:
+   description: SharpshootingAce alias!
