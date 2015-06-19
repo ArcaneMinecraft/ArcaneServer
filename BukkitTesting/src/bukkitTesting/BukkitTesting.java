@@ -40,8 +40,6 @@ public class BukkitTesting extends JavaPlugin implements Listener {
 		this.logger.info("BukkitTesting has been disabled.");
 	}
 	
-	
-	
 	public boolean onCommand(CommandSender sender, Command cmd,
 			String commandLabel, String[] args) {
 		Player p = (Player) sender;
@@ -194,115 +192,8 @@ public class BukkitTesting extends JavaPlugin implements Listener {
 			} // if args.length == 1
 
 			
-			//This is all done in a separate plugin
-			
-			
-			// Message
-/*
-			int i;
-			if ((commandLabel.equalsIgnoreCase("m"))
-					|| (commandLabel.equals("msg"))) {
-				// Player r = Bukkit.getServer().getPlayer(args[0]);
+			//The message commands were removed as they exist in another plugin
 
-				if (args.length == 0) {
-
-					p.sendMessage(ChatColor.GOLD + "[ArcaneMessage]"
-							+ ChatColor.WHITE
-							+ " Usage: /msg <player> <message>");
-					return true;
-				}
-
-				Player r = Bukkit.getServer().getPlayer(args[0]);
-
-				if (args.length == 1)
-
-				{
-					p.sendMessage(ChatColor.GOLD + "[ArcaneMessage]"
-							+ ChatColor.WHITE + " You must enter a message!");
-				}
-
-				else if (r != null)
-
-				{
-					String message = "";
-					for (i = 1; i < args.length; i++) {
-						message = message + args[i] + " ";
-					}
-					p.sendMessage(ChatColor.GOLD + "[To: " + r.getName() + "] "
-							+ ChatColor.GRAY + message);
-					r.sendMessage(ChatColor.GOLD + "[From: " + p.getName()
-							+ "] " + ChatColor.GRAY + message);
-
-					// Log to console
-					this.logger.info("[" + p.getName() + "]" + " -> "
-							+ r.getName() + " " + message);
-
-					// String it = ChatColor.ITALIC + "";
-
-					// PM spy (permission = arcane.pm)
-					Bukkit.broadcast(ChatColor.RED + "PM // " + ChatColor.GRAY
-							+ it + "[ " + ChatColor.GRAY + it + p.getName()
-							+ " -> " + r.getName() + ": " + message + "]",
-							"arcane.pm");
-
-					this.map.put(r.getName(), p.getName());
-				}
-
-				else {
-					p.sendMessage(ChatColor.GOLD + "[ArcaneMessage]"
-							+ ChatColor.WHITE + " That user is not online!");
-				}
-			}
-			Player target;
-			if (((commandLabel.equals("r")) || (commandLabel.equals("reply")))
-					&& ((sender instanceof Player))) {
-				Player player = (Player) sender;
-				if (args.length == 0) {
-					player.sendMessage(ChatColor.GOLD + "[ArcaneMessage]"
-							+ ChatColor.WHITE + " Usage: /reply <message>");
-					return true;
-				}
-				String message = "";
-				for (int i1 = 0; i1 < args.length; i1++) {
-					message = message + args[i1] + " ";
-				}
-				target = getServer().getPlayer(
-						(String) this.map.get(player.getName()));
-				if (target == null) {
-
-					player.sendMessage(ChatColor.GOLD + "[ArcaneMessage]"
-							+ ChatColor.WHITE + " No player found.");
-					return true;
-
-				} else if (target != null) {
-
-					target.sendMessage(ChatColor.GOLD + "[From: "
-							+ player.getName() + "] " + ChatColor.GRAY
-							+ message);
-
-					player.sendMessage(ChatColor.GOLD + "[To: "
-							+ target.getName() + "] " + ChatColor.GRAY
-							+ message);
-
-					// Log to console
-					this.logger.info("[" + player.getName() + "]"
-							+ " -> " + target.getName() + " " + message);
-
-					// String it = ChatColor.ITALIC + "";
-
-					// PM spy (permission = arcane.pm)
-					Bukkit.broadcast(
-							ChatColor.RED + "PM // " + ChatColor.GRAY + it
-									+ "[ " + ChatColor.GRAY + it
-									+ player.getName() + " -> "
-									+ target.getName() + ": " + message + "]",
-							"arcane.pm");
-
-					this.map.put(target.getName(), player.getName());
-
-				}
-				return true;
-			}*/
 			return true;
 		}
 		return false;
