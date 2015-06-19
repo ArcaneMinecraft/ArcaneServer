@@ -38,9 +38,9 @@ public class BukkitTesting extends JavaPlugin implements Listener {
 
 	public void onDisable() {
 		this.logger.info("BukkitTesting has been disabled.");
-		// Bukkit.broadcastMessage(ChatColor.GREEN +
-		// "The server is reloading.");
 	}
+	
+	
 	
 	public boolean onCommand(CommandSender sender, Command cmd,
 			String commandLabel, String[] args) {
@@ -54,6 +54,8 @@ public class BukkitTesting extends JavaPlugin implements Listener {
 		String it = ChatColor.ITALIC + "";
 		String gold = ChatColor.GOLD + "";
 
+		
+		//TODO The donor commands should be made into their own plugin
 		if (commandLabel.equalsIgnoreCase("sharpshootingace")
 				|| commandLabel.equalsIgnoreCase("sharp")) {
 			if (args.length == 0) {
@@ -155,7 +157,9 @@ public class BukkitTesting extends JavaPlugin implements Listener {
 
 			}
 		}
-
+		
+		
+		//TODO need to resolve /arcane help and /help
 		if (commandLabel.equalsIgnoreCase("arcane")
 				|| commandLabel.equalsIgnoreCase("arcanesurvival")
 				|| commandLabel.equalsIgnoreCase("arc")) {
@@ -189,8 +193,12 @@ public class BukkitTesting extends JavaPlugin implements Listener {
 
 			} // if args.length == 1
 
+			
+			//This is all done in a separate plugin
+			
+			
 			// Message
-
+/*
 			int i;
 			if ((commandLabel.equalsIgnoreCase("m"))
 					|| (commandLabel.equals("msg"))) {
@@ -294,7 +302,7 @@ public class BukkitTesting extends JavaPlugin implements Listener {
 
 				}
 				return true;
-			}
+			}*/
 			return true;
 		}
 		return false;
@@ -345,6 +353,8 @@ public class BukkitTesting extends JavaPlugin implements Listener {
 		}
 	}
 
+	
+	//TODO This should be merged with the ArcaneAntiXray plugin
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent e) {
 		if ((e.getBlock().getType() == Material.DIAMOND_ORE)
@@ -387,7 +397,7 @@ public class BukkitTesting extends JavaPlugin implements Listener {
 
 		) {
 
-			Bukkit.broadcast(ChatColor.RED + "Alert // " + ChatColor.WHITE
+			Bukkit.broadcast(ChatColor.RED + "Alert BukkitTesting // " + ChatColor.WHITE
 					+ player.getName() + " attempted command \""
 					+ ChatColor.RED + e.getMessage() + ChatColor.WHITE + "\".",
 					"bukkit.broadcast.admin");
@@ -395,26 +405,13 @@ public class BukkitTesting extends JavaPlugin implements Listener {
 			// player.sendMessage("WE DID IT");
 
 		}
-
+		
+		//this should be in the on command function
 		if (e.getMessage().startsWith("/tell")) {
 
 			player.sendMessage(ChatColor.GOLD + "[ArcaneMessage] "
 					+ ChatColor.WHITE + "You should use /msg instead!");
 
-		}
-
-		if (e.getMessage().startsWith("/")
-				& !player.hasPermission("arcane.admin")
-				& (!(e.getMessage() == ("/msg")) || e.getMessage() == ("/r")
-						|| e.getMessage() == ("/reply")
-						|| e.getMessage() == ("/m") || e.getMessage() == ("/a")
-
-				)) {
-
-			Bukkit.broadcast(ChatColor.RED + "Alert // " + ChatColor.WHITE
-					+ player.getName() + " attempted command \""
-					+ ChatColor.RED + e.getMessage() + ChatColor.WHITE + "\".",
-					"arcane.command");
 		}
 
 	}
