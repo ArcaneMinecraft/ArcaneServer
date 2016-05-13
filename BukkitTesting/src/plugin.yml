@@ -6,7 +6,6 @@ commands:
   arcane:
     description: Arcane help
   arcanesurvival:
-    description: Arcane help
     description: Arcane identify
   arc:
     description: Arcane shortcut
@@ -18,3 +17,6 @@ commands:
    description: SharpshootingAce!
   sharp:
    description: SharpshootingAce alias!
+  tell:
+   usage: /msg <player> <message>
+   description: msg command redirect

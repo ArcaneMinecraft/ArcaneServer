@@ -19,7 +19,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+//import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -49,7 +49,7 @@ public class BukkitTesting extends JavaPlugin implements Listener {
 		String gray = ChatColor.GRAY + "";
 		String white = ChatColor.WHITE + "";
 		String green = ChatColor.GREEN + "";
-		String it = ChatColor.ITALIC + "";
+		//String it = ChatColor.ITALIC + "";
 		String gold = ChatColor.GOLD + "";
 
 		
@@ -196,6 +196,11 @@ public class BukkitTesting extends JavaPlugin implements Listener {
 
 			return true;
 		}
+		
+		if(commandLabel.equalsIgnoreCase("tell")) {
+			return (((Player)sender).performCommand("msg " + String.join(" ", args)));
+		}
+		
 		return false;
 	}
 
@@ -268,7 +273,7 @@ public class BukkitTesting extends JavaPlugin implements Listener {
 		}
 
 	}
-
+/* Moved to SimonPlugin https://github.com/SimonOrJ/SimonPlugin
 	@EventHandler
 	public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent e)
 
@@ -298,6 +303,7 @@ public class BukkitTesting extends JavaPlugin implements Listener {
 		}
 		
 		//this should be in the on command function
+		//Moved to command function
 		if (e.getMessage().startsWith("/tell")) {
 
 			player.sendMessage(ChatColor.GOLD + "[ArcaneMessage] "
@@ -306,9 +312,8 @@ public class BukkitTesting extends JavaPlugin implements Listener {
 		}
 
 	}
-
+*/
 }
-
 // if msg starts with /, and the player does not have perm arcane.admin, and msg
 // is not /msg or /r etc
 
