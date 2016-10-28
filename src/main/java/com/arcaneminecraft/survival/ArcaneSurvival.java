@@ -1,4 +1,4 @@
-package arcaneSurvival;
+package com.arcaneminecraft.survival;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -32,15 +32,18 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class ArcaneSurvival extends JavaPlugin{
 	private static final String VERSION = "2.0.0-SNAPSHOT";
 	
+	@Override
 	public void onEnable() {
 		getServer().getPluginManager().registerEvents(new ArcaneEvents(), this);
 		getServer().getLogger().info("ArcaneSurvival has been loaded!");
 	}
 
+	@Override
 	public void onDisable() {
 		getServer().getLogger().info("ArcaneSurvival is disabled.");
 	}
 	
+	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		Player p = (Player) sender;
 
