@@ -1,4 +1,4 @@
-package bukkitTesting;
+package arcaneSurvival;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -23,7 +23,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class BukkitTesting extends JavaPlugin implements Listener {
+public class ArcaneSurvival extends JavaPlugin implements Listener {
 	
 	Logger logger = Bukkit.getLogger();
 	@SuppressWarnings({ "unchecked", "rawtypes" })
