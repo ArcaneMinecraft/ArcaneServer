@@ -4,20 +4,73 @@ main: arcaneSurvival.ArcaneSurvival
 description: Arcane Survival Essentials
 authors: [Agentred100, Jugglingman456, SimonOrJ]
 commands:
-  arcane:
-    description: Arcane help
-  arcanesurvival:
-    description: Arcane identify
-  arc:
-    description: Arcane shortcut
-  ytorgonak:
-   description: Ytorgonak!
-  ytor:
-   description: Ytorgonak alias!
+  bbycake:
+    aliases: [bby]
+    description: bbycake's command
+  dclem:
+    description: Dclem's command
   sharpshootingace:
-   description: SharpshootingAce!
-  sharp:
-   description: SharpshootingAce alias!
+    aliases: [sharp]
+    description: SharpshootingAce!
+  ytorgonak:
+    aliases: [ytor]
+    description: Ytorgonak!
+  arcanesurvival:
+    aliases: [arc, arcane]
+    description: Arcane help
+  help:
+    aliases: [?]
+    description: Arcane help command
   tell:
-   usage: /msg <player> <message>
-   description: msg command redirect
+    usage: /msg <player> <message>
+    description: msg command redirect
+  greylist:
+    aliases: [graylist]
+    description: Greylist command
+  help:
+    description: Arcane help
+    usage: /help
+  map:
+    description: Display the dynmap link
+  username:
+    description: Display your username!
+  list:
+    description: Display a list of online users.
+  apply:
+    description: Display the application link.
+  forum:
+    description: Display the forum link.
+  mumble:
+    description: Displays the Discord link.
+  discord:
+    description: Displays the Discord link.
+  f:
+    description: Admin command
+  g0:
+    aliases: [g1, g2, g3]
+    description: Admin command; change gamemode
+  donate:
+    description: Donation link
+  doge:
+    description: Doge command
+  links:
+    description: Command that displays Arcane links
+    
+permissions:
+  new:
+    description: Arcane 'new' player permission
+    default: true
+  arcane.mod:
+    description: Arcane Moderator.
+  arcane.chatmod:
+    description: Arcane Chatmod.
+  arcane.trusted:
+    description: Arcane greylisted players.
+  arcane.bbycake:
+    description: bbycake
+  arcane.f:
+    description: fireworks
+  arcane.donor:
+    description: Arcane donor.
+  arcane.homes:
+    description: Arcane extra home donor.
