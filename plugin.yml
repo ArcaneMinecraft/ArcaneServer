@@ -4,58 +4,36 @@ main: com.arcaneminecraft.survival.ArcaneSurvival
 description: Arcane Survival Essentials
 authors: [Agentred100, Jugglingman456, SimonOrJ]
 commands:
-  bbycake:
-    aliases: [bby]
-    description: bbycake's command
-  dclem:
-    description: Dclem's command
-  sharpshootingace:
-    aliases: [sharp]
-    description: SharpshootingAce!
-  ytorgonak:
-    aliases: [ytor]
-    description: Ytorgonak!
+  apply:
+    description: Display the application link.
   arcanesurvival:
     aliases: [arc, arcane]
     description: Arcane help
-  help:
-    aliases: [?]
-    description: Arcane help command
-  tell:
-    usage: /msg <player> <message>
-    description: msg command redirect
   greylist:
     aliases: [graylist]
     description: Greylist command
   help:
+    aliases: [?]
     description: Arcane help
     usage: /help
-  map:
-    description: Display the dynmap link
-  username:
-    description: Display your username!
+  links:
+    aliases: [website,link,map,forum,discord,mumble,donate]
+    description: Command that displays Arcane links
   list:
     description: Display a list of online users.
-  apply:
-    description: Display the application link.
-  forum:
-    description: Display the forum link.
-  mumble:
-    description: Displays the Discord link.
-  discord:
-    description: Displays the Discord link.
+  tell:
+    usage: /msg <player> <message>
+    description: msg command redirect
+  username:
+    description: Display your username!
   f:
     description: Admin command
   g0:
     aliases: [g1, g2, g3]
     description: Admin command; change gamemode
-  donate:
-    description: Donation link
   doge:
     description: Doge command
-  links:
-    description: Command that displays Arcane links
-    
+
 permissions:
   new:
     description: Arcane 'new' player permission
@@ -66,8 +44,6 @@ permissions:
     description: Arcane Chatmod.
   arcane.trusted:
     description: Arcane greylisted players.
-  arcane.bbycake:
-    description: bbycake
   arcane.f:
     description: fireworks
   arcane.donor:
