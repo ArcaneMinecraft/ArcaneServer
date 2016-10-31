@@ -32,26 +32,29 @@ public class HelpLink {
 		switch (subcmd) {
 		case "lwc":
 			return ArcaneCommons.sendCommandMenu(sender, "LWC Help", LWC, label, subcmd, page);
+		case "message":
+		case "msg":
+			return ArcaneCommons.sendCommandMenu(sender, "Messaging Help", MESSAGE, label, subcmd, page);
 		case "donors":
 		case "donor":
 			if (sender.hasPermission("arcane.mod")) {
 				return ArcaneCommons.sendCommandMenu(sender, "Donor Help", DONOR, label, subcmd, page);
 			}
-			ArcaneCommons.sendNoPermission(sender);
+			sender.sendMessage(ArcaneCommons.noPermissionMsg(label, subcmd));
 			return true;
 		case "chatmods":
 		case "chatmod":
 			if (sender.hasPermission("arcane.mod") || sender.hasPermission("arcane.chatmod")) {
 				return ArcaneCommons.sendCommandMenu(sender, "Chatmod Help", CHATMOD, label, subcmd, page);
 			}
-			ArcaneCommons.sendNoPermission(sender);
+			sender.sendMessage(ArcaneCommons.noPermissionMsg(label, subcmd));
 			return true;
 		case "mods":
 		case "mod":
 			if (sender.hasPermission("arcane.mod")) {
 				return ArcaneCommons.sendCommandMenu(sender, "Moderator Help", MOD, label, subcmd, page);
 			}
-			ArcaneCommons.sendNoPermission(sender);
+			sender.sendMessage(ArcaneCommons.noPermissionMsg(label, subcmd));
 			return true;
 		}
 		return false;
@@ -68,7 +71,7 @@ public class HelpLink {
 			return false;
 		for (String[] ls : LINK) {
 			if (ls[0].equals(label.toLowerCase())) {
-				TextComponent ret = new TextComponent(ArcaneSurvival.TAG + " ");
+				TextComponent ret = new TextComponent(ArcaneCommons.tag() + " ");
 				TextComponent ln = new TextComponent(ls[2]);
 				ln.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL
 						, ls[1]));

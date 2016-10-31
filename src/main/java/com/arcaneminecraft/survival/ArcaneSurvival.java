@@ -1,12 +1,7 @@
 package com.arcaneminecraft.survival;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -15,14 +10,12 @@ import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.FireworkEffect.Type;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -53,7 +46,7 @@ public class ArcaneSurvival extends JavaPlugin{
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (cmd.getName().equalsIgnoreCase("arcanesurvival")) {
-			sender.sendMessage(TAG + GRAY + " Version " + VERSION);
+			sender.sendMessage(ArcaneCommons.tag(" Version " + VERSION));
 			return true;
 		}
 		
@@ -61,12 +54,13 @@ public class ArcaneSurvival extends JavaPlugin{
 		if (cmd.getName().equalsIgnoreCase("help")) {
 			if (sender instanceof Player)
 				return HelpLink.commandHelp(sender, label, args);
-			sender.sendMessage(noConsoleCmd());
+			sender.sendMessage(ArcaneCommons.noConsoleMsg());
 			sender.sendMessage("You're a console. you know what to do!");
 			return true;
 		}
 		
 		// HelpLink class as well. This is a super-command.
+		// links, link, website, map, forum, discord, mumble, donate
 		if (cmd.getName().equalsIgnoreCase("links")) {
 			// check String label || catch console
 			if (label.equalsIgnoreCase("links") || !(sender instanceof Player))
@@ -79,6 +73,7 @@ public class ArcaneSurvival extends JavaPlugin{
 			return HelpLink.commandLink(sender);
 		}
 
+		// apply
 		if (cmd.getName().equalsIgnoreCase("apply")) {
 			sender.sendMessage("");
 			sender.sendMessage(GOLD + "           Click here to apply for build rights:");
@@ -88,21 +83,23 @@ public class ArcaneSurvival extends JavaPlugin{
 			return true;
 		}
 		
-		// This is pretty awesome
+		// Changes gamemode. This is pretty awesome.
+		// g0, g1, g2, g3
 		if (cmd.getName().equalsIgnoreCase("g0")) {
-			if (sender.hasPermission("bukkit.command.gamemode") || sender.hasPermission("minecraft.command.gamemode")) {
+			if (sender.hasPermission("arcane.admin") || sender.hasPermission("bukkit.command.gamemode") || sender.hasPermission("minecraft.command.gamemode")) {
 				return ((Player)sender).performCommand("gamemode " + label.charAt(1));
 			} else {
-				ArcaneCommons.sendNoPermission(sender);
+				sender.sendMessage(ArcaneCommons.noPermissionMsg(label));
 				return true;
 			}
 		}
 
+		// Shows greylist status / greylists players
 		if (cmd.getName().equalsIgnoreCase("greylist")) {
 			// Moderators will get a different message
-			if (sender.hasPermission("arcane.chatmod") || sender.hasPermission("arcane.mod")) {
+			if (sender.hasPermission("arcane.chatmod")) {
 				if (args.length == 0) {
-					sender.sendMessage(TAG + " Usage: /greylist <player>...");
+					sender.sendMessage(ArcaneCommons.tag(" Usage: /greylist <player>..."));
 				} else {
 					for (String pl : args)
 						((Player)sender).performCommand("pex group trusted user add " + pl);
@@ -113,18 +110,16 @@ public class ArcaneSurvival extends JavaPlugin{
 			
 			// if normal player ran it with some parameters
 			if (args.length != 0) {
-				sender.sendMessage(noPermissionCmd(label,String.join(" ", args)));
+				sender.sendMessage(ArcaneCommons.noPermissionMsg(label,String.join(" ", args)));
 				return true;
 			}
 			
 			if (sender.hasPermission("arcane.trusted"))
-				sender.sendMessage(TAG + "You are on the greylist!");
+				sender.sendMessage(ArcaneCommons.tag("You are on the greylist!"));
 			
 			else {
-
-				sender.sendMessage(TAG + "You are " + RED + "not" + GRAY + " on the greylist!");
-				sender.sendMessage(TAG + "Talk with a staff member to become greylisted.");
-
+				sender.sendMessage(ArcaneCommons.tag("You are " + RED + "not" + GRAY + " on the greylist!"));
+				sender.sendMessage(ArcaneCommons.tag("Apply for greylist using the /apply command, then talk with a staff member to become greylisted."));
 			}
 
 			return true;
@@ -237,47 +232,6 @@ public class ArcaneSurvival extends JavaPlugin{
 			if (!player.hasPlayedBefore())
 				Bukkit.broadcastMessage(YELLOW + player.getName()
 						+ " has joined Arcane for the first time.");
-		}
-
-		// Should move to the plugin related to moderation
-		@EventHandler
-		public void diamondWatcher(BlockBreakEvent e) {
-			if ((e.getBlock().getY() <= 20)
-					&& (e.getBlock().getType() == Material.DIAMOND_ORE)) {
-				Player player = e.getPlayer();
-				Date date = new Date();
-
-				// TODO: Where did the live announcement code go?
-				// TODO: CoreProtect already logs blocks. Is this still necessary?
-				logToFile("[" + date.toString() + "] " + player.getName()
-						+ " mined diamond ore at " + e.getBlock().getX() + ", "
-						+ e.getBlock().getY() + ", " + e.getBlock().getZ() + ".",
-						"xraylog");
-			}
-		}
-	}
-
-	public void logToFile(String message, String fileName) {
-		try {
-			File dataFolder = getDataFolder();
-			if (!dataFolder.exists()) {
-				dataFolder.mkdir();
-			}
-			File saveTo = new File(getDataFolder(), fileName + ".txt");
-			if (!saveTo.exists()) {
-				saveTo.createNewFile();
-			}
-			FileWriter fw = new FileWriter(saveTo, true);
-
-			PrintWriter pw = new PrintWriter(fw);
-
-			pw.println(message);
-
-			pw.flush();
-
-			pw.close();
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 	}
 }

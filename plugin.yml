@@ -1,8 +1,11 @@
 name: ArcaneSurvival
 version: 2.0.0-SNAPSHOT
-main: com.arcaneminecraft.survival.ArcaneSurvival
 description: Arcane Survival Essentials
 authors: [Agentred100, Jugglingman456, SimonOrJ]
+website: https://arcaneminecraft.com/
+main: com.arcaneminecraft.survival.ArcaneSurvival
+load: STARTUP
+
 commands:
   apply:
     description: Display the application link.
@@ -38,18 +41,27 @@ commands:
     description: Doge command
 
 permissions:
-  new:
-    description: Arcane 'new' player permission
-    default: true
+  arcane.admin:
+    description: Arcane Administrator.
+    children:
+      arcane.mod: true
+      arcane.chatmod: true
   arcane.mod:
     description: Arcane Moderator.
+    children:
+      arcane.chatmod: true
   arcane.chatmod:
     description: Arcane Chatmod.
-  arcane.trusted:
-    description: Arcane greylisted players.
-  arcane.f:
-    description: fireworks
-  arcane.donor:
-    description: Arcane donor.
   arcane.homes:
     description: Arcane extra home donor.
+  arcane.donor:
+    description: Arcane donor.
+  arcane.trusted:
+    description: Arcane greylisted players.
+    children:
+      arcane.new: false
+  arcane.new:
+    description: Arcane 'new' player permission
+    default: true
+  arcane.f:
+    description: fireworks

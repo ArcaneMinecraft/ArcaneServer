@@ -1,3 +1,9 @@
+/**
+ * ArcaneCommons Class.
+ * This class is to be shared between all the other plugins, favorably with
+ * Arcane plugins.
+ * @author Simon Chuu (SimonOrJ) 
+ */
 package com.arcaneminecraft;
 
 import org.bukkit.command.CommandSender;
@@ -10,30 +16,48 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
 public class ArcaneCommons {
-	public static final String TAG = ChatColor.GOLD + "[Arcane]" + ChatColor.GRAY;
+	private static final String TAG = ChatColor.GOLD + "[Arcane]";
 	
 	/**
 	 * Message with a generic tag
 	 * @return
 	 */
-	public String taggedMessage(String message) {
-		return TAG + message;
+	public static String tag() {
+		return TAG;
+	}
+	
+	/**
+	 * Message with a generic tag
+	 * @param message - Message to send
+	 * @return
+	 */
+	public static String tag(String message) {
+		return TAG + " " + ChatColor.GRAY + message;
+	}
+	/**
+	 * Message with a generic tag
+	 * @param tag - Tag to be formatted (don't insert brackets)
+	 * @param message - Message to send
+	 * @return
+	 */
+	public static String tag(String tag, String message) {
+		return ChatColor.GOLD + "[" + tag + "] " + ChatColor.GRAY + message;
 	}
 
 	/**
 	 * Generic no permission message
 	 * @return
 	 */
-	public static String noPermissionMessage() {
-		return TAG + " You do not have permission to do that.";
+	public static String noPermissionMsg() {
+		return tag("You do not have permission to do that.");
 	}
 	/**
 	 * Generic no permission message containing command.
 	 * @param cLabel
 	 * @return
 	 */
-	public static String noPermissionMessage(String cLabel) {
-		return TAG + " You do not have permission to run \"/" + cLabel + "\".";
+	public static String noPermissionMsg(String cLabel) {
+		return tag("You do not have permission to run \"/" + cLabel + "\".");
 	}
 	/**
 	 * Generic no permission message with arguments.
@@ -41,17 +65,17 @@ public class ArcaneCommons {
 	 * @param subcommand
 	 * @return
 	 */
-	public static String noPermissionMessage(String cLabel, String subcommand) {
-		return TAG + " You do not have permission to use \""
-				+ subcommand + "\" in \"/" + cLabel + "\".";
+	public static String noPermissionMsg(String cLabel, String subcommand) {
+		return tag("You do not have permission to use \""
+				+ subcommand + "\" in \"/" + cLabel + "\".");
 	}
 	
 	/**
 	 * Returns a "no-console" message
 	 * @return
 	 */
-	public static String noConsoleMessage() {
-		return TAG + " You must be a player.";
+	public static String noConsoleMsg() {
+		return tag("You must be a player.");
 	}
 
 	/**
