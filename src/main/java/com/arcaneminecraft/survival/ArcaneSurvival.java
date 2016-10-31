@@ -38,8 +38,38 @@ public class ArcaneSurvival extends JavaPlugin{
 	private static final String GOLD = ChatColor.GOLD + "";
 	private static final String bold = ChatColor.BOLD + "";
 	
-	static void sendNoPermission(CommandSender sender) {
-		sender.sendMessage(TAG + " You do not have permission to do that.");
+	/**
+	 * Generic no permission message
+	 * @return
+	 */
+	static String noPermissionCmd() {
+		return TAG + " You do not have permission to do that.";
+	}
+	/**
+	 * Generic no permission message containing command.
+	 * @param cLabel
+	 * @return
+	 */
+	static String noPermissionCmd(String cLabel) {
+		return TAG + " You do not have permission to run \"/" + cLabel + "\".";
+	}
+	/**
+	 * Generic no permission message with arguments.
+	 * @param cLabel
+	 * @param subcommand
+	 * @return
+	 */
+	static String noPermissionCmd(String cLabel, String subcommand) {
+		return TAG + " You do not have permission to use \""
+				+ subcommand + "\" in \"/" + cLabel + "\".";
+	}
+	
+	/**
+	 * Returns a "no-console" message
+	 * @return
+	 */
+	static String noConsoleCmd() {
+		return TAG + " You must be a player.";
 	}
 	
 	@Override
@@ -60,17 +90,18 @@ public class ArcaneSurvival extends JavaPlugin{
 			return true;
 		}
 		
-		// All in HelpStatement class
-		if (cmd.getName().equalsIgnoreCase("help") || cmd.getName().equalsIgnoreCase("?")) {
+		// All in HelpLink class
+		if (cmd.getName().equalsIgnoreCase("help")) {
 			if (sender instanceof Player)
-				return HelpLink.commandHelp(sender,args);
-			else
-				sender.sendMessage("You're a console. you know what to do!");
-				return true;
+				return HelpLink.commandHelp(sender,args,label);
+			sender.sendMessage(noConsoleCmd());
+			sender.sendMessage("You're a console. you know what to do!");
+			return true;
 		}
 		
-		// This portion by Simon
+		// HelpLink class as well. This is a super-command.
 		if (cmd.getName().equalsIgnoreCase("links")) {
+			// check String label || catch console
 			if (label.equalsIgnoreCase("links") || !(sender instanceof Player))
 				return HelpLink.commandLink(sender);
 			// Backward compatibility
@@ -90,42 +121,32 @@ public class ArcaneSurvival extends JavaPlugin{
 			return true;
 		}
 		
-		// Surpress /tell
-		// TODO: Move this to the messaging plugin
-		if(cmd.getName().equalsIgnoreCase("tell")) {
-			return (((Player)sender).performCommand("msg " + String.join(" ", args)));
-		}
-		
-		// TODO: Should be used on plugin with AFK functionality
-		if (cmd.getName().equalsIgnoreCase("list")) {
-			StringBuilder players = new StringBuilder();
-			for (Player player : Bukkit.getOnlinePlayers()) {
-				if (players.length() > 0) {
-					players.append(", ");
-				}
-				players.append(player.getDisplayName());
+		// This is pretty awesome
+		if (cmd.getName().equalsIgnoreCase("g0")) {
+			if (sender.hasPermission("bukkit.command.gamemode") || sender.hasPermission("minecraft.command.gamemode")) {
+				return ((Player)sender).performCommand("gamemode " + label.charAt(1));
+			} else {
+				sender.sendMessage(noPermissionCmd(label));
+				return true;
 			}
-
-			if(sender instanceof Player) {
-				sender.sendMessage(GOLD + " Online players: " + ChatColor.RESET
-						+ Bukkit.getServer().getOnlinePlayers().size() + "/" + Bukkit.getMaxPlayers());
-				sender.sendMessage(" " + players.toString());
-			}
-			else
-				getServer().getLogger().info(players.toString());
-
-			return true;
-
 		}
 
 		if (cmd.getName().equalsIgnoreCase("greylist")) {
+			// Moderators will get a different message
 			if (sender.hasPermission("arcane.chatmod") || sender.hasPermission("arcane.mod")) {
 				if (args.length == 0) {
 					sender.sendMessage(TAG + " Usage: /greylist <player>...");
 				} else {
 					for (String pl : args)
 						((Player)sender).performCommand("pex group trusted user add " + pl);
+					// Validity responsibility lies on PEx plugin.
 				}
+				return true;
+			}
+			
+			// if normal player ran it with some parameters
+			if (args.length != 0) {
+				sender.sendMessage(noPermissionCmd(label,String.join(" ", args)));
 				return true;
 			}
 			
@@ -142,8 +163,36 @@ public class ArcaneSurvival extends JavaPlugin{
 			return true;
 		}
 
+		// TODO: Bring AFK functionality in the house (this plugin)!
+		if (cmd.getName().equalsIgnoreCase("list")) {
+			StringBuilder players = new StringBuilder();
+			for (Player player : Bukkit.getOnlinePlayers()) {
+				if (players.length() > 0) {
+					players.append(", ");
+				}
+				players.append(player.getDisplayName());
+			}
+
+			if (sender instanceof Player) {
+				sender.sendMessage(GOLD + " Online players: " + ChatColor.RESET
+						+ Bukkit.getServer().getOnlinePlayers().size() + "/" + Bukkit.getMaxPlayers());
+				sender.sendMessage(" " + players.toString());
+			}
+			else
+				getServer().getLogger().info(players.toString());
+
+			return true;
+
+		}
+
+		// Surpress /tell
+		// TODO: Move this to the messaging plugin
+		if(cmd.getName().equalsIgnoreCase("tell")) {
+			return (((Player)sender).performCommand("msg " + String.join(" ", args)));
+		}
+		
 		// Useful username command
-		// "Very Useful perfect 5/7" -Simon, 2016
+		// "very useful i give a perfect 5/7" -Simon, 2016
 		if (cmd.getName().equalsIgnoreCase("username")) {
 			if (!(sender instanceof Player)) {
 				sender.sendMessage("You'll always be named " + sender.getName() + ".");
@@ -171,6 +220,7 @@ public class ArcaneSurvival extends JavaPlugin{
 		}
 
 		// TODO: what?
+		// Real TODO: move this over to SpigotTesting
 		if (cmd.getName().equalsIgnoreCase("f") & sender.hasPermission("arcane.f")) {
 
 			Player p1 = (Player) sender;
@@ -197,15 +247,7 @@ public class ArcaneSurvival extends JavaPlugin{
 
 		}
 
-		if (cmd.getName().equalsIgnoreCase("g0")) {
-			if (sender.hasPermission("bukkit.command.gamemode") || sender.hasPermission("minecraft.command.gamemode")) {
-				return ((Player)sender).performCommand("gamemode " + label.charAt(1));
-			} else {
-				sendNoPermission(sender);
-				return true;
-			}
-		}
-
+		// TODO: This too goes to SpigotTesting
 		if (cmd.getName().equalsIgnoreCase("doge")) {
 			if (!(sender instanceof Player)) {
 				sender.sendMessage("operatordogedogedogedoge...");
@@ -223,15 +265,16 @@ public class ArcaneSurvival extends JavaPlugin{
 	
 	public final class ArcaneEvents implements Listener {
 		@EventHandler
-		public void onPlayerJoin(PlayerJoinEvent e) {
+		public void newPlayerJoin(PlayerJoinEvent e) {
 			Player player = e.getPlayer();
 			if (!player.hasPlayedBefore())
 				Bukkit.broadcastMessage(YELLOW + player.getName()
 						+ " has joined Arcane for the first time.");
 		}
 
+		// Should move to the plugin related to moderation
 		@EventHandler
-		public void onBlockBreak(BlockBreakEvent e) {
+		public void diamondWatcher(BlockBreakEvent e) {
 			if ((e.getBlock().getY() <= 20)
 					&& (e.getBlock().getType() == Material.DIAMOND_ORE)) {
 				Player player = e.getPlayer();
