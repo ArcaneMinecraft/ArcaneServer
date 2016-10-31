@@ -27,9 +27,10 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.arcaneminecraft.ArcaneCommons;
+
 public class ArcaneSurvival extends JavaPlugin{
 	static final String VERSION = "2.0.0-SNAPSHOT";
-	static final String TAG = ChatColor.GOLD + "[ArcaneSurvival]" + ChatColor.GRAY; 
 	
 	private static final String RED = ChatColor.RED + "";
 	private static final String GRAY = ChatColor.GRAY + "";
@@ -37,40 +38,6 @@ public class ArcaneSurvival extends JavaPlugin{
 	private static final String YELLOW = ChatColor.YELLOW + "";
 	private static final String GOLD = ChatColor.GOLD + "";
 	private static final String bold = ChatColor.BOLD + "";
-	
-	/**
-	 * Generic no permission message
-	 * @return
-	 */
-	static String noPermissionCmd() {
-		return TAG + " You do not have permission to do that.";
-	}
-	/**
-	 * Generic no permission message containing command.
-	 * @param cLabel
-	 * @return
-	 */
-	static String noPermissionCmd(String cLabel) {
-		return TAG + " You do not have permission to run \"/" + cLabel + "\".";
-	}
-	/**
-	 * Generic no permission message with arguments.
-	 * @param cLabel
-	 * @param subcommand
-	 * @return
-	 */
-	static String noPermissionCmd(String cLabel, String subcommand) {
-		return TAG + " You do not have permission to use \""
-				+ subcommand + "\" in \"/" + cLabel + "\".";
-	}
-	
-	/**
-	 * Returns a "no-console" message
-	 * @return
-	 */
-	static String noConsoleCmd() {
-		return TAG + " You must be a player.";
-	}
 	
 	@Override
 	public void onEnable() {
@@ -93,7 +60,7 @@ public class ArcaneSurvival extends JavaPlugin{
 		// All in HelpLink class
 		if (cmd.getName().equalsIgnoreCase("help")) {
 			if (sender instanceof Player)
-				return HelpLink.commandHelp(sender,args,label);
+				return HelpLink.commandHelp(sender, label, args);
 			sender.sendMessage(noConsoleCmd());
 			sender.sendMessage("You're a console. you know what to do!");
 			return true;
@@ -126,7 +93,7 @@ public class ArcaneSurvival extends JavaPlugin{
 			if (sender.hasPermission("bukkit.command.gamemode") || sender.hasPermission("minecraft.command.gamemode")) {
 				return ((Player)sender).performCommand("gamemode " + label.charAt(1));
 			} else {
-				sender.sendMessage(noPermissionCmd(label));
+				ArcaneCommons.sendNoPermission(sender);
 				return true;
 			}
 		}
