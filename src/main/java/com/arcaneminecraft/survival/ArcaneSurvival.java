@@ -27,9 +27,10 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.arcaneminecraft.ArcaneCommons;
+
 public class ArcaneSurvival extends JavaPlugin{
 	static final String VERSION = "2.0.0-SNAPSHOT";
-	static final String TAG = ChatColor.GOLD + "[ArcaneSurvival]" + ChatColor.GRAY; 
 	
 	private static final String RED = ChatColor.RED + "";
 	private static final String GRAY = ChatColor.GRAY + "";
@@ -37,10 +38,6 @@ public class ArcaneSurvival extends JavaPlugin{
 	private static final String YELLOW = ChatColor.YELLOW + "";
 	private static final String GOLD = ChatColor.GOLD + "";
 	private static final String bold = ChatColor.BOLD + "";
-	
-	static void sendNoPermission(CommandSender sender) {
-		sender.sendMessage(TAG + " You do not have permission to do that.");
-	}
 	
 	@Override
 	public void onEnable() {
@@ -63,7 +60,7 @@ public class ArcaneSurvival extends JavaPlugin{
 		// All in HelpStatement class
 		if (cmd.getName().equalsIgnoreCase("help") || cmd.getName().equalsIgnoreCase("?")) {
 			if (sender instanceof Player)
-				return HelpLink.commandHelp(sender,args);
+				return HelpLink.commandHelp(sender, label, args);
 			else
 				sender.sendMessage("You're a console. you know what to do!");
 				return true;
@@ -201,7 +198,7 @@ public class ArcaneSurvival extends JavaPlugin{
 			if (sender.hasPermission("bukkit.command.gamemode") || sender.hasPermission("minecraft.command.gamemode")) {
 				return ((Player)sender).performCommand("gamemode " + label.charAt(1));
 			} else {
-				sendNoPermission(sender);
+				ArcaneCommons.sendNoPermission(sender);
 				return true;
 			}
 		}
