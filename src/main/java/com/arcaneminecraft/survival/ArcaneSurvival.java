@@ -1,6 +1,7 @@
 package com.arcaneminecraft.survival;
 
 import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -10,6 +11,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.FireworkEffect.Type;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Firework;
@@ -18,13 +20,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.arcaneminecraft.ArcaneCommons;
 
 public class ArcaneSurvival extends JavaPlugin{
-	static final String VERSION = "2.0.0-SNAPSHOT";
-	
 	private static final String RED = ChatColor.RED + "";
 	private static final String GRAY = ChatColor.GRAY + "";
 	private static final String WHITE = ChatColor.WHITE + "";
@@ -35,18 +36,24 @@ public class ArcaneSurvival extends JavaPlugin{
 	@Override
 	public void onEnable() {
 		getServer().getPluginManager().registerEvents(new ArcaneEvents(), this);
-		getServer().getLogger().info("ArcaneSurvival has been loaded!");
 	}
 
 	@Override
 	public void onDisable() {
-		getServer().getLogger().info("ArcaneSurvival is disabled.");
 	}
 	
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (cmd.getName().equalsIgnoreCase("arcanesurvival")) {
-			sender.sendMessage(ArcaneCommons.tag(" Version " + VERSION));
+			sender.sendMessage(ArcaneCommons.tag(this.getDescription().getFullName()));
+			// Get versions from other plugins as well
+			PluginManager plm = getServer().getPluginManager();
+			if (plm.isPluginEnabled("ArcaneChatUtils"))
+				sender.sendMessage(ArcaneCommons.tag(plm.getPlugin("ArcaneChatUtils").getDescription().getFullName()));
+			if (plm.isPluginEnabled("ArcaneDonor"))
+				sender.sendMessage(ArcaneCommons.tag(plm.getPlugin("ArcaneDonor").getDescription().getFullName()));
+			if (sender.hasPermission("arcane.mod") && plm.isPluginEnabled("ArcaneModeration"))
+				sender.sendMessage(ArcaneCommons.tag(plm.getPlugin("ArcaneModeration").getDescription().getFullName()));
 			return true;
 		}
 		
@@ -147,6 +154,66 @@ public class ArcaneSurvival extends JavaPlugin{
 
 		}
 
+		// seen, seenf, fseen
+		if (cmd.getName().equalsIgnoreCase("seen")) {
+			if (label.equals("seen")) {
+				if (args.length == 1) {
+					Player pTarget = getServer().getPlayer(args[0]);
+					if (pTarget != null) {
+						sender.sendMessage(ChatColor.GOLD + "Player " + ChatColor.WHITE
+								+ pTarget.getDisplayName() + ChatColor.GOLD + " is currently online.");
+						return true;
+					}
+					@SuppressWarnings("deprecation")
+					OfflinePlayer target = this.getServer().getOfflinePlayer(args[0]);
+					long lastseen = target.getLastPlayed();
+					if (lastseen == 0) {
+						sender.sendMessage(ChatColor.GOLD + "Player " + ChatColor.WHITE + "'" + args[0]
+								+ "'" + (Object) ChatColor.GOLD + " not found.");
+						return true;
+					}
+					String strDte = getCurrentDTG(lastseen);
+					sender.sendMessage((Object) ChatColor.GOLD + "Player " + (Object) ChatColor.WHITE + target.getName()
+							+ (Object) ChatColor.GOLD + " Last seen: " + (Object) ChatColor.WHITE + strDte);
+					return true;
+				}
+			return true;
+			}
+			if (args.length == 0) {
+				long firstseen = ((Player)sender).getFirstPlayed();
+				String strDte = getCurrentDTG(firstseen);
+				sender.sendMessage(
+						(Object) ChatColor.GOLD + "You first logged in: " + (Object) ChatColor.WHITE + strDte);
+				return true;
+			}
+			if (args.length == 1) {
+				Player targeton = this.getServer().getPlayer(args[0]);
+				if (targeton == null) {
+					@SuppressWarnings("deprecation")
+					OfflinePlayer target = this.getServer().getOfflinePlayer(args[0]);
+					long firstseen = target.getFirstPlayed();
+					if (firstseen == 0) {
+						sender.sendMessage((Object) ChatColor.GOLD + "Player " + (Object) ChatColor.WHITE + "'"
+								+ args[0] + "'" + (Object) ChatColor.GOLD + " not found.");
+						return true;
+					}
+					String strDte = getCurrentDTG(firstseen);
+					sender.sendMessage((Object) ChatColor.GOLD + "Player " + (Object) ChatColor.WHITE + target.getName()
+							+ (Object) ChatColor.GOLD + " first logged in: " + (Object) ChatColor.WHITE + strDte);
+				} else {
+					long firstseen = targeton.getFirstPlayed();
+					String strDte = getCurrentDTG(firstseen);
+					sender.sendMessage((Object) ChatColor.GOLD + "Player " + (Object) ChatColor.WHITE
+							+ targeton.getName() + (Object) ChatColor.GOLD + " first logged in: "
+							+ (Object) ChatColor.WHITE + strDte);
+				}
+				return true;
+			}
+		}		
+		
+		
+		
+		
 		// Surpress /tell
 		// TODO: Move this to the messaging plugin
 		if(cmd.getName().equalsIgnoreCase("tell")) {
@@ -234,4 +301,12 @@ public class ArcaneSurvival extends JavaPlugin{
 						+ " has joined Arcane for the first time.");
 		}
 	}
+	
+	// for /seen, temporary
+    public static String getCurrentDTG(long l_time) {
+        java.sql.Date date = new java.sql.Date(l_time);
+        SimpleDateFormat dtgFormat = new SimpleDateFormat("hh:mm:ss 'on' MMMM dd yyyy");
+        return dtgFormat.format(date);
+    }
+
 }

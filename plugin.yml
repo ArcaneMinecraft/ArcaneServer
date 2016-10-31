@@ -19,7 +19,7 @@ commands:
     aliases: [graylist]
     description: Greylist command
   help:
-    aliases: [?]
+    aliases: ["?"]
     description: Arcane help
     usage: /help
   links:
