@@ -14,8 +14,9 @@ public class HelpLink {
 	// Main function; filter it
 	static boolean commandHelp(CommandSender sender, String label, String args[]) {
 		// Default
-		if (args.length == 0)
+		if (args.length == 0) {
 			return ArcaneCommons.sendCommandMenu(sender, "General Help", HELP, label, null, 1);
+        }
 		
 		// if numeric
 		if (StringUtils.isNumeric(args[0])) {
@@ -99,38 +100,50 @@ public class HelpLink {
 				{"spawn","return to the spawn","/spawn [old | new]"},
 				{"home","return to your home","/home [name]"},
 				{"sethome","set your home","/sethome [name]"},
-				{"tps","check ticks per second"},
 				{"kill","temporary ends your suffering just to revive you"},
+				{"afk","mark yourself as afk"},
 				{"pvp","toggle PvP combat"},
 			},
-			{	
-				{"msg","message an online player","Alias:\n/m"},
-				{"reply","reply to a recently messaged person","Alias:\n/r"},
-				{"local","local chat","Alias:\n/l"},
-				{"ltoggle","toggle local chat"},
-				{"seen","seen commands","/seen\n/seenf"},
-				{"afk","mark yourself as afk"},
-				{"list","lists online players"}
+			{
+				{"seen","gets last logoff date","/seen [player]"},
+				{"seenf","gets first logged on date","/seenf [player]\nAlias:\n /fseen"},
+				{"list","lists online players"},
+				{"tps","check server ticks per second"},
+				{"username", "an advanced username command"},
+				{"links","links to arcane sites"},
+				{"donors", "list of donor commands", "Alias:\n /donor"}
 			},
 			{
-				{"links","links to arcane sites"},
-				{"username", "an advanced username command"},
-				{"donors", "list of donor commands", "Alias:\n/donor"},
-				{"help lwc", "chest/door protection help"},
-				{"help donor", "donor help", "Alias:\n/donors", "arcane.donor"},
-				{"help chatmod", "chat moderator help", "Alias:\n/help chatmods", "arcane.chatmod"},
-				{"help mod", "moderator help", "Alias:\n/help mods", "arcane.mod"}
+				{"help message","message commands","Alias:\n /help msg"},
+				{"help lwc", "chest/door protection help","More help:\n /lwc"},
+				{"help donor", "donor help", "Alias:\n /help donors", "arcane.donor"},
+				{"help chatmod", "chat moderator help", "Alias:\n /help chatmods", "arcane.chatmod"},
+				{"help mod", "moderator help", "Alias:\n /help mods", "arcane.mod"}
+			}
+	};
+	private static final String MESSAGE[][][] = {
+			{
+				{"msg","message an online player","/msg <player> <message>\nAlias:\n /m"},
+				{"reply","reply to a recently messaged person","/reply <message>\nAlias:\n /r"},
+				{"local","local chat","/l <message>\nAlias:\n /l"},
+				{"ltoggle","toggle local chat"},
+				{"a","admin chat","/a <message>","arcane.mod"},
+				{"atoggle","toggle admin chat",null,"arcane.mod"}
 			}
 	};
 	private static final String LWC[][][] = {
 			{
+				{"cinfo","view info on a protection"},
 				{"cprivate","create a private protection","/cprivate [player]"},
-				{"cdonation","create a public protection","/cdonation [player]"},
+				{"Every chests are locked using this by default."},
+				{"cdonation","create a donation protection","/cdonation [player]"},
 				{"cpublic","create a public protection"},
 				{"cmodify","add or remove a player to a protection","/cmodify [-player|player]"},
-				{"cremove","remove a protection"},
-				{"chopper","grant hoppers chest access","/chopper [on|off]"},
-				{"cinfo","view info on a protection"}
+				{"cremove","remove a protection"}
+			},
+			{
+				{"chopper","changes chest access for hoppers","/chopper [on|off]"},
+				{"lwc","official LWC help"}
 			}
 	};
 	private static final String DONOR[][][] = {
@@ -158,20 +171,22 @@ public class HelpLink {
 				{"tempban","temporary ban a player","/tempban <player> <reason>"},
 				{"unban","pardon a player","/unban <player>"},
 				{"frz","freeze a player" + ChatColor.RED + ChatColor.ITALIC + " Agent's favorite, Simon hates this!","/frz <player>"},
-				{"tp","teleport to a player or location"},
-				{"supervanish","vanish toggle","Alias:\n/sv"},
+				{"a","admin chat","/a <message>"},
+				{"atoggle","toggle admin chat"}
 			},
 			{
+				{"supervanish","vanish toggle","Alias:\n/sv"},
+				{"tp","teleport to a player or location"},
 				{"openinv","open a player's inventory","Alias:\n/open\n/inv\noi"},
 				{"openender","open a player's Ender chest","Alias:\n/oe"},
 				{"coreprotect i","enable the inspection wand","Alias:\n/co i"},
-				{"coreprotect","CoreProtect help","Alias:\n/co"},
 				{"whitelist","whitelist help"},
-				{"restart","restart the server","This has slight chance of failing.\nPlease make sure an admin is semi-around in case\nthe restart fails."},
-				{"ultraban","super special command" + ChatColor.RED + ChatColor.ITALIC + " in development! Don't use!"},
+				{"restart","restart the server","This has slight chance of failing.\nPlease make sure an admin is semi-around in case\nthe restart fails."}
 			},
 			{
-				{"help chatmod", "More moderation help", "Alias:\n/help chatmods"},
+				{"ultraban","super special command" + ChatColor.RED + ChatColor.ITALIC + " in development! Don't use!"},
+				{"coreprotect","official CoreProtect help","Alias:\n/co"},
+				{"help chatmod", "More moderation help", "Alias:\n/help chatmods"}
 			}
 	};
 }

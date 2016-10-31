@@ -10,31 +10,48 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
 public class ArcaneCommons {
-	public String TAG = ChatColor.GOLD + "[Arcane]" + ChatColor.GRAY;
+	public static final String TAG = ChatColor.GOLD + "[Arcane]" + ChatColor.GRAY;
 	
-	public void setTag(String tag) {
-		TAG = ChatColor.GOLD + "[" + tag + "]" + ChatColor.GRAY;
-	}
-	
-	public void getTag() {
-		
-	}
-	
+	/**
+	 * Message with a generic tag
+	 * @return
+	 */
 	public String taggedMessage(String message) {
-		
 		return TAG + message;
 	}
-	public String noConsoleMessage() {
-		return TAG + " This cannot be run on the console.";
-	}
-	public String noPermissionMessage() {
+
+	/**
+	 * Generic no permission message
+	 * @return
+	 */
+	public static String noPermissionMessage() {
 		return TAG + " You do not have permission to do that.";
 	}
-	public String noPermissionMessage(String label) {
-		return TAG + " You do not have permission to run " + label + ".";
+	/**
+	 * Generic no permission message containing command.
+	 * @param cLabel
+	 * @return
+	 */
+	public static String noPermissionMessage(String cLabel) {
+		return TAG + " You do not have permission to run \"/" + cLabel + "\".";
 	}
-	public String noPermissionMessage(String label, String subcommand) {
-		return TAG + " You do not have permission to use " + subcommand + " in " + label + " command.";
+	/**
+	 * Generic no permission message with arguments.
+	 * @param cLabel
+	 * @param subcommand
+	 * @return
+	 */
+	public static String noPermissionMessage(String cLabel, String subcommand) {
+		return TAG + " You do not have permission to use \""
+				+ subcommand + "\" in \"/" + cLabel + "\".";
+	}
+	
+	/**
+	 * Returns a "no-console" message
+	 * @return
+	 */
+	public static String noConsoleMessage() {
+		return TAG + " You must be a player.";
 	}
 
 	/**
