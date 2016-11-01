@@ -91,7 +91,11 @@ public class ArcaneCommons {
 	 *     Tooltip menu or URL,
 	 *     Permission required
 	 * }
-	 * The first two fields are mandatory. To skip third or fourth index, use null.
+	 * OR
+	 * {
+	 *     A sentence string
+	 * }
+	 * The first field is mandatory. To skip third or fourth index, use null.
 	 *  
 	 * @param label - Command used to call help. 
 	 * @param subcmd - Sub-command used to call help. 
@@ -117,15 +121,19 @@ public class ArcaneCommons {
 	 *     Tooltip menu or URL,
 	 *     Permission required
 	 * }
+	 * OR
+	 * {
+	 *     A sentence string
+	 * }
 	 * The first two fields are mandatory. To skip third or fourth index, use null.
 	 *  
 	 * @param footerData - 1-dimensional array:
 	 * {
 	 *     Head,
 	 *     Description,
-	 *     Link
+	 *     Link/Command/Tooltip
 	 * }
-	 * The first two fields are mandatory.
+	 * The first field is mandatory.
 	 * 
 	 * @return true all the time to aid in quick return.
 	 */
@@ -209,14 +217,21 @@ public class ArcaneCommons {
 			}
 		} else {
 			TextComponent mw = new TextComponent(ChatColor.GOLD + fData[0] + ": " + ChatColor.GRAY + fData[1]);
-			// If first argument is a link
+			// If second argument is a link
 			if (fData[1].startsWith("http"))
 				mw.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL
 						, fData[1]));
-			// If has second argument
-			if (fData.length > 2)
-				mw.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL
-						, fData[2]));
+			// If has third argument
+			if (fData.length > 2) {
+				if (fData[2].startsWith("http"))
+					mw.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL
+							, fData[2]));
+				else if (fData[2].startsWith("/"))
+					mw.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND
+							, fData[2]));
+				mw.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT
+						, new ComponentBuilder(fData[2]).create()));
+			}
 			ft.addExtra(mw);
 		}
 		

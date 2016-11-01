@@ -1,9 +1,10 @@
 name: ArcaneSurvival
 version: 2.0.0-SNAPSHOT
-description: Arcane Survival Essentials
 authors: [Agentred100, Jugglingman456, SimonOrJ]
-website: https://arcaneminecraft.com/
+description: Arcane Survival Essentials
 main: com.arcaneminecraft.survival.ArcaneSurvival
+website: https://arcaneminecraft.com/
+
 load: STARTUP
 
 commands:
