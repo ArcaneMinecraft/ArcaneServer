@@ -55,14 +55,18 @@ permissions:
     description: Arcane Chatmod.
   arcane.homes:
     description: Arcane extra home donor.
+    default: op
   arcane.donor:
     description: Arcane donor.
+    default: op
   arcane.trusted:
     description: Arcane greylisted players.
+    default: op
     children:
       arcane.new: false
   arcane.new:
     description: Arcane 'new' player permission
-    default: true
+    default: not op
   arcane.f:
     description: fireworks
+    default: op

@@ -40,10 +40,6 @@ public class ArcaneSurvival extends JavaPlugin{
 	}
 
 	@Override
-	public void onDisable() {
-	}
-	
-	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (cmd.getName().equalsIgnoreCase("arcanesurvival")) {
 			sender.sendMessage(ArcaneCommons.tag(this.getDescription().getFullName()));
@@ -165,7 +161,7 @@ public class ArcaneSurvival extends JavaPlugin{
 								+ pTarget.getDisplayName() + ChatColor.GOLD + " is currently online.");
 						return true;
 					}
-					@SuppressWarnings("deprecation")
+					@SuppressWarnings("deprecation") // getOfflinePlayer is deprecated
 					OfflinePlayer target = this.getServer().getOfflinePlayer(args[0]);
 					long lastseen = target.getLastPlayed();
 					if (lastseen == 0) {
@@ -308,7 +304,7 @@ public class ArcaneSurvival extends JavaPlugin{
 			// First join message
 			if (!p.hasPlayedBefore())
 				Bukkit.broadcastMessage(YELLOW + p.getName()
-						+ " has joined Arcane for the first time.");
+						+ " has joined Arcane for the first time");
 		}
 	}
 	

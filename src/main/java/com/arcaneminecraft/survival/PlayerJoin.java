@@ -8,11 +8,13 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
 final class PlayerJoin {
-	public static final String HR = ChatColor.STRIKETHROUGH + StringUtils.repeat(" ", 23);
+	public static final String HR = StringUtils.repeat(" ", 23);
 	
 	static final boolean sendWelcomeMessage(Player p) {
 		p.sendMessage("");
-		p.sendMessage(ChatColor.GRAY + HR + ChatColor.RESET + ChatColor.GOLD + ChatColor.BOLD + " Arcane Survival " + ChatColor.GRAY + HR);
+		p.sendMessage(ChatColor.GRAY.toString() + ChatColor.STRIKETHROUGH + HR
+				+ ChatColor.RESET + ChatColor.GOLD + ChatColor.BOLD + " Arcane Survival "
+				+ ChatColor.RESET + ChatColor.GRAY + ChatColor.STRIKETHROUGH + HR);
 	    p.sendMessage("");
 	    
 	    // help
@@ -31,10 +33,10 @@ final class PlayerJoin {
 	    p.spigot().sendMessage(help);
 	    
 	    // Website
-	    TextComponent website = new TextComponent("     ");
-	    a = new TextComponent("     Visit our website at ");
+	    TextComponent website = new TextComponent("       ");
+	    a = new TextComponent("Visit our website at ");
 	    a.setColor(ChatColor.WHITE);
-	    b = new TextComponent("https://arcaneminecraft.com");
+	    b = new TextComponent("https://arcaneminecraft.com/");
 	    b.setColor(ChatColor.GOLD);
 	    a.addExtra(b);
 	    b = new TextComponent("!");
@@ -45,22 +47,20 @@ final class PlayerJoin {
 	    p.spigot().sendMessage(website);
 	    
 	    p.sendMessage("");
-	    p.sendMessage(ChatColor.GRAY + HR + HR + HR);
+	    p.sendMessage(ChatColor.GRAY.toString() 
+	    		+ ChatColor.STRIKETHROUGH + "    " + HR + HR + HR);
 	    p.sendMessage("");
 	    return true;
 	}
 	
 	static final boolean sendUnlistedMessage(Player p) {
-		String tag = ChatColor.RED + " [Notice] " + ChatColor.GRAY;
+		p.sendMessage(ChatColor.RED + "[Notice] " + ChatColor.GRAY + ChatColor.DARK_RED + "You do not have build permissions!");
+		p.sendMessage(ChatColor.DARK_RED + "> " + ChatColor.GRAY + "You can ask a staff member for approval in the chat.");
 		
-		p.sendMessage(tag + ChatColor.DARK_RED + "You do not have build permissions!");
-		p.sendMessage("");
-		p.sendMessage(tag + "You can ask a staff member for approval in the chat.");
-		
-		TextComponent apply = new TextComponent(TextComponent.fromLegacyText(tag));
-		TextComponent a = new TextComponent(TextComponent.fromLegacyText(ChatColor.GRAY + "Otherwise, you can type " + ChatColor.GREEN + "/apply" + ChatColor.GRAY + " to apply via our application."));
-		a.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND,"/apply"));
-		apply.addExtra(a);
+		TextComponent apply = new TextComponent(TextComponent.fromLegacyText(
+				ChatColor.DARK_RED + "> " + ChatColor.GRAY + "Otherwise, type " + ChatColor.GREEN + "/apply" + ChatColor.GRAY + " to apply via our application."
+				));
+		apply.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND,"/apply"));
 		p.spigot().sendMessage(apply);
 		
 		p.sendMessage("");
