@@ -20,7 +20,7 @@ public class ArcaneCommons {
 	
 	/**
 	 * Message with a generic tag
-	 * @return
+	 * @return tag
 	 */
 	public static String tag() {
 		return TAG;
@@ -28,8 +28,8 @@ public class ArcaneCommons {
 	
 	/**
 	 * Message with a generic tag
-	 * @param message - Message to send
-	 * @return
+	 * @param message - Message to send with the tag. Default color is gray.
+	 * @return String of the message
 	 */
 	public static String tag(String message) {
 		return TAG + " " + ChatColor.GRAY + message;
@@ -37,8 +37,8 @@ public class ArcaneCommons {
 	/**
 	 * Message with a generic tag
 	 * @param tag - Tag to be formatted (don't insert brackets)
-	 * @param message - Message to send
-	 * @return
+	 * @param message - Message to send. Default color is gray.
+	 * @return String of the message
 	 */
 	public static String tag(String tag, String message) {
 		return ChatColor.GOLD + "[" + tag + "] " + ChatColor.GRAY + message;
@@ -79,7 +79,9 @@ public class ArcaneCommons {
 	}
 
 	/**
-	 * Sends a formatted command list with multiple pages.
+	 * Sends a formatted command list with multiple pages.  This is
+	 * unconventional in a way that it doesn't return the string to send to the
+	 * player, but sends the strings for you. (since it's a multi-line message).
 	 * 
 	 * @param sender - the sender as shown exactly in CommandSender.
 	 * @param header - Custom string to use for help heading.
@@ -109,7 +111,10 @@ public class ArcaneCommons {
 	}
 	
 	/**
-	 * Sends a formatted command list in a single page.
+	 * Sends a formatted command list with a single page.  This is
+	 * unconventional in a way that it doesn't return the string to send to the
+	 * player, but sends the strings for you. (since it's a multi-line message).
+	 * 
 	 * 
 	 * @param sender - the sender as shown exactly in CommandSender.
 	 * @param header - Custom string to use for help heading.

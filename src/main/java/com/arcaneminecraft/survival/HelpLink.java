@@ -10,7 +10,7 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
-public class HelpLink {
+final class HelpLink {
 	// Main function; filter it
 	static boolean commandHelp(CommandSender sender, String label, String args[]) {
 		// Default

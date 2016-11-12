@@ -17,6 +17,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.meta.FireworkMeta;
@@ -293,11 +294,20 @@ public class ArcaneSurvival extends JavaPlugin{
 	}
 	
 	public final class ArcaneEvents implements Listener {
-		@EventHandler
-		public void newPlayerJoin(PlayerJoinEvent e) {
-			Player player = e.getPlayer();
-			if (!player.hasPlayedBefore())
-				Bukkit.broadcastMessage(YELLOW + player.getName()
+		// Low priority for this; normal for donor, high for mod
+		@EventHandler (priority=EventPriority.LOW)
+		public void playerJoin(PlayerJoinEvent e) {
+			Player p = e.getPlayer();
+			// Send Join Message
+			PlayerJoin.sendWelcomeMessage(p);
+			
+			// Send non-greylisted message
+			if (p.hasPermission("arcane.new"))
+				PlayerJoin.sendUnlistedMessage(p);
+			
+			// First join message
+			if (!p.hasPlayedBefore())
+				Bukkit.broadcastMessage(YELLOW + p.getName()
 						+ " has joined Arcane for the first time.");
 		}
 	}
