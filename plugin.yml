@@ -1,19 +1,26 @@
 name: ArcaneSurvival
-version: 0.1.0-SNAPSHOT
-main: com.arcaneminecraft.survival.ArcaneSurvival
-description: Arcane Survival Essentials
+version: 2.0.0-SNAPSHOT
 authors: [Agentred100, Jugglingman456, SimonOrJ]
+description: Arcane Survival Essentials
+main: com.arcaneminecraft.survival.ArcaneSurvival
+website: https://arcaneminecraft.com/
+
+load: STARTUP
+
 commands:
   apply:
     description: Display the application link.
   arcanesurvival:
     aliases: [arc, arcane]
     description: Arcane help
+  g0:
+    aliases: [g1, g2, g3]
+    description: Admin command; change gamemode
   greylist:
     aliases: [graylist]
     description: Greylist command
   help:
-    aliases: [?]
+    aliases: ["?"]
     description: Arcane help
     usage: /help
   links:
@@ -21,32 +28,45 @@ commands:
     description: Command that displays Arcane links
   list:
     description: Display a list of online users.
+  seen:
+    aliases: [seenf,fseen]
+    description: Check player join date and time.
   tell:
     usage: /msg <player> <message>
     description: msg command redirect
   username:
     description: Display your username!
   f:
-    description: Admin command
-  g0:
-    aliases: [g1, g2, g3]
-    description: Admin command; change gamemode
+    description: Fireworks (Arcane's first anniversity command)
   doge:
     description: Doge command
 
 permissions:
-  new:
-    description: Arcane 'new' player permission
-    default: true
+  arcane.admin:
+    description: Arcane Administrator.
+    children:
+      arcane.mod: true
+      arcane.chatmod: true
   arcane.mod:
     description: Arcane Moderator.
+    children:
+      arcane.chatmod: true
   arcane.chatmod:
     description: Arcane Chatmod.
-  arcane.trusted:
-    description: Arcane greylisted players.
-  arcane.f:
-    description: fireworks
-  arcane.donor:
-    description: Arcane donor.
   arcane.homes:
     description: Arcane extra home donor.
+    default: op
+  arcane.donor:
+    description: Arcane donor.
+    default: op
+  arcane.trusted:
+    description: Arcane greylisted players.
+    default: op
+    children:
+      arcane.new: false
+  arcane.new:
+    description: Arcane 'new' player permission
+    default: not op
+  arcane.f:
+    description: fireworks
+    default: op
