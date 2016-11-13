@@ -26,7 +26,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.arcaneminecraft.ArcaneCommons;
 
-public class ArcaneSurvival extends JavaPlugin{
+public final class ArcaneSurvival extends JavaPlugin{
 	private static final String RED = ChatColor.RED + "";
 	private static final String GRAY = ChatColor.GRAY + "";
 	private static final String WHITE = ChatColor.WHITE + "";
@@ -37,6 +37,7 @@ public class ArcaneSurvival extends JavaPlugin{
 	@Override
 	public void onEnable() {
 		getServer().getPluginManager().registerEvents(new ArcaneEvents(), this);
+		getServer().getPluginManager().registerEvents(new ArcAFK(this), this);
 	}
 
 	@Override
@@ -90,7 +91,7 @@ public class ArcaneSurvival extends JavaPlugin{
 		// Changes gamemode. This is pretty awesome.
 		// g0, g1, g2, g3
 		if (cmd.getName().equalsIgnoreCase("g0")) {
-			if (sender.hasPermission("arcane.admin") || sender.hasPermission("bukkit.command.gamemode") || sender.hasPermission("minecraft.command.gamemode")) {
+			if (sender.hasPermission("arcane.admin") || sender.hasPermission("minecraft.command.gamemode")) {
 				return ((Player)sender).performCommand("gamemode " + label.charAt(1));
 			} else {
 				sender.sendMessage(ArcaneCommons.noPermissionMsg(label));
