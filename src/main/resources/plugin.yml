@@ -32,6 +32,10 @@ commands:
     description: Command that displays Arcane links
   list:
     description: Display a list of online users.
+  badge:
+    aliases: [nt, b, bt]
+    description: Badge controls.
+    usage: /badge <toggle|set|clear> [prefix|player] [player]
   seen:
     aliases: [seenf,fseen]
     description: Check player join date and time.

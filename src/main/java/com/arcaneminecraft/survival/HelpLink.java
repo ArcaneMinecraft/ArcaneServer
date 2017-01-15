@@ -1,18 +1,32 @@
 package com.arcaneminecraft.survival;
 
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
+import org.bukkit.ChatColor;
 
 import com.arcaneminecraft.ArcaneCommons;
 
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.TextComponent;
-
-final class HelpLink {
+final class HelpLink implements CommandExecutor {
+	
+	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+		// All in HelpLink class
+		if (cmd.getName().equalsIgnoreCase("help")) {
+			return commandHelp(sender, label, args);
+		}
+		
+		// HelpLink class as well. This is a super-command.
+		// links, link, website, map, forum, discord, mumble, donate
+		if (cmd.getName().equalsIgnoreCase("links")) {
+			return HelpLink.commandLink(sender);
+		}
+		
+		return false;
+	}
+	
 	// Main function; filter it
-	static boolean commandHelp(CommandSender sender, String label, String args[]) {
+	private boolean commandHelp(CommandSender sender, String label, String args[]) {
 		// Default
 		if (args.length == 0) {
 			return ArcaneCommons.sendCommandMenu(sender, "General Help", HELP, label, null, 1);
@@ -63,32 +77,14 @@ final class HelpLink {
 	// Function for getting links
 	static boolean commandLink(CommandSender sender) {
 		String footerData[] = {"Main Website", "https://arcaneminecraft.com/"};
-		return ArcaneCommons.sendCommandMenu(sender, "Arcane Links", LINK, footerData);
-	}
-	
-	static boolean commandSingleLink(CommandSender sender, String label) {
-		if (!(sender instanceof Player))
-			return false;
-		for (String[] ls : LINK) {
-			if (ls[0].equals(label.toLowerCase())) {
-				TextComponent ret = new TextComponent(ArcaneCommons.tag() + " ");
-				TextComponent ln = new TextComponent(ls[2]);
-				ln.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL
-						, ls[1]));
-				ret.addExtra(ln);
-				((Player)sender).spigot().sendMessage(ret);
-				return true;
-			}
-		}
-			
-		return false;
+		return ArcaneCommons.sendListMenu(sender, "Arcane Links", LINK, footerData);
 	}
 	
 	private static final String LINK[][] = {
-			{"map","https://arcaneminecraft.com/dynmap/",ChatColor.GRAY + "Click here to view our " + ChatColor.WHITE + "Dynmap" + ChatColor.GRAY + "."},
-			{"discord","https://arcaneminecraft.com/discord/",ChatColor.GRAY + "Click here for our " + ChatColor.WHITE + "Discord" + ChatColor.GRAY + " invite link."},
-			{"forum","https://arcaneminecraft.com/forum/",ChatColor.GRAY + "Click here to visit our " + ChatColor.WHITE + "forum" + ChatColor.GRAY + "."},
-			{"donate","https://arcaneminecraft.com/donate/",ChatColor.GRAY + "To " + ChatColor.WHITE + "donate" + ChatColor.GRAY + " to the Arcane, click here."}
+			{"Dynmap","https://arcaneminecraft.com/dynmap/"},
+			{"Discord","https://arcaneminecraft.com/discord/"},
+			{"Forum","https://arcaneminecraft.com/forum/"},
+			{"Donation","https://arcaneminecraft.com/donate/"}
 	};
 	
 	// Seven commands per page.

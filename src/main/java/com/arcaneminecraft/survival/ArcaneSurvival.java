@@ -19,6 +19,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.plugin.PluginManager;
@@ -26,22 +27,29 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.arcaneminecraft.ArcaneCommons;
 
-public final class ArcaneSurvival extends JavaPlugin{
-	private static final String RED = ChatColor.RED + "";
-	private static final String GRAY = ChatColor.GRAY + "";
-	private static final String WHITE = ChatColor.WHITE + "";
-	private static final String YELLOW = ChatColor.YELLOW + "";
-	private static final String GOLD = ChatColor.GOLD + "";
-	private static final String bold = ChatColor.BOLD + "";
+public final class ArcaneSurvival extends JavaPlugin {
+	private Badge badge;
 	
 	@Override
 	public void onEnable() {
+		this.saveDefaultConfig();
+		
+		HelpLink hl = new HelpLink();
+		badge = new Badge(this);
+		
+		getCommand("help").setExecutor(hl);
+		getCommand("link").setExecutor(hl);
+		getCommand("badge").setExecutor(badge);
+		
+		
 		getServer().getPluginManager().registerEvents(new ArcaneEvents(), this);
 		getServer().getPluginManager().registerEvents(new ArcAFK(this), this);
 	}
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+		
+		// Informational command
 		if (cmd.getName().equalsIgnoreCase("arcanesurvival")) {
 			sender.sendMessage(ArcaneCommons.tag(this.getDescription().getFullName()));
 			// Get versions from other plugins as well
@@ -50,40 +58,15 @@ public final class ArcaneSurvival extends JavaPlugin{
 				sender.sendMessage(ArcaneCommons.tag(plm.getPlugin("ArcaneChatUtils").getDescription().getFullName()));
 			if (plm.isPluginEnabled("ArcaneDonor"))
 				sender.sendMessage(ArcaneCommons.tag(plm.getPlugin("ArcaneDonor").getDescription().getFullName()));
-			if (sender.hasPermission("arcane.mod") && plm.isPluginEnabled("ArcaneModeration"))
-				sender.sendMessage(ArcaneCommons.tag(plm.getPlugin("ArcaneModeration").getDescription().getFullName()));
 			return true;
 		}
 		
-		// All in HelpLink class
-		if (cmd.getName().equalsIgnoreCase("help")) {
-			if (sender instanceof Player)
-				return HelpLink.commandHelp(sender, label, args);
-			sender.sendMessage(ArcaneCommons.noConsoleMsg());
-			sender.sendMessage("You're a console. you know what to do!");
-			return true;
-		}
-		
-		// HelpLink class as well. This is a super-command.
-		// links, link, website, map, forum, discord, mumble, donate
-		if (cmd.getName().equalsIgnoreCase("links")) {
-			// check String label || catch console
-			if (label.equalsIgnoreCase("links") || !(sender instanceof Player))
-				return HelpLink.commandLink(sender);
-			// Backward compatibility
-			if (label.equalsIgnoreCase("mumble"))
-				label = "discord";
-			if (HelpLink.commandSingleLink(sender, label))
-				return true;
-			return HelpLink.commandLink(sender);
-		}
-
 		// apply
 		if (cmd.getName().equalsIgnoreCase("apply")) {
 			sender.sendMessage("");
-			sender.sendMessage(GOLD + "           Click here to apply for build rights:");
+			sender.sendMessage(ChatColor.GOLD + "           Click here to apply for build rights:");
 			sender.sendMessage("");
-			sender.sendMessage(WHITE + "           https://arcaneminecraft.com/apply/");
+			sender.sendMessage(ChatColor.WHITE + "           https://arcaneminecraft.com/apply/");
 			sender.sendMessage("");
 			return true;
 		}
@@ -123,7 +106,7 @@ public final class ArcaneSurvival extends JavaPlugin{
 				sender.sendMessage(ArcaneCommons.tag("You are on the greylist!"));
 			
 			else {
-				sender.sendMessage(ArcaneCommons.tag("You are " + RED + "not" + GRAY + " on the greylist!"));
+				sender.sendMessage(ArcaneCommons.tag("You are " + ChatColor.RED + "not" + ChatColor.GRAY + " on the greylist!"));
 				sender.sendMessage(ArcaneCommons.tag("Apply for greylist using the /apply command, then talk with a staff member to become greylisted."));
 			}
 
@@ -141,7 +124,7 @@ public final class ArcaneSurvival extends JavaPlugin{
 			}
 
 			if (sender instanceof Player) {
-				sender.sendMessage(GOLD + " Online players: " + ChatColor.RESET
+				sender.sendMessage(ChatColor.GOLD + " Online players: " + ChatColor.RESET
 						+ Bukkit.getServer().getOnlinePlayers().size() + "/" + Bukkit.getMaxPlayers());
 				sender.sendMessage(" " + players.toString());
 			}
@@ -231,14 +214,14 @@ public final class ArcaneSurvival extends JavaPlugin{
 			Random randy = new Random();
 			List<String> List = new ArrayList<String>();
 
-			List.add(GRAY + "It looks like your username is " + name + ".");
-			List.add(GRAY + "Your username is " + name + ".");
-			List.add(GRAY + "Your username is not Agentred100.");
-			List.add(GRAY + "Username: " + name + ".");
-			List.add(RED + "[Username] " + GRAY + name + ".");
-			List.add(GOLD + "[Username]" + GRAY + " At the moment, your username is " + name + ".");
-			List.add(GOLD + "YOUR USERNAME IS " + RED + name + ".");
-			List.add(GRAY + name);
+			List.add(ChatColor.GRAY + "It looks like your username is " + name + ".");
+			List.add(ChatColor.GRAY + "Your username is " + name + ".");
+			List.add(ChatColor.GRAY + "Your username is not Agentred100.");
+			List.add(ChatColor.GRAY + "Username: " + name + ".");
+			List.add(ChatColor.RED + "[Username] " + ChatColor.GRAY + name + ".");
+			List.add(ChatColor.GOLD + "[Username]" + ChatColor.GRAY + " At the moment, your username is " + name + ".");
+			List.add(ChatColor.GOLD + "YOUR USERNAME IS " + ChatColor.RED + name + ".");
+			List.add(ChatColor.GRAY + name);
 
 			String r = List.get(randy.nextInt(List.size()));
 
@@ -282,7 +265,7 @@ public final class ArcaneSurvival extends JavaPlugin{
 			}
 
 			if (sender.isOp()) {
-				sender.sendMessage(RED + bold + "dogecoins iz teh reals " + ((Player)sender).getExhaustion());
+				sender.sendMessage(ChatColor.RED.toString() + ChatColor.BOLD + "dogecoins iz teh reals " + ((Player)sender).getExhaustion());
 				return true;
 			}
 			return false;
@@ -304,8 +287,15 @@ public final class ArcaneSurvival extends JavaPlugin{
 			
 			// First join message
 			if (!p.hasPlayedBefore())
-				Bukkit.broadcastMessage(YELLOW + p.getName()
+				Bukkit.broadcastMessage(ChatColor.YELLOW + p.getName()
 						+ " has joined Arcane for the first time");
+		}
+		
+		@EventHandler (priority=EventPriority.HIGHEST)
+		public void PlayerChat(AsyncPlayerChatEvent e) {
+			// Badge
+			if (badge.isShown(e.getPlayer()))
+				e.setFormat(badge.getBadge(e.getPlayer()) + e.getFormat());
 		}
 	}
 	

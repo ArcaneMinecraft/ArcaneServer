@@ -107,7 +107,13 @@ public final class ArcaneCommons {
 	public static boolean sendCommandMenu(CommandSender sender, String header, String LIST[][][], String label, String subcmd, int page) {
 		String[] fData = {label, subcmd};
 		int a = page - 1;
-		return sendCmdMuCommon(sender, header, LIST[a], LIST, fData, a);
+		String[][] list;
+		// Catch out of bounds
+		if (a < LIST.length && a >= 0)
+			list = LIST[a];
+		else
+			list = new String[0][0];
+		return sendListCommon(sender, header, list, LIST, fData, a, true);
 	}
 	
 	/**
@@ -143,14 +149,21 @@ public final class ArcaneCommons {
 	 * @return true all the time to aid in quick return.
 	 */
 	public static boolean sendCommandMenu(CommandSender sender, String header, String LIST[][], String[] footerData) {
-		return sendCmdMuCommon(sender, header, LIST, null, footerData, 0);
+		return sendListCommon(sender, header, LIST, null, footerData, 0, true);
+	}
+	
+	/**
+	 * Same parameters, but lists "commands" in a list format.
+	 * @see sendCommandMenu()
+	 */
+	public static boolean sendListMenu(CommandSender sender, String header, String LIST[][], String[] footerData) {
+		return sendListCommon(sender, header, LIST, null, footerData, 0, false);
 	}
 
-	private static boolean sendCmdMuCommon(CommandSender sender, String header, String LIST[][], String PGLIST[][][], String fData[], int a) {
-		Player p = (Player)sender;
+	private static boolean sendListCommon(CommandSender sender, String header, String LIST[][], String PGLIST[][][], String fData[], int a, boolean isCommand) {
 		
 		// Heading
-		p.sendMessage("" + ChatColor.GRAY + ChatColor.BOLD + " ----- "
+		sender.sendMessage("" + ChatColor.GRAY + ChatColor.BOLD + " ----- "
 					+ ChatColor.GOLD + ChatColor.BOLD + header
 					+ ChatColor.GRAY + ChatColor.BOLD + " -----");
 		
@@ -170,10 +183,16 @@ public final class ArcaneCommons {
 				ret.addExtra(c);
 			} else {
 				// Multiple-index array (2 or 3, maybe 4)
-				TextComponent c = new TextComponent(ChatColor.GOLD + "/" + LIST[i][0]
+				TextComponent c = new TextComponent(ChatColor.GOLD
+						+ (isCommand ? "/" : "")
+						+ LIST[i][0]
 						+ ChatColor.DARK_GRAY + " - "
 						+ ChatColor.GRAY + LIST[i][1]);
-				if (LIST[i][1].startsWith("http")) {
+				if (isCommand) {
+					// command list
+					c.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND
+							, "/" + LIST[i][0] + " "));
+				} else if (LIST[i][1].startsWith("http")) {
 					// If URL in description
 					c.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL
 							, LIST[i][1]));
@@ -181,18 +200,18 @@ public final class ArcaneCommons {
 					// If URL in tooltip
 					c.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL
 							, LIST[i][2]));
-				} else {
-					// No URL
-					c.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND
-							, "/" + LIST[i][0] + " "));
 				}
+				
 				if (LIST[i].length > 2 && LIST[i][2] != null)
 					// If tooltip parameter exists 
 					c.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT
 							, new ComponentBuilder(LIST[i][2]).create()));
 				ret.addExtra(c);
 			}
-			p.spigot().sendMessage(ret);
+			if (sender instanceof Player)
+				((Player)sender).spigot().sendMessage(ret);
+			else
+				sender.sendMessage(ret.toPlainText());
 		}
 		
 		// Footer
@@ -240,7 +259,10 @@ public final class ArcaneCommons {
 			ft.addExtra(mw);
 		}
 		
-		p.spigot().sendMessage(ft);
+		if (sender instanceof Player)
+			((Player)sender).spigot().sendMessage(ft);
+		else
+			sender.sendMessage(ft.toPlainText());
 		return true;
 	}
 }
