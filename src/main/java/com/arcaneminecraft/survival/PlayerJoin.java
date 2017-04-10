@@ -3,6 +3,9 @@ package com.arcaneminecraft.survival;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.entity.Player;
 
+import com.arcaneminecraft.ArcaneCommons;
+import com.arcaneminecraft.ColorPalette;
+
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -13,21 +16,19 @@ final class PlayerJoin {
 	static final boolean sendWelcomeMessage(Player p) {
 		p.sendMessage("");
 		p.sendMessage(ChatColor.GRAY.toString() + ChatColor.STRIKETHROUGH + HR
-				+ ChatColor.RESET + ChatColor.GOLD + ChatColor.BOLD + " Arcane Survival "
+				+ ChatColor.RESET + ColorPalette.HEADING + ChatColor.BOLD + " Arcane Survival "
 				+ ChatColor.RESET + ChatColor.GRAY + ChatColor.STRIKETHROUGH + HR);
 	    p.sendMessage("");
 	    
 	    // help
 	    TextComponent help = new TextComponent("         ");
 	    TextComponent a = new TextComponent("You can type ");
-	    a.setColor(ChatColor.WHITE);
+	    a.setColor(ColorPalette.FOCUS);
 	    TextComponent b = new TextComponent("/help");
-	    b.setColor(ChatColor.GOLD);
+	    b.setColor(ColorPalette.HEADING);
 	    b.setBold(true);
 	    a.addExtra(b);
-	    b = new TextComponent(" for a list of commands.");
-	    b.setColor(ChatColor.WHITE);
-	    a.addExtra(b);
+	    a.addExtra(" for a list of commands.");
 	    a.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND,"/help"));
 	    help.addExtra(a);
 	    p.spigot().sendMessage(help);
@@ -35,13 +36,11 @@ final class PlayerJoin {
 	    // Website
 	    TextComponent website = new TextComponent("       ");
 	    a = new TextComponent("Visit our website at ");
-	    a.setColor(ChatColor.WHITE);
+	    a.setColor(ColorPalette.FOCUS);
 	    b = new TextComponent("https://arcaneminecraft.com/");
-	    b.setColor(ChatColor.GOLD);
+	    b.setColor(ColorPalette.HEADING);
 	    a.addExtra(b);
-	    b = new TextComponent("!");
-	    b.setColor(ChatColor.WHITE);
-	    a.addExtra(b);
+	    a.addExtra("!");
 	    a.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,"https://arcaneminecraft.com/"));
 	    website.addExtra(a);
 	    p.spigot().sendMessage(website);
@@ -54,15 +53,24 @@ final class PlayerJoin {
 	}
 	
 	static final boolean sendUnlistedMessage(Player p) {
-		p.sendMessage(ChatColor.RED + "[Notice] " + ChatColor.GRAY + ChatColor.DARK_RED + "You do not have build permissions!");
-		p.sendMessage(ChatColor.DARK_RED + "> " + ChatColor.GRAY + "You can ask a staff member for approval in the chat.");
+		TextComponent msg = ArcaneCommons.tagTC("Notice");
 		
-		TextComponent apply = new TextComponent(TextComponent.fromLegacyText(
-				ChatColor.DARK_RED + "> " + ChatColor.GRAY + "Otherwise, type " + ChatColor.GREEN + "/apply" + ChatColor.GRAY + " to apply via our application."
-				));
-		apply.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND,"/apply"));
-		p.spigot().sendMessage(apply);
+		msg.addExtra("You do ");
 		
+		TextComponent not = new TextComponent("not");
+		not.setColor(ColorPalette.NEGATIVE);
+		msg.addExtra(not);
+		msg.addExtra(" have build permissions!\n Type ");
+		
+		TextComponent apply = new TextComponent("/apply");
+		apply.setColor(ColorPalette.POSITIVE);
+		msg.addExtra(apply);
+		msg.addExtra(" to apply via our application.");
+		
+		msg.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND,"/apply"));
+		p.spigot().sendMessage(msg);
+		
+		p.sendMessage(ColorPalette.CONTENT + " You can ask a staff member to approve your application.");
 		p.sendMessage("");
 		
 		return true;

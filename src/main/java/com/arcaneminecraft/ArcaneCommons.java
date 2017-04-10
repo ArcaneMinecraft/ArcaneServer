@@ -16,15 +16,24 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
 public final class ArcaneCommons {
-	public static final String TAG = ColorPalette.TAG.toString() + ChatColor.BOLD + "[Arcane]";
+	public static final String TAG = ColorPalette.HEADING.toString() + ChatColor.BOLD + "[Arcane]";
 	
 	/**
 	 * Message with a generic tag
 	 * @param message - Message to send with the tag. Default color is ColorPalette.CONTENT.
 	 * @return String of the message
 	 */
-	public static String tag(String message) {
+	public static String tagMessage(String message) {
 		return TAG + " " + ColorPalette.CONTENT + message;
+	}
+	
+	/**
+	 * A tag in Arcane format
+	 * @param message - Message to send with the tag. Default color is ColorPalette.CONTENT.
+	 * @return String of the message
+	 */
+	public static String tag(String tag) {
+		return ColorPalette.HEADING.toString() + ChatColor.BOLD + "[" + tag + "] " + ColorPalette.CONTENT;
 	}
 	/**
 	 * Message with a generic tag
@@ -33,7 +42,23 @@ public final class ArcaneCommons {
 	 * @return String of the message
 	 */
 	public static String tag(String tag, String message) {
-		return ColorPalette.TAG.toString() + ChatColor.BOLD + "[" + tag + "] " + ColorPalette.CONTENT + message;
+		return ColorPalette.HEADING.toString() + ChatColor.BOLD + "[" + tag + "] " + ColorPalette.CONTENT + message;
+	}
+	
+	/**
+	 * Constructible TextComponent with pre-formatted tag
+	 * @param tag - Message to send with the tag. Default color is ColorPalette.CONTENT.
+	 * @return TextComponent of tag (with a space at the end)
+	 */
+	public static TextComponent tagTC(String tag) {
+		TextComponent a = new TextComponent("[" + tag + "]");
+		a.setBold(true);
+		a.setColor(ColorPalette.HEADING);
+		TextComponent ret = new TextComponent();
+		ret.setColor(ColorPalette.CONTENT);
+		ret.addExtra(a);
+		ret.addExtra(" ");
+		return ret;
 	}
 
 	/**
@@ -41,7 +66,7 @@ public final class ArcaneCommons {
 	 * @return
 	 */
 	public static String noPermissionMsg() {
-		return tag("You do not have permission to do that.");
+		return tagMessage("You do not have permission to do that.");
 	}
 	/**
 	 * Generic no permission message containing command.
@@ -49,7 +74,7 @@ public final class ArcaneCommons {
 	 * @return
 	 */
 	public static String noPermissionMsg(String cLabel) {
-		return tag("You do not have permission to run \"/" + cLabel + "\".");
+		return tagMessage("You do not have permission to run \"/" + cLabel + "\".");
 	}
 	/**
 	 * Generic no permission message with arguments.
@@ -58,7 +83,7 @@ public final class ArcaneCommons {
 	 * @return
 	 */
 	public static String noPermissionMsg(String cLabel, String subcommand) {
-		return tag("You do not have permission to use \""
+		return tagMessage("You do not have permission to use \""
 				+ subcommand + "\" in \"/" + cLabel + "\".");
 	}
 	
@@ -67,7 +92,7 @@ public final class ArcaneCommons {
 	 * @return
 	 */
 	public static String noConsoleMsg() {
-		return tag("You must be a player.");
+		return tagMessage("You must be a player.");
 	}
 
 	/**
@@ -156,7 +181,7 @@ public final class ArcaneCommons {
 		
 		// Heading
 		sender.sendMessage("" + ColorPalette.CONTENT + ChatColor.BOLD + " ----- "
-					+ ColorPalette.TAG + ChatColor.BOLD + header
+					+ ColorPalette.HEADING + ChatColor.BOLD + header
 					+ ColorPalette.CONTENT + ChatColor.BOLD + " -----");
 		
 		// Body
@@ -175,7 +200,7 @@ public final class ArcaneCommons {
 				ret.addExtra(c);
 			} else {
 				// Multiple-index array (2 or 3, maybe 4)
-				TextComponent c = new TextComponent(ColorPalette.TAG
+				TextComponent c = new TextComponent(ColorPalette.HEADING
 						+ (isCommand ? "/" : "")
 						+ LIST[i][0]
 						+ ChatColor.DARK_GRAY + " - "
@@ -210,7 +235,7 @@ public final class ArcaneCommons {
 		TextComponent ft = new TextComponent("" + ChatColor.GRAY + ChatColor.BOLD + " -- ");
 		if (PGLIST != null) {
 			// footerData: 0=label, 1=subcmd
-			ft.addExtra(ColorPalette.TAG + "Pages: ");
+			ft.addExtra(ColorPalette.HEADING + "Pages: ");
 			for (int i = 0; i < PGLIST.length; i++) {
 				int npg = i + 1;
 				// Compose a list of commands
@@ -236,7 +261,7 @@ public final class ArcaneCommons {
 			if (fData.length == 1)
 				mw = new TextComponent(ColorPalette.CONTENT + fData[0]);
 			else {
-				mw = new TextComponent(ColorPalette.TAG + fData[0] + ": " + ColorPalette.CONTENT + fData[1]);
+				mw = new TextComponent(ColorPalette.HEADING + fData[0] + ": " + ColorPalette.CONTENT + fData[1]);
 				// If second argument is a link
 				if (fData[1].startsWith("http"))
 					mw.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL

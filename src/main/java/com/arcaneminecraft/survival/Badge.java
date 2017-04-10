@@ -89,7 +89,7 @@ tags:
 					toggle((Player)sender, true);
 				else {
 					sender.sendMessage(ArcaneCommons.noConsoleMsg());
-					sender.sendMessage(ArcaneCommons.tag("Or append player name at the end."));
+					sender.sendMessage(ArcaneCommons.tagMessage("Or append player name at the end."));
 				}
 				return true;
 			} else if (sender.hasPermission("arcane.admin")) {
@@ -99,7 +99,7 @@ tags:
 						return true;
 					}
 				}
-				sender.sendMessage(ArcaneCommons.tag("Player not online."));
+				sender.sendMessage(ArcaneCommons.tagMessage("Player not online."));
 				return true;
 			}
 		}
@@ -110,7 +110,7 @@ tags:
 					toggle((Player)sender, false);
 				else {
 					sender.sendMessage(ArcaneCommons.noConsoleMsg());
-					sender.sendMessage(ArcaneCommons.tag("Or append player name at the end."));
+					sender.sendMessage(ArcaneCommons.tagMessage("Or append player name at the end."));
 				}
 					return true;
 			} else if (sender.hasPermission("arcane.admin")) {
@@ -120,14 +120,14 @@ tags:
 						return true;
 					}
 				}
-				sender.sendMessage(ArcaneCommons.tag("Player not online."));
+				sender.sendMessage(ArcaneCommons.tagMessage("Player not online."));
 				return true;
 			}
 		}
 		
 		if (args[0].equalsIgnoreCase("set") && sender.hasPermission("arcane.admin")) {
 			if (args.length == 1) {
-				sender.sendMessage(ArcaneCommons.tag("Not enough arguments. /"+label+" set <tag> [player]"));
+				sender.sendMessage(ArcaneCommons.tagMessage("Not enough arguments. /"+label+" set <tag> [player]"));
 				return true;
 			}
 			if (args.length == 2) {
@@ -135,7 +135,7 @@ tags:
 					badgeTag.put(((Player)sender).getUniqueId(), ChatColor.translateAlternateColorCodes('&', args[1]));
 				else {
 					sender.sendMessage(ArcaneCommons.noConsoleMsg());
-					sender.sendMessage(ArcaneCommons.tag("Or append player name at the end."));
+					sender.sendMessage(ArcaneCommons.tagMessage("Or append player name at the end."));
 				}
 				return true;
 			} else {
@@ -150,7 +150,7 @@ tags:
 					p = plugin.getServer().getOfflinePlayer(args[2]);
 				
 				badgeTag.put((p).getUniqueId(), ChatColor.translateAlternateColorCodes('&', args[1]));
-				sender.sendMessage(ArcaneCommons.tag("Tag assigned to " + p.getName() + "."));
+				sender.sendMessage(ArcaneCommons.tagMessage("Tag assigned to " + p.getName() + "."));
 				return true;
 			}
 		}
@@ -161,7 +161,7 @@ tags:
 					badgeTag.remove(((Player)sender).getUniqueId());
 				else {
 					sender.sendMessage(ArcaneCommons.noConsoleMsg());
-					sender.sendMessage(ArcaneCommons.tag("Or append player name at the end."));
+					sender.sendMessage(ArcaneCommons.tagMessage("Or append player name at the end."));
 				}
 				return true;
 			} else {
@@ -177,7 +177,7 @@ tags:
 					p = plugin.getServer().getOfflinePlayer(args[1]);
 				
 				badgeTag.remove((p).getUniqueId());
-				sender.sendMessage(ArcaneCommons.tag("Tag removed from " + p.getName() + "."));
+				sender.sendMessage(ArcaneCommons.tagMessage("Tag removed from " + p.getName() + "."));
 				return true;
 			}
 		}
@@ -197,19 +197,19 @@ tags:
 	private void toggle(Player p) {
 		if (!badgeOn.remove(p.getUniqueId())) {
 			badgeOn.add(p.getUniqueId());
-			p.sendMessage(ArcaneCommons.tag("Your badge is shown."));
+			p.sendMessage(ArcaneCommons.tagMessage("Your badge is shown."));
 			return;
 		}
-		p.sendMessage(ArcaneCommons.tag("Your badge is hidden."));
+		p.sendMessage(ArcaneCommons.tagMessage("Your badge is hidden."));
 	}
 
 	private void toggle(Player p, boolean on) {
 		if (on) {
 			badgeOn.add(p.getUniqueId());
-			p.sendMessage(ArcaneCommons.tag("Your badge is shown."));
+			p.sendMessage(ArcaneCommons.tagMessage("Your badge is shown."));
 		} else {
 			badgeOn.remove(p.getUniqueId());
-			p.sendMessage(ArcaneCommons.tag("Your badge is hidden."));
+			p.sendMessage(ArcaneCommons.tagMessage("Your badge is hidden."));
 		}
 	}
 }

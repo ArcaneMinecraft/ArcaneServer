@@ -44,7 +44,7 @@ public final class ArcaneSurvival extends JavaPlugin {
 		
 		// Informational command
 		if (cmd.getName().equalsIgnoreCase("arcanesurvival")) {
-			sender.sendMessage(ArcaneCommons.tag(this.getDescription().getFullName()));
+			sender.sendMessage(ArcaneCommons.tagMessage(this.getDescription().getFullName()));
 			// Build Author array
 			StringBuilder authors = new StringBuilder();
 			Object[] alist = this.getDescription().getAuthors().toArray();
@@ -60,7 +60,7 @@ public final class ArcaneSurvival extends JavaPlugin {
 		// apply
 		if (cmd.getName().equalsIgnoreCase("apply")) {
 			sender.sendMessage("");
-			sender.sendMessage(ColorPalette.TAG + "Click below to apply for build rights:");
+			sender.sendMessage(ColorPalette.HEADING + "Click below to apply for build rights:");
 			sender.sendMessage(ColorPalette.CONTENT + "https://arcaneminecraft.com/apply/");
 			sender.sendMessage("");
 			return true;
@@ -82,7 +82,7 @@ public final class ArcaneSurvival extends JavaPlugin {
 			// Moderators will get a different message
 			if (sender.hasPermission("arcane.chatmod")) {
 				if (args.length == 0) {
-					sender.sendMessage(ArcaneCommons.tag("Usage: /greylist <player>..."));
+					sender.sendMessage(ArcaneCommons.tagMessage("Usage: /greylist <player>..."));
 				} else {
 					for (String pl : args)
 						((Player)sender).performCommand("pex group trusted user add " + pl);
@@ -98,11 +98,11 @@ public final class ArcaneSurvival extends JavaPlugin {
 			}
 			
 			if (sender.hasPermission("arcane.trusted"))
-				sender.sendMessage(ArcaneCommons.tag("You are on the greylist!"));
+				sender.sendMessage(ArcaneCommons.tagMessage("You are on the greylist!"));
 			
 			else {
-				sender.sendMessage(ArcaneCommons.tag("You are " + ColorPalette.NEGATIVE + "not" + ColorPalette.CONTENT + " on the greylist!"));
-				sender.sendMessage(ArcaneCommons.tag("Apply for greylist using the /apply command, then talk with a staff member to become greylisted."));
+				sender.sendMessage(ArcaneCommons.tagMessage("You are " + ColorPalette.NEGATIVE + "not" + ColorPalette.CONTENT + " on the greylist!"));
+				sender.sendMessage(ArcaneCommons.tagMessage("Apply for greylist using the /apply command, then talk with a staff member to become greylisted."));
 			}
 
 			return true;
@@ -118,7 +118,7 @@ public final class ArcaneSurvival extends JavaPlugin {
 			}
 
 			if (sender instanceof Player) {
-				sender.sendMessage(ColorPalette.TAG + " Online players: " + ColorPalette.FOCUS
+				sender.sendMessage(ColorPalette.HEADING + " Online players: " + ColorPalette.FOCUS
 						+ Bukkit.getServer().getOnlinePlayers().size() + "/" + Bukkit.getMaxPlayers());
 				sender.sendMessage(" " + players.toString());
 			}
@@ -140,7 +140,7 @@ public final class ArcaneSurvival extends JavaPlugin {
 			}
 			else {
 				if (!(sender instanceof Player)) {
-					sender.sendMessage(ArcaneCommons.tag("Your ping will forever be <1ms."));
+					sender.sendMessage(ArcaneCommons.tagMessage("Your ping will forever be <1ms."));
 					return true;
 				}
 				p2ping = (Player)sender;
@@ -184,8 +184,8 @@ public final class ArcaneSurvival extends JavaPlugin {
 					"Your username is not Agentred100.",
 					"Username: " + name + ".",
 					ColorPalette.NEGATIVE + "[Username] " + ColorPalette.CONTENT + name + ".",
-					ColorPalette.TAG + "[Username]" + ColorPalette.CONTENT + " At the moment, your username is " + name + ".",
-					ColorPalette.TAG + "YOUR USERNAME IS " + ColorPalette.NEGATIVE + name + ".",
+					ColorPalette.HEADING + "[Username]" + ColorPalette.CONTENT + " At the moment, your username is " + name + ".",
+					ColorPalette.HEADING + "YOUR USERNAME IS " + ColorPalette.NEGATIVE + name + ".",
 					name
 			};
 
