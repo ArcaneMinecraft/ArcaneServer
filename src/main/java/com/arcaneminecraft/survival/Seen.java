@@ -13,6 +13,11 @@ import com.arcaneminecraft.ColorPalette;
 
 final class Seen implements CommandExecutor {
 	private final ArcaneSurvival plugin;
+	private static final String MAN[][] = {
+			{"seen","displays the date a player was last seen","/seen [player]"},
+			{"seenf","displays the date a player joined Arcane","/seenf [player]\nAlias:\n /fseen"}
+	};
+	private static final String FTR[] = {""};
 	
 	Seen(ArcaneSurvival plugin) {
 		this.plugin = plugin;
@@ -29,7 +34,7 @@ final class Seen implements CommandExecutor {
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		// seen, seenf, fseen
 		// true: /seen, false: /seenf
-		boolean runSeen = label.equalsIgnoreCase("seen");
+		boolean runSeen = cmd.getName().equalsIgnoreCase("seen");
 		String name;
 		long seen;
 		StringBuilder msg = new StringBuilder(ArcaneCommons.tag("Seen", ""));
@@ -39,6 +44,7 @@ final class Seen implements CommandExecutor {
 		if (args.length == 0) {
 			if (runSeen) {
 				// TODO: Display Help
+				ArcaneCommons.sendCommandMenu(sender, "Seen Help", MAN, FTR);
 				return true;
 			} else {
 				if (!(sender instanceof Player)) {
@@ -55,13 +61,17 @@ final class Seen implements CommandExecutor {
 		// Validate Player
 		if (target != null) {
 			if (runSeen) {
-				sender.sendMessage(msg.append(ColorPalette.FOCUS)
-						.append(target.getName())
-						.append(ColorPalette.CONTENT + " is currently online.").toString());
+				if (sender == target)
+					name = "You are";
+				else
+					name = ColorPalette.FOCUS + target.getName() + ColorPalette.CONTENT + " is";
+				
+				sender.sendMessage(msg.append(name)
+						.append(" currently online.").toString());
 				return true;
 			}
 			seen = target.getFirstPlayed();
-			name = ColorPalette.FOCUS + target.getDisplayName();
+			name = ColorPalette.FOCUS + target.getName();
 		} else {
 			@SuppressWarnings("deprecation") // getOfflinePlayer is deprecated (for no good reason)
 			OfflinePlayer oTarget = plugin.getServer().getOfflinePlayer(args[0]);
@@ -80,16 +90,16 @@ final class Seen implements CommandExecutor {
 		
 		if (runSeen) {
 			sender.sendMessage(msg.append(name)
-					.append(ColorPalette.CONTENT + " was last seen on " + ColorPalette.FOCUS)
+					.append(ColorPalette.CONTENT + " was last seen at " + ColorPalette.FOCUS)
 					.append(strDte).toString());
 			return true;
 		}
 		
-		if (sender.getName().equals(name))
+		if (target != null && sender == target)
 			name = "You";
 		
 		sender.sendMessage(msg.append(name)
-				.append(ColorPalette.CONTENT + " first logged in on " + ColorPalette.FOCUS)
+				.append(ColorPalette.CONTENT + " first logged in at " + ColorPalette.FOCUS)
 				.append(strDte).toString());
 		return true;
 	}

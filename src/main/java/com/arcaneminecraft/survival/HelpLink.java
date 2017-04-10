@@ -98,7 +98,7 @@ final class HelpLink implements CommandExecutor {
 	private static final String HELP[][][] = {
 			{
 				{"help","show this page","/help [1|2|lwc 1|lwc 2|msg|donor]"},
-				{"spawn","return to the spawn","/spawn [old | new]"},
+				{"spawn","return to the spawn"},
 				{"home","return to your home","/home [name]"},
 				{"sethome","set your home","/sethome [name]"},
 				{"kill","temporary ends your suffering just to revive you"},
@@ -106,10 +106,10 @@ final class HelpLink implements CommandExecutor {
 				{"pvp","toggle PvP combat"},
 			},
 			{
-				{"seen","gets last logoff date","/seen [player]"},
-				{"seenf","gets first logged on date","/seenf [player]\nAlias:\n /fseen"},
-				{"list","lists online players"},
-				{"tps","check server ticks per second"},
+				{"seen","displays the date a player was last seen","/seen [player]"},
+				{"seenf","displays the date a player joined Arcane","/seenf [player]\nAlias:\n /fseen"},
+				{"list","lists all online players"},
+				{"tps","checks server ticks per second"},
 				{"username", "an advanced username command"},
 				{"links","links to arcane sites"},
 				{"donors", "list of donor commands", "Alias:\n /donor"}

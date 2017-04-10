@@ -40,9 +40,12 @@ commands:
     description: Badge controls.
     usage: /badge <toggle|set|clear> [prefix|player] [player]
   seen:
-    aliases: [seenf,fseen]
-    description: Check player join date and time.
-    usage: /seen
+    description: Check a player's last join date and time.
+    usage: /seen <player>
+  seenf:
+    aliases: [fseen]
+    description: Check a player's first join date and time.
+    usage: /seenf [player]
   username:
     description: Display your username!
 # To migrate to SpigotTesting

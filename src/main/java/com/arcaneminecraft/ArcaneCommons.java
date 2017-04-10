@@ -117,26 +117,26 @@ public final class ArcaneCommons {
 	 * @param sender - the sender as shown exactly in CommandSender.
 	 * @param header - Custom string to use for help heading.
 	 * @param LIST - 2-dimensional array: [command line][index]
-	 * where "command line" contains:
-	 * {
-	 *     Command (without leading slash),
-	 *     Command details,
-	 *     Tooltip menu or URL,
-	 *     Permission required
-	 * }
-	 * OR
-	 * {
-	 *     A sentence string
-	 * }
-	 * The first two fields are mandatory. To skip third or fourth index, use null.
+	 * <br>where "command line" contains:
+	 * <br>{
+	 * <br>    Command (without leading slash),
+	 * <br>    Command details,
+	 * <br>    Tooltip menu or URL,
+	 * <br>    Permission required
+	 * <br>}
+	 * <br>OR
+	 * <br>{
+	 * <br>    A sentence string
+	 * <br>}
+	 * <br>The first two fields are mandatory. To skip third or fourth index, use null.
 	 *  
 	 * @param footerData - 1-dimensional array:
-	 * {
-	 *     Head,
-	 *     Description,
-	 *     Link/Command/Tooltip
-	 * }
-	 * The first field is mandatory.
+	 * <br>{
+	 * <br>    Head,
+	 * <br>    Description,
+	 * <br>    Link/Command/Tooltip
+	 * <br>}
+	 * <br>The first field is mandatory.
 	 * 
 	 * @return true all the time to aid in quick return.
 	 */
@@ -232,21 +232,26 @@ public final class ArcaneCommons {
 				ft.addExtra(" ");
 			}
 		} else {
-			TextComponent mw = new TextComponent(ColorPalette.TAG + fData[0] + ": " + ColorPalette.CONTENT + fData[1]);
-			// If second argument is a link
-			if (fData[1].startsWith("http"))
-				mw.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL
-						, fData[1]));
-			// If has third argument
-			if (fData.length > 2) {
-				if (fData[2].startsWith("http"))
+			TextComponent mw; 
+			if (fData.length == 1)
+				mw = new TextComponent(ColorPalette.CONTENT + fData[0]);
+			else {
+				mw = new TextComponent(ColorPalette.TAG + fData[0] + ": " + ColorPalette.CONTENT + fData[1]);
+				// If second argument is a link
+				if (fData[1].startsWith("http"))
 					mw.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL
-							, fData[2]));
-				else if (fData[2].startsWith("/"))
-					mw.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND
-							, fData[2]));
-				mw.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT
-						, new ComponentBuilder(fData[2]).create()));
+							, fData[1]));
+				// If has third argument
+				if (fData.length > 2) {
+					if (fData[2].startsWith("http"))
+						mw.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL
+								, fData[2]));
+					else if (fData[2].startsWith("/"))
+						mw.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND
+								, fData[2]));
+					mw.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT
+							, new ComponentBuilder(fData[2]).create()));
+				}
 			}
 			ft.addExtra(mw);
 		}

@@ -1,11 +1,9 @@
 package com.arcaneminecraft.survival;
 
 import java.lang.reflect.InvocationTargetException;
-import java.text.SimpleDateFormat;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -33,6 +31,7 @@ public final class ArcaneSurvival extends JavaPlugin {
 		getCommand("help").setExecutor(hl);
 		getCommand("link").setExecutor(hl);
 		getCommand("seen").setExecutor(sn);
+		getCommand("seenf").setExecutor(sn);
 		getCommand("badge").setExecutor(badge);
 		
 		
@@ -132,11 +131,16 @@ public final class ArcaneSurvival extends JavaPlugin {
 
 		if (cmd.getName().equalsIgnoreCase("ping")) {
 			Player p2ping;
-			if (args.length != 0)
+			if (args.length != 0) {
 				p2ping = getServer().getPlayer(args[0]);
+				if (p2ping == null) {
+					sender.sendMessage(ArcaneCommons.tag("Ping", "'" + args[0] + "' is not online."));
+					return true;
+				}
+			}
 			else {
 				if (!(sender instanceof Player)) {
-					sender.sendMessage("You must include a tag.");
+					sender.sendMessage(ArcaneCommons.tag("Your ping will forever be <1ms."));
 					return true;
 				}
 				p2ping = (Player)sender;
@@ -152,7 +156,7 @@ public final class ArcaneSurvival extends JavaPlugin {
 			try {
 				Object entityPlayer = p2ping.getClass().getMethod("getHandle").invoke(p2ping);
 				int ping = (int) entityPlayer.getClass().getField("ping").get(entityPlayer);
-				sender.sendMessage(m.append(ping).append("ms").toString());
+				sender.sendMessage(ArcaneCommons.tag("Ping", m.append(ColorPalette.FOCUS).append(ping).append("ms").toString()));
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
 					| NoSuchMethodException | SecurityException | NoSuchFieldException e) {
 				// TODO Auto-generated catch block
