@@ -18,7 +18,6 @@ import com.arcaneminecraft.ArcaneCommons;
 import com.arcaneminecraft.ColorPalette;
 
 public final class ArcaneSurvival extends JavaPlugin {
-	private Badge badge;
 	
 	@Override
 	public void onEnable() {
@@ -26,13 +25,11 @@ public final class ArcaneSurvival extends JavaPlugin {
 		
 		HelpLink hl = new HelpLink();
 		Seen sn = new Seen(this);
-		badge = new Badge(this);
 		
 		getCommand("help").setExecutor(hl);
 		getCommand("link").setExecutor(hl);
 		getCommand("seen").setExecutor(sn);
 		getCommand("seenf").setExecutor(sn);
-		getCommand("badge").setExecutor(badge);
 		
 		
 		getServer().getPluginManager().registerEvents(new ArcaneEvents(), this);
@@ -255,13 +252,6 @@ public final class ArcaneSurvival extends JavaPlugin {
 			if (!p.hasPlayedBefore())
 				Bukkit.broadcastMessage(ColorPalette.META + p.getName()
 						+ " has joined Arcane for the first time");
-		}
-		
-		@EventHandler (priority=EventPriority.HIGHEST)
-		public void PlayerChat(AsyncPlayerChatEvent e) {
-			// Badge
-			if (badge.isShown(e.getPlayer()))
-				e.setFormat(badge.getBadge(e.getPlayer()) + e.getFormat());
 		}
 	}
 }

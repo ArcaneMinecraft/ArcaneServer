@@ -35,10 +35,6 @@ commands:
   ping:
     description: Pings a player and shows their ping (in milliseconds)
     usage: /ping [player]
-  badge:
-    aliases: [nt, b, bt]
-    description: Badge controls.
-    usage: /badge <toggle|set|clear> [prefix|player] [player]
   seen:
     description: Check a player's last join date and time.
     usage: /seen <player>
