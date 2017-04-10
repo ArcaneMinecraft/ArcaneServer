@@ -32,6 +32,9 @@ commands:
     description: Command that displays Arcane links
   list:
     description: Display a list of online users.
+  ping:
+    description: Pings a player and shows their ping (in milliseconds)
+    usage: /ping [player]
   badge:
     aliases: [nt, b, bt]
     description: Badge controls.
@@ -40,16 +43,13 @@ commands:
     aliases: [seenf,fseen]
     description: Check player join date and time.
     usage: /seen
-  tell:
-    usage: /msg <player> <message>
-    description: msg command redirect
   username:
     description: Display your username!
 # To migrate to SpigotTesting
-  f:
-    description: Fireworks (Arcane's first anniversity command)
-  doge:
-    description: Doge command
+#  f:
+#    description: Fireworks (Arcane's first anniversity command)
+#  doge:
+#    description: Doge command
 # To migrate to ArcaneModeration
   g0:
     aliases: [g1, g2, g3, gsurvival, gcreative, gadventure, gspectator]
@@ -82,6 +82,6 @@ permissions:
   arcane.new:
     description: Arcane 'new' player permission
     default: not op
-  arcane.f:
-    description: fireworks
-    default: op
+#  arcane.f:
+#    description: fireworks
+#    default: op

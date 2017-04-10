@@ -133,8 +133,9 @@ final class ArcAFK implements Listener {
 			_disableAFK(pl);
 		}
 		
+		// TODO: FIX
 		// if the player's local chat is toggled on
-		if ((ltogState.get(pID) != null) && (ltogState.get(pID) > 0))
+		/*if ((ltogState.get(pID) != null) && (ltogState.get(pID) > 0))
 		{
 			if (!msg.startsWith(TAG_GLOBAL))
 			{
@@ -147,7 +148,7 @@ final class ArcAFK implements Listener {
 			{
 				pce.setMessage(msg.replace(TAG_GLOBAL,""));
 			}
-		}
+		}*/
 	}
 	
 	@EventHandler

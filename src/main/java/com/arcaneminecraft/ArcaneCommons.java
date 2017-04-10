@@ -16,23 +16,15 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
 public final class ArcaneCommons {
-	private static final String TAG = ChatColor.GOLD + "[Arcane]";
+	public static final String TAG = ColorPalette.TAG.toString() + ChatColor.BOLD + "[Arcane]";
 	
 	/**
 	 * Message with a generic tag
-	 * @return tag
-	 */
-	public static String tag() {
-		return TAG;
-	}
-	
-	/**
-	 * Message with a generic tag
-	 * @param message - Message to send with the tag. Default color is gray.
+	 * @param message - Message to send with the tag. Default color is ColorPalette.CONTENT.
 	 * @return String of the message
 	 */
 	public static String tag(String message) {
-		return TAG + " " + ChatColor.GRAY + message;
+		return TAG + " " + ColorPalette.CONTENT + message;
 	}
 	/**
 	 * Message with a generic tag
@@ -41,7 +33,7 @@ public final class ArcaneCommons {
 	 * @return String of the message
 	 */
 	public static String tag(String tag, String message) {
-		return ChatColor.GOLD + "[" + tag + "] " + ChatColor.GRAY + message;
+		return ColorPalette.TAG.toString() + ChatColor.BOLD + "[" + tag + "] " + ColorPalette.CONTENT + message;
 	}
 
 	/**
@@ -86,18 +78,18 @@ public final class ArcaneCommons {
 	 * @param sender - the sender as shown exactly in CommandSender.
 	 * @param header - Custom string to use for help heading.
 	 * @param LIST - 3-dimensional array: [page][command line][index]
-	 * where "command line" contains:
-	 * {
-	 *     Command (without leading slash),
-	 *     Command details,
-	 *     Tooltip menu or URL,
-	 *     Permission required
-	 * }
-	 * OR
-	 * {
-	 *     A sentence string
-	 * }
-	 * The first field is mandatory. To skip third or fourth index, use null.
+	 * <br>where "command line" contains:
+	 * <br>{
+	 * <br>    Command (without leading slash),
+	 * <br>    Command details,
+	 * <br>    Tooltip menu or URL,
+	 * <br>    Permission required
+	 * <br>}
+	 * <br>OR
+	 * <br>{
+	 * <br>    A sentence string
+	 * <br>}
+	 * <br>The first field is mandatory. To skip third or fourth index, use null.
 	 *  
 	 * @param label - Command used to call help. 
 	 * @param subcmd - Sub-command used to call help. 
@@ -163,9 +155,9 @@ public final class ArcaneCommons {
 	private static boolean sendListCommon(CommandSender sender, String header, String LIST[][], String PGLIST[][][], String fData[], int a, boolean isCommand) {
 		
 		// Heading
-		sender.sendMessage("" + ChatColor.GRAY + ChatColor.BOLD + " ----- "
-					+ ChatColor.GOLD + ChatColor.BOLD + header
-					+ ChatColor.GRAY + ChatColor.BOLD + " -----");
+		sender.sendMessage("" + ColorPalette.CONTENT + ChatColor.BOLD + " ----- "
+					+ ColorPalette.TAG + ChatColor.BOLD + header
+					+ ColorPalette.CONTENT + ChatColor.BOLD + " -----");
 		
 		// Body
 		// Iterate through each line
@@ -183,11 +175,11 @@ public final class ArcaneCommons {
 				ret.addExtra(c);
 			} else {
 				// Multiple-index array (2 or 3, maybe 4)
-				TextComponent c = new TextComponent(ChatColor.GOLD
+				TextComponent c = new TextComponent(ColorPalette.TAG
 						+ (isCommand ? "/" : "")
 						+ LIST[i][0]
 						+ ChatColor.DARK_GRAY + " - "
-						+ ChatColor.GRAY + LIST[i][1]);
+						+ ColorPalette.CONTENT + LIST[i][1]);
 				if (isCommand) {
 					// command list
 					c.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND
@@ -218,7 +210,7 @@ public final class ArcaneCommons {
 		TextComponent ft = new TextComponent("" + ChatColor.GRAY + ChatColor.BOLD + " -- ");
 		if (PGLIST != null) {
 			// footerData: 0=label, 1=subcmd
-			ft.addExtra(ChatColor.GOLD + "Pages: ");
+			ft.addExtra(ColorPalette.TAG + "Pages: ");
 			for (int i = 0; i < PGLIST.length; i++) {
 				int npg = i + 1;
 				// Compose a list of commands
@@ -240,7 +232,7 @@ public final class ArcaneCommons {
 				ft.addExtra(" ");
 			}
 		} else {
-			TextComponent mw = new TextComponent(ChatColor.GOLD + fData[0] + ": " + ChatColor.GRAY + fData[1]);
+			TextComponent mw = new TextComponent(ColorPalette.TAG + fData[0] + ": " + ColorPalette.CONTENT + fData[1]);
 			// If second argument is a link
 			if (fData[1].startsWith("http"))
 				mw.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL

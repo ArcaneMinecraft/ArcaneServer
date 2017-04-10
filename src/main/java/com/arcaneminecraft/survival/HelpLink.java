@@ -1,15 +1,17 @@
 package com.arcaneminecraft.survival;
 
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.ChatColor;
 
 import com.arcaneminecraft.ArcaneCommons;
+import com.arcaneminecraft.ColorPalette;
 
 final class HelpLink implements CommandExecutor {
 	
+	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		// All in HelpLink class
 		if (cmd.getName().equalsIgnoreCase("help")) {
@@ -166,10 +168,10 @@ final class HelpLink implements CommandExecutor {
 	private static final String MOD[][][] = {
 			{
 				{"kick","kick a player","/kick <player> <reason>"},
-				{"ban","ban a player" + ChatColor.RED + ChatColor.ITALIC + " like a boss","/ban <player> <reason>"},
+				{"ban","ban a player" + ColorPalette.NEGATIVE + ChatColor.ITALIC + " like a boss","/ban <player> <reason>"},
 				{"tempban","temporary ban a player","/tempban <player> <reason>"},
 				{"unban","pardon a player","/unban <player>"},
-				{"frz","freeze a player" + ChatColor.RED + ChatColor.ITALIC + " Agent's favorite, Simon hates this!","/frz <player>"},
+				{"frz","freeze a player" + ColorPalette.POSITIVE + ChatColor.ITALIC + " Agent's favorite," + ColorPalette.NEGATIVE + ChatColor.ITALIC + " Simon hates this!","/frz <player>"},
 				{"a","admin chat","/a <message>"},
 				{"atoggle","toggle admin chat"}
 			},
@@ -183,7 +185,7 @@ final class HelpLink implements CommandExecutor {
 				{"restart","restart the server","This has slight chance of failing.\nPlease make sure an admin is semi-around in case\nthe restart fails."}
 			},
 			{
-				{"ultraban","super special command" + ChatColor.RED + ChatColor.ITALIC + " in development! Don't use!"},
+				{"ultraban","super special command" + ColorPalette.NEGATIVE + ChatColor.ITALIC + " in development! Don't use!"},
 				{"coreprotect","official CoreProtect help","Alias:\n/co"},
 				{"help chatmod", "More moderation help", "Alias:\n/help chatmods"}
 			}
