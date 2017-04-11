@@ -12,6 +12,7 @@ import com.arcaneminecraft.ArcaneCommons;
 import com.arcaneminecraft.ColorPalette;
 
 final class Seen implements CommandExecutor {
+	private static final String TAG = "Seen";
 	private final ArcaneSurvival plugin;
 	private static final String MAN[][] = {
 			{"seen","displays the date a player was last seen","/seen [player]"},
@@ -37,7 +38,7 @@ final class Seen implements CommandExecutor {
 		boolean runSeen = cmd.getName().equalsIgnoreCase("seen");
 		String name;
 		long seen;
-		StringBuilder msg = new StringBuilder(ArcaneCommons.tag("Seen", ""));
+		StringBuilder msg = new StringBuilder(ArcaneCommons.tag(TAG));
 		
 		// Look for player in question.
 		Player target;

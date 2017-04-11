@@ -29,11 +29,11 @@ public final class ArcaneCommons {
 	
 	/**
 	 * A tag in Arcane format
-	 * @param message - Message to send with the tag. Default color is ColorPalette.CONTENT.
-	 * @return String of the message
+	 * @param tag - Tag to be formatted (don't insert brackets)
+	 * @return String of tag in legacy color format (with a space at the end)
 	 */
 	public static String tag(String tag) {
-		return ColorPalette.HEADING.toString() + ChatColor.BOLD + "[" + tag + "] " + ColorPalette.CONTENT;
+		return ColorPalette.HEADING.toString() + ChatColor.BOLD + "[" + ChatColor.RESET + ColorPalette.HEADING + tag + ChatColor.BOLD + "] " + ColorPalette.CONTENT;
 	}
 	/**
 	 * Message with a generic tag
@@ -42,7 +42,7 @@ public final class ArcaneCommons {
 	 * @return String of the message
 	 */
 	public static String tag(String tag, String message) {
-		return ColorPalette.HEADING.toString() + ChatColor.BOLD + "[" + tag + "] " + ColorPalette.CONTENT + message;
+		return ColorPalette.HEADING.toString() + ChatColor.BOLD + "[" + ChatColor.RESET + ColorPalette.HEADING + tag + ChatColor.BOLD + "] " + ColorPalette.CONTENT + message;
 	}
 	
 	/**
@@ -51,12 +51,22 @@ public final class ArcaneCommons {
 	 * @return TextComponent of tag (with a space at the end)
 	 */
 	public static TextComponent tagTC(String tag) {
-		TextComponent a = new TextComponent("[" + tag + "]");
-		a.setBold(true);
-		a.setColor(ColorPalette.HEADING);
 		TextComponent ret = new TextComponent();
 		ret.setColor(ColorPalette.CONTENT);
+		
+		TextComponent a = new TextComponent("[");
+		a.setColor(ColorPalette.HEADING);
 		ret.addExtra(a);
+		
+		a = new TextComponent(tag);
+		a.setBold(true);
+		a.setColor(ColorPalette.HEADING);
+		ret.addExtra(a);
+		
+		a = new TextComponent("]");
+		a.setColor(ColorPalette.HEADING);
+		ret.addExtra(a);
+
 		ret.addExtra(" ");
 		return ret;
 	}
