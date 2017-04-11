@@ -57,7 +57,7 @@ public final class ArcaneSurvival extends JavaPlugin {
 		if (cmd.getName().equalsIgnoreCase("apply")) {
 			sender.sendMessage("");
 			sender.sendMessage(ColorPalette.HEADING + "Click below to apply for build rights:");
-			sender.sendMessage(ColorPalette.CONTENT + "https://arcaneminecraft.com/apply/");
+			sender.sendMessage(ColorPalette.FOCUS + "https://arcaneminecraft.com/apply/");
 			sender.sendMessage("");
 			return true;
 		}
@@ -130,7 +130,7 @@ public final class ArcaneSurvival extends JavaPlugin {
 			if (args.length != 0) {
 				p2ping = getServer().getPlayer(args[0]);
 				if (p2ping == null) {
-					sender.sendMessage(ArcaneCommons.tag("Ping", "'" + args[0] + "' is not online."));
+					sender.sendMessage(ArcaneCommons.tag("Pong", "'" + args[0] + "' is not online."));
 					return true;
 				}
 			}

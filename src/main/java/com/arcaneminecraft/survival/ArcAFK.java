@@ -15,37 +15,22 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 final class ArcAFK implements Listener {
-	private static ArcaneSurvival arc;
-	
-	private static final HashMap<UUID, Integer> afkState = new HashMap<>(); // counts down toward [AFK] every second
-	
-	ArcAFK(ArcaneSurvival arc) {
-		ArcAFK.arc = arc;
-	}
-	
-	private static final Logger getLogger() {
-		return arc.getLogger();
-	}
-	
-	private static final Server getServer() {
-		return arc.getServer();
-	}
-	
+	private final ArcaneSurvival plugin;
+	private final HashMap<UUID, Integer> afkState = new HashMap<>(); // counts down toward [AFK] every second
 	private static final int AFK_COUNTDOWN = 300; // 5 minute countdown to being afk
-	
 	private static final String FORMAT_AFK = "§7";
 	private static final String TAG_AFK = "§5[AFK] §r§f";
-	private static final String TAG_GLOBAL = "§g";
 	
-	private static final String LOCAL_G_SHORT = "g";
-	private static final String LOCAL_GLOBAL = "global";
+	ArcAFK(ArcaneSurvival plugin) {
+		this.plugin = plugin;
+	}
 	
-	private void _disableAFK(Player pl)
+	private void resetTimer(Player pl)
 	{
 		String temp = pl.getPlayerListName();
 		if (temp.isEmpty() || temp == null || temp.length() < 8)
 		{
-			getLogger().info("ArcaneChatUtils: empty player name? " + temp);
+			plugin.getLogger().info("ArcaneSurvival: AFK: empty player name? " + temp);
 			temp = "I Am Error";
 		}
 		pl.setPlayerListName(temp.substring(8)); // magic number much? TAG_AFK is odd.
@@ -67,7 +52,7 @@ final class ArcAFK implements Listener {
 		
 		if (prevState == 0)
 		{
-			_disableAFK(pl);
+			resetTimer(pl);
 		}
 		
 		// I don't think this is a good implementation. Command Overshadowing would be better.
@@ -75,8 +60,8 @@ final class ArcAFK implements Listener {
 		{
 			if (msg.trim().equalsIgnoreCase("/kill"))
 			{
-				getServer().dispatchCommand(
-					getServer().getConsoleSender(),
+				plugin.getServer().dispatchCommand(
+					plugin.getServer().getConsoleSender(),
 					"minecraft:kill " + pl.getUniqueId()
 				);
 			}
@@ -92,8 +77,8 @@ final class ArcAFK implements Listener {
 		{
 			if (msg.trim().equalsIgnoreCase("/minecraft:kill"))
 			{
-				getServer().dispatchCommand(
-					getServer().getConsoleSender(), "minecraft:kill" + pl.getUniqueId()
+				plugin.getServer().dispatchCommand(
+					plugin.getServer().getConsoleSender(), "minecraft:kill" + pl.getUniqueId()
 				);
 			}
 			else
@@ -101,17 +86,6 @@ final class ArcAFK implements Listener {
 				if (pl.hasPermission("acu.murder")) return;
 				((CommandSender)pl).sendMessage("Sorry, this kind of murder is highly discouraged.");
 			}
-			pcpe.setCancelled(true);
-		}
-		// This is a weird implementation.
-		else if (msg.startsWith("/" + LOCAL_GLOBAL))
-		{
-			pl.chat(msg.replaceFirst("/" + LOCAL_GLOBAL+" ",TAG_GLOBAL));
-			pcpe.setCancelled(true);
-		}
-		else if (msg.startsWith("/" + LOCAL_G_SHORT + " "))
-		{
-			pl.chat(msg.replaceFirst("/" + LOCAL_G_SHORT+" ",TAG_GLOBAL));
 			pcpe.setCancelled(true);
 		}
 	}
@@ -130,25 +104,8 @@ final class ArcAFK implements Listener {
 		
 		if (prevState == 0)
 		{
-			_disableAFK(pl);
+			resetTimer(pl);
 		}
-		
-		// TODO: FIX
-		// if the player's local chat is toggled on
-		/*if ((ltogState.get(pID) != null) && (ltogState.get(pID) > 0))
-		{
-			if (!msg.startsWith(TAG_GLOBAL))
-			{
-				pce.setCancelled(true);
-			
-				String[] chat = { "-r", ltogState.get(pID) + "", msg };
-				shoutFunction(chat, (CommandSender)pl);
-			}
-			else
-			{
-				pce.setMessage(msg.replace(TAG_GLOBAL,""));
-			}
-		}*/
 	}
 	
 	@EventHandler
@@ -164,7 +121,7 @@ final class ArcAFK implements Listener {
 		
 		if (prevState == 0)
 		{
-			_disableAFK(pl);
+			resetTimer(pl);
 		}
 	}
 	
@@ -181,7 +138,7 @@ final class ArcAFK implements Listener {
 		
 		if (prevState == 0)
 		{
-			_disableAFK(pl);
+			resetTimer(pl);
 		}
 	}
 }
