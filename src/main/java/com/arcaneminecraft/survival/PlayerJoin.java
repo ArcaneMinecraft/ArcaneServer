@@ -2,6 +2,10 @@ package com.arcaneminecraft.survival;
 
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 
 import com.arcaneminecraft.ArcaneCommons;
 import com.arcaneminecraft.ColorPalette;
@@ -10,10 +14,32 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
-final class PlayerJoin {
-	public static final String HR = StringUtils.repeat(" ", 23);
+final class PlayerJoin implements Listener {
+	static final String HR = StringUtils.repeat(" ", 23);
+	final ArcaneSurvival plugin;
 	
-	static final boolean sendWelcomeMessage(Player p) {
+	PlayerJoin(ArcaneSurvival plugin) {
+		this.plugin = plugin;
+	}
+	
+	// Low priority for this; normal for donor, high for mod
+	@EventHandler (priority=EventPriority.LOW)
+	public void playerJoin(PlayerJoinEvent e) {
+		Player p = e.getPlayer();
+		// Send Splash Message
+		sendWelcomeMessage(p);
+		
+		// Send non-greylisted message
+		if (p.hasPermission("arcane.new"))
+			sendUnlistedMessage(p);
+		
+		// First join message
+		if (!p.hasPlayedBefore())
+			plugin.getServer().broadcastMessage(ColorPalette.META + p.getName()
+					+ " has joined Arcane for the first time");
+	}
+	
+	final boolean sendWelcomeMessage(Player p) {
 		p.sendMessage("");
 		p.sendMessage(ChatColor.GRAY.toString() + ChatColor.STRIKETHROUGH + HR
 				+ ChatColor.RESET + ColorPalette.HEADING + ChatColor.BOLD + " Arcane Survival "
@@ -52,7 +78,7 @@ final class PlayerJoin {
 	    return true;
 	}
 	
-	static final boolean sendUnlistedMessage(Player p) {
+	final boolean sendUnlistedMessage(Player p) {
 		TextComponent msg = ArcaneCommons.tagTC("Notice");
 		
 		msg.addExtra("You do ");

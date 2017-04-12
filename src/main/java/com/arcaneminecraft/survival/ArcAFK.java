@@ -1,144 +1,135 @@
 package com.arcaneminecraft.survival;
 
 import java.util.HashMap;
-import java.util.UUID;
-import java.util.logging.Logger;
+import java.util.HashSet;
 
-import org.bukkit.Server;
+import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.scheduler.BukkitScheduler;
+import org.bukkit.scheduler.BukkitTask;
 
-final class ArcAFK implements Listener {
+import com.arcaneminecraft.ArcaneCommons;
+
+final class ArcAFK implements CommandExecutor, Listener {
 	private final ArcaneSurvival plugin;
-	private final HashMap<UUID, Integer> afkState = new HashMap<>(); // counts down toward [AFK] every second
-	private static final int AFK_COUNTDOWN = 300; // 5 minute countdown to being afk
-	private static final String FORMAT_AFK = "§7";
-	private static final String TAG_AFK = "§5[AFK] §r§f";
+	private final BukkitScheduler scheduler;
+	private final HashSet<Player> resetTimerQueue = new HashSet<>();
+	private final HashMap<Player, BukkitTask> afkTask = new HashMap<>(); // nothing: active, hasObject: active, null: afk
+	private static final long AFK_COUNTDOWN = 6000L; // 6000 tick (5 minute) countdown to being afk
+	private static final String FORMAT_AFK = ChatColor.GRAY + "* ";
+	private static final String TAG_AFK = ChatColor.DARK_PURPLE + "[AFK] " + ChatColor.RESET;
 	
 	ArcAFK(ArcaneSurvival plugin) {
 		this.plugin = plugin;
+		scheduler = plugin.getServer().getScheduler();
+		
+		// resetTimer Queue Runner (because creating multiple new object didn't seem ideal at all)
+		scheduler.runTaskTimerAsynchronously(plugin, new Runnable() {
+			@Override
+			public void run() {
+				for (Player p : resetTimerQueue) {
+					resetTimer(p);
+				}
+				resetTimerQueue.clear();
+			}
+		}, 0L, 1200L); // run every 1200 ticks (1 minute)
+		
+		// if players are already online
+		for (Player p : plugin.getServer().getOnlinePlayers()) {
+			resetTimerQueue.add(p);
+		}
+	}
+
+	@Override
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+		if (!(sender instanceof Player)) {
+			sender.sendMessage(ArcaneCommons.noConsoleMsg());
+			return true;
+		}
+		Player p = (Player)sender;
+		if (!isAFK(p)) setAFK(p);
+		resetTimerQueue.remove(p);
+		
+		return true;
 	}
 	
-	private void resetTimer(Player pl)
-	{
-		String temp = pl.getPlayerListName();
-		if (temp.isEmpty() || temp == null || temp.length() < 8)
+	private void resetTimer(Player p) { // this is run for active players every minute
+		BukkitTask t = afkTask.put(p, scheduler.runTaskLaterAsynchronously(plugin, new Runnable(){
+			@Override
+			public void run() {
+				setAFK(p);
+			}
+		}, AFK_COUNTDOWN));
+		// If task existed before, cancel that task.
+		if (t != null) t.cancel();
+	}
+	
+	private boolean isAFK(Player p) {
+		return afkTask.containsKey(p) && afkTask.get(p) == null;
+	}
+	
+	private void setAFK(Player p) {
+		if (isAFK(p)) return;
+		
+		// If a timer was already running, cancel it.
+		BukkitTask t = afkTask.put(p, null);
+		if (t != null) t.cancel();
+		
+		// Player is now afk.
+		p.setPlayerListName(TAG_AFK + p.getPlayerListName());
+		p.sendMessage(FORMAT_AFK + "You are now AFK.");
+	}
+	
+	private void unsetAFK(Player p) {
+		resetTimerQueue.add(p);
+		
+		if (!isAFK(p)) return;
+		// only truly afk players below this comment
+		
+		BukkitTask t = afkTask.remove(p);
+		if (t != null) t.cancel();
+		
+		// Check leaderboard string
+		String temp = p.getPlayerListName();
+		if (temp.isEmpty() || temp == null || temp.length() < 9)
 		{
-			plugin.getLogger().info("ArcaneSurvival: AFK: empty player name? " + temp);
+			plugin.getLogger().info("ArcaneSurvival: AFK: empty player name? " + String.valueOf(temp));
 			temp = "I Am Error";
 		}
-		pl.setPlayerListName(temp.substring(8)); // magic number much? TAG_AFK is odd.
-		afkState.put(pl.getUniqueId(), AFK_COUNTDOWN);
-		pl.sendRawMessage(FORMAT_AFK + "You are no longer AFK.");
+		p.setPlayerListName(temp.substring(8)); // magic number much? TAG_AFK is odd.
+		
+		p.sendRawMessage(FORMAT_AFK + "You are no longer AFK.");
 	}
 	
-	@EventHandler
-	public void detectCommand (PlayerCommandPreprocessEvent pcpe)
-	{
-		Player pl = pcpe.getPlayer();
-		UUID pID = pl.getUniqueId();
-		String msg = pcpe.getMessage();
-		
-		if (afkState.get(pID) == null) afkState.put(pID, AFK_COUNTDOWN);
-		
-		int prevState = afkState.get(pID);
-		afkState.put(pID, AFK_COUNTDOWN);
-		
-		if (prevState == 0)
-		{
-			resetTimer(pl);
-		}
-		
-		// I don't think this is a good implementation. Command Overshadowing would be better.
-		if (msg.startsWith("/kill"))
-		{
-			if (msg.trim().equalsIgnoreCase("/kill"))
-			{
-				plugin.getServer().dispatchCommand(
-					plugin.getServer().getConsoleSender(),
-					"minecraft:kill " + pl.getUniqueId()
-				);
-			}
-			else
-			{
-				if (pl.hasPermission("acu.murder")) return;
-				// otherwise
-				((CommandSender)pl).sendMessage("Sorry, this kind of murder is highly discouraged.");
-			}
-			pcpe.setCancelled(true);
-		}
-		else if (msg.startsWith("/minecraft:kill"))
-		{
-			if (msg.trim().equalsIgnoreCase("/minecraft:kill"))
-			{
-				plugin.getServer().dispatchCommand(
-					plugin.getServer().getConsoleSender(), "minecraft:kill" + pl.getUniqueId()
-				);
-			}
-			else
-			{
-				if (pl.hasPermission("acu.murder")) return;
-				((CommandSender)pl).sendMessage("Sorry, this kind of murder is highly discouraged.");
-			}
-			pcpe.setCancelled(true);
-		}
+	@EventHandler (priority=EventPriority.LOW)
+	public void detectJoin (PlayerJoinEvent e) { 
+		resetTimer(e.getPlayer());
 	}
 	
-	@EventHandler
-	public void detectChat (AsyncPlayerChatEvent pce)
-	{
-		Player pl = pce.getPlayer();
-		UUID pID = pl.getUniqueId();
-		String msg = pce.getMessage();
-		
-		if (afkState.get(pID) == null) afkState.put(pID, AFK_COUNTDOWN);
-		
-		int prevState = afkState.get(pID);
-		afkState.put(pID, AFK_COUNTDOWN);
-		
-		if (prevState == 0)
-		{
-			resetTimer(pl);
-		}
+	@EventHandler (priority=EventPriority.LOW)
+	public void detectQuit (PlayerQuitEvent e) {
+		resetTimerQueue.remove(e.getPlayer());
+		BukkitTask t = afkTask.remove(e.getPlayer());
+		if (t != null) t.cancel();
 	}
 	
-	@EventHandler
-	public void detectMotion (PlayerMoveEvent pme)
-	{
-		Player pl = pme.getPlayer();
-		UUID pID = pl.getUniqueId();
-		
-		if (afkState.get(pID) == null) afkState.put(pID, AFK_COUNTDOWN);
-		
-		int prevState = afkState.get(pID);
-		afkState.put(pID, AFK_COUNTDOWN);
-		
-		if (prevState == 0)
-		{
-			resetTimer(pl);
-		}
-	}
+	@EventHandler (priority=EventPriority.LOW)
+	public void detectCommand (PlayerCommandPreprocessEvent e) { unsetAFK(e.getPlayer()); }
 	
-	@EventHandler
-	public void detectDiscon (PlayerQuitEvent pqe)
-	{
-		Player pl = pqe.getPlayer();
-		UUID pID = pl.getUniqueId();
-		
-		if (afkState.get(pID) == null) afkState.put(pID, AFK_COUNTDOWN);
-		
-		int prevState = afkState.get(pID);
-		afkState.put(pID, AFK_COUNTDOWN);
-		
-		if (prevState == 0)
-		{
-			resetTimer(pl);
-		}
-	}
+	@EventHandler (priority=EventPriority.LOW)
+	public void detectChat (AsyncPlayerChatEvent e) { unsetAFK(e.getPlayer()); }
+	
+	@EventHandler (priority=EventPriority.LOW)
+	public void detectMotion (PlayerMoveEvent e) { unsetAFK(e.getPlayer()); }
 }

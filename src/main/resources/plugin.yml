@@ -9,7 +9,6 @@ load: STARTUP
 
 commands:
   afk:
-    aliases: [unafk]
     description: Sets you to [AFK] in the player list. Motion or chat will end it.
     usage: /afk
   apply:

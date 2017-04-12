@@ -7,10 +7,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.arcaneminecraft.ArcaneCommons;
@@ -23,16 +19,18 @@ public final class ArcaneSurvival extends JavaPlugin {
 		this.saveDefaultConfig();
 		
 		HelpLink hl = new HelpLink();
-		Seen sn = new Seen(this);
-		
 		getCommand("help").setExecutor(hl);
 		getCommand("link").setExecutor(hl);
+		
+		Seen sn = new Seen(this);
 		getCommand("seen").setExecutor(sn);
 		getCommand("seenf").setExecutor(sn);
 		
+		ArcAFK afk = new ArcAFK(this);
+		getCommand("afk").setExecutor(afk);
+		getServer().getPluginManager().registerEvents(afk, this);
 		
-		getServer().getPluginManager().registerEvents(new ArcaneEvents(), this);
-		getServer().getPluginManager().registerEvents(new ArcAFK(this), this);
+		getServer().getPluginManager().registerEvents(new PlayerJoin(this), this);
 	}
 
 	@Override
@@ -234,23 +232,5 @@ public final class ArcaneSurvival extends JavaPlugin {
 		}
 		*/
 		return false;
-	}
-	public final class ArcaneEvents implements Listener {
-		// Low priority for this; normal for donor, high for mod
-		@EventHandler (priority=EventPriority.LOW)
-		public void playerJoin(PlayerJoinEvent e) {
-			Player p = e.getPlayer();
-			// Send Splash Message
-			PlayerJoin.sendWelcomeMessage(p);
-			
-			// Send non-greylisted message
-			if (p.hasPermission("arcane.new"))
-				PlayerJoin.sendUnlistedMessage(p);
-			
-			// First join message
-			if (!p.hasPlayedBefore())
-				Bukkit.broadcastMessage(ColorPalette.META + p.getName()
-						+ " has joined Arcane for the first time");
-		}
 	}
 }
