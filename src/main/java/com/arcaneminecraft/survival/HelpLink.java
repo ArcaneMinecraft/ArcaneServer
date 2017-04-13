@@ -53,7 +53,7 @@ final class HelpLink implements CommandExecutor {
 			return ArcaneCommons.sendCommandMenu(sender, "Messaging Help", MESSAGE, label, subcmd, page);
 		case "donors":
 		case "donor":
-			if (sender.hasPermission("arcane.mod")) {
+			if (sender.hasPermission("arcane.donor")) {
 				return ArcaneCommons.sendCommandMenu(sender, "Donor Help", DONOR, label, subcmd, page);
 			}
 			sender.sendMessage(ArcaneCommons.noPermissionMsg(label, subcmd));

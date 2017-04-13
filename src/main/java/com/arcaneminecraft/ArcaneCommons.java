@@ -16,7 +16,7 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
 public final class ArcaneCommons {
-	public static final String TAG = ColorPalette.HEADING.toString() + ChatColor.BOLD + "[Arcane]";
+	public static final String TAG = tag("Arcane");
 	
 	/**
 	 * Message with a generic tag
@@ -24,7 +24,7 @@ public final class ArcaneCommons {
 	 * @return String of the message
 	 */
 	public static String tagMessage(String message) {
-		return TAG + " " + ColorPalette.CONTENT + message;
+		return TAG + ColorPalette.CONTENT + message;
 	}
 	
 	/**
@@ -55,15 +55,16 @@ public final class ArcaneCommons {
 		ret.setColor(ColorPalette.CONTENT);
 		
 		TextComponent a = new TextComponent("[");
-		a.setColor(ColorPalette.HEADING);
-		ret.addExtra(a);
-		
-		a = new TextComponent(tag);
 		a.setBold(true);
 		a.setColor(ColorPalette.HEADING);
 		ret.addExtra(a);
 		
+		a = new TextComponent(tag);
+		a.setColor(ColorPalette.HEADING);
+		ret.addExtra(a);
+		
 		a = new TextComponent("]");
+		a.setBold(true);
 		a.setColor(ColorPalette.HEADING);
 		ret.addExtra(a);
 
@@ -198,7 +199,7 @@ public final class ArcaneCommons {
 		// Iterate through each line
 		for (int i = 0; i < LIST.length; i++) {
 			// skip line if the player has no permission
-			if (LIST[i].length > 3 && sender.hasPermission(LIST[i][3]))
+			if (LIST[i].length > 3 && !sender.hasPermission(LIST[i][3]))
 				continue;
 			
 			TextComponent ret = new TextComponent("> ");
@@ -251,9 +252,11 @@ public final class ArcaneCommons {
 				// Compose a list of commands
 				String pgLs = ChatColor.GRAY + "Page " + npg + ":" + ChatColor.GOLD;
 				
-				for (String c[] : PGLIST[i])
-					pgLs += "\n /" + c[0];
-				
+				for (String c[] : PGLIST[i]) {
+					// Show if only player has permission
+					if (c.length < 4 || sender.hasPermission(c[3]))
+						pgLs += "\n /" + c[0];
+				}
 				TextComponent pg = new TextComponent("[" + npg + "]");
 				if (i == a)
 					pg.setColor(ChatColor.DARK_GRAY);

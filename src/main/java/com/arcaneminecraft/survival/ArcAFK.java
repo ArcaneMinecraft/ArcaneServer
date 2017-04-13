@@ -21,6 +21,8 @@ import org.bukkit.scheduler.BukkitTask;
 
 import com.arcaneminecraft.ArcaneCommons;
 
+// TODO: Redo the Runnable() implementation using a Class.
+
 final class ArcAFK implements CommandExecutor, Listener {
 	private final ArcaneSurvival plugin;
 	private final BukkitScheduler scheduler;

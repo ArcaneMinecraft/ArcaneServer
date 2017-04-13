@@ -48,11 +48,6 @@ commands:
 #    description: Fireworks (Arcane's first anniversity command)
 #  doge:
 #    description: Doge command
-# To migrate to ArcaneModeration
-  g0:
-    aliases: [g1, g2, g3, gsurvival, gcreative, gadventure, gspectator]
-    description: Admin command; change gamemode
-    usage: /g<gamemode>
 
 permissions:
   arcane.admin:
