@@ -60,17 +60,6 @@ public final class ArcaneSurvival extends JavaPlugin {
 			return true;
 		}
 		
-		// Changes gamemode. This is pretty awesome.
-		// g0, g1, g2, g3
-		if (cmd.getName().equalsIgnoreCase("g0")) {
-			if (sender.hasPermission("arcane.admin") || sender.hasPermission("minecraft.command.gamemode")) {
-				return ((Player)sender).performCommand("gamemode " + label.charAt(1));
-			} else {
-				sender.sendMessage(ArcaneCommons.noPermissionMsg(label));
-				return true;
-			}
-		}
-
 		// Shows greylist status / greylists players
 		if (cmd.getName().equalsIgnoreCase("greylist")) {
 			// Moderators will get a different message
