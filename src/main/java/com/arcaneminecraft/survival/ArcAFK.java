@@ -107,7 +107,7 @@ final class ArcAFK implements CommandExecutor, Listener {
 		if (temp.isEmpty() || temp == null || temp.length() < 9)
 		{
 			plugin.getLogger().info("ArcaneSurvival: AFK: empty player name? " + String.valueOf(temp));
-			temp = "I Am Error";
+			p.setPlayerListName("I Am Error");
 		}
 		p.setPlayerListName(temp.substring(8)); // magic number much? TAG_AFK is odd.
 		
@@ -126,6 +126,7 @@ final class ArcAFK implements CommandExecutor, Listener {
 		if (t != null) t.cancel();
 	}
 	
+	// TODO Running command does not reset AFK countdown
 	@EventHandler (priority=EventPriority.LOW)
 	public void detectCommand (PlayerCommandPreprocessEvent e) { unsetAFK(e.getPlayer()); }
 	

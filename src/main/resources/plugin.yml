@@ -12,7 +12,7 @@ commands:
     description: Sets you to [AFK] in the player list. Motion or chat will end it.
     usage: /afk
   apply:
-    description: Display the application link.
+    description: Display the greylist application link.
   arcanesurvival:
     aliases: [arc, arcane]
     description: Arcane help
@@ -22,17 +22,17 @@ commands:
   help:
     aliases: ["?"]
     description: Arcane help
-    usage: /help <help topic>
+    usage: /help [help topic]
   kill:
     description: Lets players self-destruct
     usage: /kill
   links:
-    aliases: [website,link,map,forum,discord,mumble,donate]
+    aliases: [link,discord,donate,forum,forums,map,mumble,rule,rules,website]
     description: Command that displays Arcane links
   list:
     description: Display a list of online users.
   ping:
-    description: Pings a player and shows their ping (in milliseconds)
+    description: Pings a player and shows their ping in milliseconds
     usage: /ping [player]
   seen:
     description: Check a player's last join date and time.

@@ -6,6 +6,7 @@ import java.util.Random;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -90,7 +91,18 @@ public final class ArcaneSurvival extends JavaPlugin {
 
 			return true;
 		}
-
+		
+		if (cmd.getName().equalsIgnoreCase("kill")) {
+			if (args.length == 0) {
+				getServer().dispatchCommand(getServer().getConsoleSender(), "minecraft:kill" + (sender instanceof Player ? " " + ((Player)sender).getUniqueId() : ""));
+				return true;
+			}
+			// For selected kill to go through, players will need Minecraft's kill permission in the end.
+			if (sender instanceof Player) ((Player)sender).performCommand("minecraft:kill " + args[0]);
+			if (sender instanceof ConsoleCommandSender) getServer().dispatchCommand(getServer().getConsoleSender(), "minecraft:kill "+ args[0]);
+			return true;
+		}
+		
 		if (cmd.getName().equalsIgnoreCase("list")) {
 			StringBuilder players = new StringBuilder();
 			for (Player player : Bukkit.getOnlinePlayers()) {

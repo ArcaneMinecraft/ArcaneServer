@@ -83,9 +83,10 @@ final class HelpLink implements CommandExecutor {
 	}
 	
 	private static final String LINK[][] = {
+			{"Rules","https://arcaneminecraft.com/rules/"},
+			{"Forum","https://arcaneminecraft.com/forum/"},
 			{"Dynmap","https://arcaneminecraft.com/dynmap/"},
 			{"Discord","https://arcaneminecraft.com/discord/"},
-			{"Forum","https://arcaneminecraft.com/forum/"},
 			{"Donation","https://arcaneminecraft.com/donate/"}
 	};
 	
