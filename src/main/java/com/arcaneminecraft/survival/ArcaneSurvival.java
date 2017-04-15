@@ -129,13 +129,13 @@ public final class ArcaneSurvival extends JavaPlugin {
 			if (args.length != 0) {
 				p2ping = getServer().getPlayer(args[0]);
 				if (p2ping == null) {
-					sender.sendMessage(ArcaneCommons.tag("Pong", "'" + args[0] + "' is not online."));
+					sender.sendMessage(ArcaneCommons.tag("Ping", "'" + args[0] + "' is not online."));
 					return true;
 				}
 			}
 			else {
 				if (!(sender instanceof Player)) {
-					sender.sendMessage(ArcaneCommons.tagMessage("Your ping will forever be <1ms."));
+					sender.sendMessage(ArcaneCommons.tag("Ping","Your ping will forever be <1ms."));
 					return true;
 				}
 				p2ping = (Player)sender;
@@ -143,7 +143,7 @@ public final class ArcaneSurvival extends JavaPlugin {
 
 			StringBuilder m;
 			if (p2ping == sender)
-				m = new StringBuilder("Your ");
+				m = new StringBuilder("Pong! Your ");
 			else
 				m = new StringBuilder(p2ping.getDisplayName()).append("'s ");
 			m.append("ping: ");
@@ -151,7 +151,9 @@ public final class ArcaneSurvival extends JavaPlugin {
 			try {
 				Object entityPlayer = p2ping.getClass().getMethod("getHandle").invoke(p2ping);
 				int ping = (int) entityPlayer.getClass().getField("ping").get(entityPlayer);
+				
 				sender.sendMessage(ArcaneCommons.tag("Ping", m.append(ColorPalette.FOCUS).append(ping).append("ms").toString()));
+				
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
 					| NoSuchMethodException | SecurityException | NoSuchFieldException e) {
 				// TODO Auto-generated catch block

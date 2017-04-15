@@ -89,6 +89,7 @@ final class ArcAFK implements CommandExecutor, Listener {
 		if (t != null) t.cancel();
 		
 		// Player is now afk.
+		p.setSleepingIgnored(true);
 		p.setPlayerListName(TAG_AFK + p.getPlayerListName());
 		p.sendMessage(FORMAT_AFK + "You are now AFK.");
 	}
@@ -111,15 +112,16 @@ final class ArcAFK implements CommandExecutor, Listener {
 		}
 		p.setPlayerListName(temp.substring(8)); // magic number much? TAG_AFK is odd.
 		
+		p.setSleepingIgnored(false);
 		p.sendRawMessage(FORMAT_AFK + "You are no longer AFK.");
 	}
 	
-	@EventHandler (priority=EventPriority.LOW)
+	@EventHandler (priority=EventPriority.MONITOR)
 	public void detectJoin (PlayerJoinEvent e) { 
 		resetTimer(e.getPlayer());
 	}
 	
-	@EventHandler (priority=EventPriority.LOW)
+	@EventHandler (priority=EventPriority.MONITOR)
 	public void detectQuit (PlayerQuitEvent e) {
 		resetTimerQueue.remove(e.getPlayer());
 		BukkitTask t = afkTask.remove(e.getPlayer());
@@ -127,12 +129,12 @@ final class ArcAFK implements CommandExecutor, Listener {
 	}
 	
 	// TODO Running command does not reset AFK countdown
-	@EventHandler (priority=EventPriority.LOW)
+	@EventHandler (priority=EventPriority.MONITOR)
 	public void detectCommand (PlayerCommandPreprocessEvent e) { unsetAFK(e.getPlayer()); }
 	
-	@EventHandler (priority=EventPriority.LOW)
+	@EventHandler (priority=EventPriority.MONITOR)
 	public void detectChat (AsyncPlayerChatEvent e) { unsetAFK(e.getPlayer()); }
 	
-	@EventHandler (priority=EventPriority.LOW)
+	@EventHandler (priority=EventPriority.MONITOR)
 	public void detectMotion (PlayerMoveEvent e) { unsetAFK(e.getPlayer()); }
 }

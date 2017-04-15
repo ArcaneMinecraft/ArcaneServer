@@ -1,6 +1,7 @@
 package com.arcaneminecraft.survival;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -24,17 +25,8 @@ final class Seen implements CommandExecutor {
 		this.plugin = plugin;
 	}
 	
-	// for /seen, temporary
-    public static String getCurrentDTG(long l_time) {
-        java.sql.Date date = new java.sql.Date(l_time);
-        SimpleDateFormat dtgFormat = new SimpleDateFormat("hh:mm:ss 'on' MMMM dd yyyy");
-        return dtgFormat.format(date);
-    }
-
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		// seen, seenf, fseen
-		// true: /seen, false: /seenf
 		boolean runSeen = cmd.getName().equalsIgnoreCase("seen");
 		String name;
 		long seen;
@@ -87,12 +79,14 @@ final class Seen implements CommandExecutor {
 		}
 		
 		// Human-friendly date parsing
-		String strDte = getCurrentDTG(seen);
+        Date date = new Date(seen);
+        String d = new SimpleDateFormat("yyyy-MM-dd").format(date);
+        String t = new SimpleDateFormat("HH:mm z").format(date);
 		
 		if (runSeen) {
 			sender.sendMessage(msg.append(name)
-					.append(ColorPalette.CONTENT + " was last seen at " + ColorPalette.FOCUS)
-					.append(strDte).toString());
+					.append(ColorPalette.CONTENT + " was last seen on " + ColorPalette.FOCUS)
+					.append(d).append(ColorPalette.CONTENT + " at ").append(t).toString());
 			return true;
 		}
 		
@@ -100,8 +94,8 @@ final class Seen implements CommandExecutor {
 			name = "You";
 		
 		sender.sendMessage(msg.append(name)
-				.append(ColorPalette.CONTENT + " first logged in at " + ColorPalette.FOCUS)
-				.append(strDte).toString());
+				.append(ColorPalette.CONTENT + " first logged in on " + ColorPalette.FOCUS)
+				.append(d).append(ColorPalette.CONTENT + " at ").append(t).toString());
 		return true;
 	}
 }
