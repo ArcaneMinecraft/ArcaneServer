@@ -61,7 +61,7 @@ permissions:
     default: op
   arcane.donor:
     description: Arcane donor.
-    default: op
+    default: false
   arcane.trusted:
     description: Arcane greylisted players.
     default: op
