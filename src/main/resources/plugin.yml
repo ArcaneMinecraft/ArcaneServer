@@ -1,5 +1,5 @@
 name: ArcaneSurvival
-version: 2.0.0-SNAPSHOT
+version: ${project.version}
 authors: [Agentred100, jugglingman456, Morios, SimonOrJ]
 description: Arcane Survival Essentials
 main: com.arcaneminecraft.survival.ArcaneSurvival
@@ -43,11 +43,6 @@ commands:
     usage: /seenf [player]
   username:
     description: Display your username!
-# To migrate to SpigotTesting
-#  f:
-#    description: Fireworks (Arcane's first anniversity command)
-#  doge:
-#    description: Doge command
 
 permissions:
   arcane.admin:
@@ -75,6 +70,3 @@ permissions:
   arcane.new:
     description: Arcane 'new' player permission
     default: not op
-#  arcane.f:
-#    description: fireworks
-#    default: op
