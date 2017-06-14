@@ -84,8 +84,8 @@ public final class ArcaneCommons {
 	 * @param cLabel
 	 * @return
 	 */
-	public static String noPermissionMsg(String cLabel) {
-		return tagMessage("You do not have permission to run \"/" + cLabel + "\".");
+	public static String noPermissionMsg(String label) {
+		return tagMessage("You do not have permission to run \"/" + label + "\".");
 	}
 	/**
 	 * Generic no permission message with arguments.
@@ -93,9 +93,9 @@ public final class ArcaneCommons {
 	 * @param subcommand
 	 * @return
 	 */
-	public static String noPermissionMsg(String cLabel, String subcommand) {
+	public static String noPermissionMsg(String label, String subcommand) {
 		return tagMessage("You do not have permission to use \""
-				+ subcommand + "\" in \"/" + cLabel + "\".");
+				+ subcommand + "\" in \"/" + label + "\".");
 	}
 	
 	/**
