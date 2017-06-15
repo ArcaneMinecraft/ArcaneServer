@@ -23,7 +23,8 @@ public final class ArcaneSurvival extends JavaPlugin {
 		getCommand("help").setExecutor(hl);
 		getCommand("link").setExecutor(hl);
 		
-		Seen sn = new Seen(this);
+		FindSeen sn = new FindSeen(this);
+		getCommand("findplayer").setExecutor(sn);
 		getCommand("seen").setExecutor(sn);
 		getCommand("seenf").setExecutor(sn);
 		
@@ -55,8 +56,7 @@ public final class ArcaneSurvival extends JavaPlugin {
 		// apply
 		if (cmd.getName().equalsIgnoreCase("apply")) {
 			sender.sendMessage("");
-			sender.sendMessage(ColorPalette.HEADING + "Click below to apply for build rights:");
-			sender.sendMessage(ColorPalette.FOCUS + "https://arcaneminecraft.com/apply/");
+			sender.sendMessage(ArcaneCommons.tagMessage("Apply for build rights here: " + ColorPalette.FOCUS + "https://arcaneminecraft.com/apply/"));
 			sender.sendMessage("");
 			return true;
 		}

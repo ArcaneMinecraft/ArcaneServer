@@ -19,6 +19,9 @@ commands:
   greylist:
     aliases: [graylist]
     description: Greylist command
+  findplayer:
+    aliases: [fplayer, fp]
+    description: Find players based on part of their name.
   help:
     aliases: ["?"]
     description: Arcane help
