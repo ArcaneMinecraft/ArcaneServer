@@ -9,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -18,8 +19,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import com.arcaneminecraft.ArcaneCommons;
 import com.arcaneminecraft.ColorPalette;
-
-import net.md_5.bungee.api.ChatColor;
 
 final class FindSeen implements CommandExecutor {
 	private static final String TAG = "Seen";
