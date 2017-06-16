@@ -155,13 +155,13 @@ final class HelpLink implements CommandExecutor {
 	};
 	private static final String CHATMOD[][][] = {
 			{
-				{"warn","warns a player","/warn <player> <reason>"},
-				{"kick","kick a player","/kick <player> <reason>"},
-				{"mute","mutes a player","/mute <player> <reason>"},
-				{"tempmute","temporary mutes a player","/tempmute <player> <reason>"},
-				{"unmute","unmutes a player","/unmute <player>"},
+				{"badge", "your tag management"},
 				{"greylist <user>","greylist command","/greylist <player>"},
-				{"newsmod","set or clear news","/newsmod (set|clear) [<news...>]"},
+				{"warn","warn a player","/warn <player> <reason>"},
+				{"kick","kick a player","/kick <player> <reason>"},
+				{"mute","mute a player","/mute <player> <reason>"},
+				{"tempmute","temporarily mute a player","/tempmute <player> <reason>"},
+				{"unmute","unmute a player","/unmute <player>"}
 			},
 			{
 				{"bminfo","view a player information","/bminfo <player>"},
@@ -184,10 +184,12 @@ final class HelpLink implements CommandExecutor {
 				{"openinv","open a player's inventory","Alias:\n /open\n /inv\n /oi"},
 				{"openender","open a player's Ender chest","Alias:\n /oe"},
 				{"whitelist","whitelist help"},
-				{"restart","restart the server"},
-				{"ultraban","super special command" + ColorPalette.NEGATIVE + ChatColor.ITALIC + " in development! Don't use!"}
+				{"news set","set a new news","/news set <news...>"},
+				{"news set","clear existing news"}
 			},
 			{
+				{"restart","restart the server"},
+				{"ultraban","super special command" + ColorPalette.NEGATIVE + ChatColor.ITALIC + " in development! Don't use!"},
 				{"help chatmod", "More moderation help", "Alias:\n/help chatmods"}
 			}
 	};

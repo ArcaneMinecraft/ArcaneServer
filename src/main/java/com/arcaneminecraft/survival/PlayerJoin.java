@@ -59,23 +59,26 @@ final class PlayerJoin implements CommandExecutor, Listener {
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (cmd.getName().equalsIgnoreCase("news")) {
-			sender.sendMessage(ArcaneCommons.tag(NEWS_TAG, newsMsg));
-			return true;
-		}
-		if (cmd.getName().equalsIgnoreCase("newsmod")) {
+			if (args.length == 0) {
+				if (newsMsg == null)
+					sender.sendMessage(ArcaneCommons.tag(NEWS_TAG, ChatColor.ITALIC + "(No News)"));
+				else
+					sender.sendMessage(ArcaneCommons.tag(NEWS_TAG, newsMsg));
+			}
+			
 			if (sender.hasPermission("arcane.command.newsmod")) {
 				if (args.length == 0) {
-					sender.sendMessage(ArcaneCommons.tag(NEWS_TAG, "Usage: /newsmod (set|clear) [<new news...>]"));
+					sender.sendMessage(ArcaneCommons.tag(NEWS_TAG, "Usage: /news (set|clear) [<new news...>]"));
 					return true;
 				}
-				if (args[0] == "set") {
+				if (args[0].equalsIgnoreCase("set")) {
 					if (args.length == 1) {
-						sender.sendMessage(ArcaneCommons.tag(NEWS_TAG, "Usage: /newsmod set <new news...>"));
+						sender.sendMessage(ArcaneCommons.tag(NEWS_TAG, "Usage: /news set <new news...>"));
 						return true;
 					}
 					StringBuilder n = new StringBuilder(args[1]);
 					for (int i = 2; i < args.length; i++)
-						n.append(args[i]);
+						n.append(' ').append(args[i]);
 					String s = n.toString(); 
 					plugin.getConfig().set(NEWS_CONFIG, s);
 					s = ChatColor.translateAlternateColorCodes('&', s);
@@ -83,18 +86,20 @@ final class PlayerJoin implements CommandExecutor, Listener {
 					sender.sendMessage(ArcaneCommons.tag(NEWS_TAG, "News set: " + s));
 					return true;
 				}
-				if (args[0] == "clear") {
+				if (args[0].equalsIgnoreCase("clear")) {
 					plugin.getConfig().set(NEWS_CONFIG, null);
 					newsMsg = null;
 					sender.sendMessage(ArcaneCommons.tag(NEWS_TAG, "News cleared."));
 					return true;
 				}
 				
-				sender.sendMessage(ArcaneCommons.tag(NEWS_TAG, "Usage: /newsmod (set|clear) [<new news...>]"));
+				sender.sendMessage(ArcaneCommons.tag(NEWS_TAG, "Usage: /news (set|clear) [<new news...>]"));
 				return true;
 			}
 			
-			sender.sendMessage(ArcaneCommons.noPermissionMsg(label));
+			if (args.length != 0)
+				sender.sendMessage(ArcaneCommons.noPermissionMsg(label,args[0]));
+			
 			return true;
 		}
 		return false;
@@ -107,6 +112,10 @@ final class PlayerJoin implements CommandExecutor, Listener {
 		// Send Splash Message
 		sendWelcomeMessage(p);
 		
+		if (newsMsg != null) {
+			p.sendMessage(ArcaneCommons.tag(NEWS_TAG, newsMsg));
+			p.sendMessage("");
+		}
 		// Send non-greylisted message
 		if (p.hasPermission("arcane.new"))
 			sendUnlistedMessage(p);
@@ -117,26 +126,22 @@ final class PlayerJoin implements CommandExecutor, Listener {
 					+ " has joined Arcane for the first time");
 	}
 	
-	final boolean sendWelcomeMessage(Player p) {
+	final void sendWelcomeMessage(Player p) {
 		p.sendMessage("");
 		p.sendMessage(ChatColor.GRAY.toString() + ChatColor.STRIKETHROUGH + HR
 				+ ChatColor.RESET + ColorPalette.HEADING + ChatColor.BOLD + " Arcane Survival "
 				+ ChatColor.RESET + ChatColor.GRAY + ChatColor.STRIKETHROUGH + HR);
 		p.sendMessage("");
 
-		p.spigot().sendMessage(joinText);
+		p.spigot().sendMessage(joinText[0]);
+		p.spigot().sendMessage(joinText[1]);
 
 		p.sendMessage("");
 		p.sendMessage(ChatColor.GRAY.toString() + ChatColor.STRIKETHROUGH + "    " + HR + HR + HR);
 		p.sendMessage("");
-		if (newsMsg != null) {
-			p.sendMessage(ArcaneCommons.tag(NEWS_TAG, newsMsg));
-			p.sendMessage("");
-		}
-		return true;
 	}
 	
-	final boolean sendUnlistedMessage(Player p) {
+	final void sendUnlistedMessage(Player p) {
 		TextComponent msg = ArcaneCommons.tagTC("Notice");
 		
 		msg.addExtra("You do ");
@@ -156,7 +161,5 @@ final class PlayerJoin implements CommandExecutor, Listener {
 		
 		p.sendMessage(ColorPalette.CONTENT + " You can ask a staff member to approve your application.");
 		p.sendMessage("");
-		
-		return true;
 	}
 }

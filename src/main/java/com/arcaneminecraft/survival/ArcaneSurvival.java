@@ -18,7 +18,7 @@ public final class ArcaneSurvival extends JavaPlugin {
 	
 	@Override
 	public void onEnable() {
-		this.saveDefaultConfig();
+		saveDefaultConfig();
 		
 		HelpLink hl = new HelpLink();
 		getCommand("help").setExecutor(hl);
@@ -26,7 +26,6 @@ public final class ArcaneSurvival extends JavaPlugin {
 		
 		PlayerJoin pj = new PlayerJoin(this);
 		getCommand("news").setExecutor(pj);
-		getCommand("newsmod").setExecutor(pj);
 		getServer().getPluginManager().registerEvents(pj, this);
 		
 		FindSeen sn = new FindSeen(this);
@@ -38,6 +37,11 @@ public final class ArcaneSurvival extends JavaPlugin {
 		getCommand("afk").setExecutor(afk);
 		getServer().getPluginManager().registerEvents(afk, this);
 		
+	}
+	
+	@Override
+	public void onDisable() {
+		saveConfig();
 	}
 
 	@Override
@@ -115,9 +119,9 @@ public final class ArcaneSurvival extends JavaPlugin {
 				else pl.add(ColorPalette.FOCUS + p.getDisplayName() +  ColorPalette.CONTENT);
 			}
 
-			sender.sendMessage(ArcaneCommons.tag(" Online players: " + ColorPalette.FOCUS
+			sender.sendMessage(ArcaneCommons.tagMessage("Online players: " + ColorPalette.FOCUS
 					+ getServer().getOnlinePlayers().size() + "/" + getServer().getMaxPlayers()));
-			sender.sendMessage(" " + ColorPalette.FOCUS + String.join(", ", pl));
+			sender.sendMessage(" " + ColorPalette.CONTENT + String.join(", ", pl));
 			sender.sendMessage("");
 
 			return true;

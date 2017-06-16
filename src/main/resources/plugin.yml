@@ -36,9 +36,7 @@ commands:
     description: Display a list of online users.
   news:
     alias: [motd]
-    description: Display the news.
-  newsmod:
-    description: Modify the news.
+    description: Display the news. Edit the news with arcane.command.news permission.
   ping:
     description: Pings a player and shows their ping in milliseconds
     usage: /ping [player]
@@ -78,6 +76,6 @@ permissions:
   arcane.new:
     description: Arcane 'new' player permission
     default: not op
-  arcane.command.newsmod:
+  arcane.command.news.set:
     description: Permission to set/clear Arcane News
     default: op
