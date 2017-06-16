@@ -100,7 +100,7 @@ final class FindSeen implements CommandExecutor {
 						
 					}
 					sender.sendMessage(send.toString());
-					sender.sendMessage(ColorPalette.CONTENT + "---");
+					sender.sendMessage("");
 				}
 			};
 			s.runTaskAsynchronously(plugin);

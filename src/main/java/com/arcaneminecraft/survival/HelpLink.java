@@ -48,9 +48,6 @@ final class HelpLink implements CommandExecutor {
 		switch (subcmd) {
 		case "lwc":
 			return ArcaneCommons.sendCommandMenu(sender, "LWC Help", LWC, label, subcmd, page);
-		case "message":
-		case "msg":
-			return ArcaneCommons.sendCommandMenu(sender, "Messaging Help", MESSAGE, label, subcmd, page);
 		case "donors":
 		case "donor":
 			if (sender.hasPermission("arcane.donor")) {
@@ -104,33 +101,33 @@ final class HelpLink implements CommandExecutor {
 				{"sethome","set your home","/sethome [name]"},
 				{"kill","temporary ends your suffering just to revive you"},
 				{"afk","mark yourself as afk"},
-				{"pvp","toggle PvP combat"},
+				{"pvp","toggle PvP combat"}
+			},
+			{
+				{"tell","message an online player","/tell <player> <message>\nAlias:\n /t\n /message\n /msg\n /m"},
+				{"reply","reply to a recently messaged person","/reply <message>\nAlias:\n /r"},
+				{"local","local chat","/l <message>\nAlias:\n /l"},
+				{"localtoggle","toggle local chat","Alias:\n /ltoggle\n /lt"},
+				{"localradius","set local chat sending radius","Alias:\n /lr"},
+				{"global","send regular chat (when toggled)","/g <message>\nAlias:\n /g"},
+				{"list","lists all online players"}
 			},
 			{
 				{"seen","displays the date a player was last seen","/seen [player]"},
 				{"seenf","displays the date a player joined Arcane","/seenf [player]\nAlias:\n /fseen"},
-				{"list","lists all online players"},
+				{"findplayer","displays the date a player joined Arcane","/seenf [player]\nAlias:\n /fplayer\n /fp"},
+				{"ping","get a player's ping","/ping [player]"},
 				{"tps","checks server ticks per second"},
-				{"username", "an advanced username command"},
 				{"links","links to arcane sites"},
-				{"donors", "list of donor commands", "Alias:\n /donor"}
+				{"news","review the news"}
 			},
 			{
-				{"help message","message commands","Alias:\n /help msg"},
+				{"username", "an advanced username command"},
+				{"donors", "list of donor commands", "Alias:\n /donor"},
 				{"help lwc", "chest/door protection help","More help:\n /lwc"},
 				{"help donor", "donor help", "Alias:\n /help donors", "arcane.donor"},
 				{"help chatmod", "chat moderator help", "Alias:\n /help chatmods", "arcane.chatmod"},
 				{"help mod", "moderator help", "Alias:\n /help mods", "arcane.mod"}
-			}
-	};
-	private static final String MESSAGE[][][] = {
-			{
-				{"msg","message an online player","/msg <player> <message>\nAlias:\n /m"},
-				{"reply","reply to a recently messaged person","/reply <message>\nAlias:\n /r"},
-				{"local","local chat","/l <message>\nAlias:\n /l"},
-				{"ltoggle","toggle local chat"},
-				{"a","admin chat","/a <message>","arcane.mod"},
-				{"atoggle","toggle admin chat",null,"arcane.mod"}
 			}
 	};
 	private static final String LWC[][][] = {
@@ -152,42 +149,45 @@ final class HelpLink implements CommandExecutor {
 			{
 				{"slap", "lets you slap a player"},
 				{"dynmap hide", "hide your location from the Dynmap"},
-				{"dynmap show", "show your location in the Dynmap"}
+				{"dynmap show", "show your location in the Dynmap"},
+				{"badge", "your tag management"}
 			}
 	};
 	private static final String CHATMOD[][][] = {
 			{
 				{"warn","warns a player","/warn <player> <reason>"},
+				{"kick","kick a player","/kick <player> <reason>"},
 				{"mute","mutes a player","/mute <player> <reason>"},
 				{"tempmute","temporary mutes a player","/tempmute <player> <reason>"},
 				{"unmute","unmutes a player","/unmute <player>"},
+				{"greylist <user>","greylist command","/greylist <player>"},
+				{"newsmod","set or clear news","/newsmod (set|clear) [<news...>]"},
+			},
+			{
 				{"bminfo","view a player information","/bminfo <player>"},
-				{"alts","view a player's alts.","/alts <player>"},
-				{"greylist <user>","greylist command","/greylist <player>"}
+				{"alts","view a player's alts.","/alts <player>"}
 			}
 	};
 	private static final String MOD[][][] = {
 			{
-				{"kick","kick a player","/kick <player> <reason>"},
+				{"tp","teleport to a player or location"},
+				{"frz","freeze a player" + ColorPalette.POSITIVE + ChatColor.ITALIC + " Agent's favorite," + ColorPalette.NEGATIVE + ChatColor.ITALIC + " Simon hates this!","/frz <player>"},
 				{"ban","ban a player" + ColorPalette.NEGATIVE + ChatColor.ITALIC + " like a boss","/ban <player> <reason>"},
 				{"tempban","temporary ban a player","/tempban <player> <reason>"},
 				{"unban","pardon a player","/unban <player>"},
-				{"frz","freeze a player" + ColorPalette.POSITIVE + ChatColor.ITALIC + " Agent's favorite," + ColorPalette.NEGATIVE + ChatColor.ITALIC + " Simon hates this!","/frz <player>"},
-				{"a","admin chat","/a <message>"},
-				{"atoggle","toggle admin chat"}
-			},
-			{
 				{"supervanish","vanish toggle","Alias:\n/sv"},
-				{"tp","teleport to a player or location"},
-				{"openinv","open a player's inventory","Alias:\n/open\n/inv\noi"},
-				{"openender","open a player's Ender chest","Alias:\n/oe"},
-				{"coreprotect i","enable the inspection wand","Alias:\n/co i"},
-				{"whitelist","whitelist help"},
-				{"restart","restart the server","This has slight chance of failing.\nPlease make sure an admin is semi-around in case\nthe restart fails."}
+				{"coreprotect","official CoreProtect help","Alias:\n /co"}
 			},
 			{
-				{"ultraban","super special command" + ColorPalette.NEGATIVE + ChatColor.ITALIC + " in development! Don't use!"},
-				{"coreprotect","official CoreProtect help","Alias:\n/co"},
+				{"a","admin chat","/a <message>"},
+				{"atoggle","toggle admin chat"},
+				{"openinv","open a player's inventory","Alias:\n /open\n /inv\n /oi"},
+				{"openender","open a player's Ender chest","Alias:\n /oe"},
+				{"whitelist","whitelist help"},
+				{"restart","restart the server"},
+				{"ultraban","super special command" + ColorPalette.NEGATIVE + ChatColor.ITALIC + " in development! Don't use!"}
+			},
+			{
 				{"help chatmod", "More moderation help", "Alias:\n/help chatmods"}
 			}
 	};
