@@ -1,9 +1,9 @@
 package com.arcaneminecraft.survival;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Random;
 
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -14,6 +14,7 @@ import com.arcaneminecraft.ArcaneCommons;
 import com.arcaneminecraft.ColorPalette;
 
 public final class ArcaneSurvival extends JavaPlugin {
+	private ArcAFK afk;
 	
 	@Override
 	public void onEnable() {
@@ -23,16 +24,20 @@ public final class ArcaneSurvival extends JavaPlugin {
 		getCommand("help").setExecutor(hl);
 		getCommand("link").setExecutor(hl);
 		
+		PlayerJoin pj = new PlayerJoin(this);
+		getCommand("news").setExecutor(pj);
+		getCommand("newsmod").setExecutor(pj);
+		getServer().getPluginManager().registerEvents(pj, this);
+		
 		FindSeen sn = new FindSeen(this);
 		getCommand("findplayer").setExecutor(sn);
 		getCommand("seen").setExecutor(sn);
 		getCommand("seenf").setExecutor(sn);
 		
-		ArcAFK afk = new ArcAFK(this);
+		this.afk = new ArcAFK(this);
 		getCommand("afk").setExecutor(afk);
 		getServer().getPluginManager().registerEvents(afk, this);
 		
-		getServer().getPluginManager().registerEvents(new PlayerJoin(this), this);
 	}
 
 	@Override
@@ -104,21 +109,16 @@ public final class ArcaneSurvival extends JavaPlugin {
 		}
 		
 		if (cmd.getName().equalsIgnoreCase("list")) {
-			StringBuilder players = new StringBuilder();
-			for (Player player : Bukkit.getOnlinePlayers()) {
-				if (players.length() > 0) {
-					players.append(", ");
-				}
-				players.append(player.getDisplayName());
+			ArrayList<String> pl = new ArrayList<>();
+			for (Player p : getServer().getOnlinePlayers()) {
+				if (afk.isAFK(p)) pl.add( p.getDisplayName());
+				else pl.add(ColorPalette.FOCUS + p.getDisplayName() +  ColorPalette.CONTENT);
 			}
 
-			if (sender instanceof Player) {
-				sender.sendMessage(ColorPalette.HEADING + " Online players: " + ColorPalette.FOCUS
-						+ Bukkit.getServer().getOnlinePlayers().size() + "/" + Bukkit.getMaxPlayers());
-				sender.sendMessage(" " + players.toString());
-			}
-			else
-				getServer().getLogger().info(players.toString());
+			sender.sendMessage(ArcaneCommons.tag(" Online players: " + ColorPalette.FOCUS
+					+ getServer().getOnlinePlayers().size() + "/" + getServer().getMaxPlayers()));
+			sender.sendMessage(" " + ColorPalette.FOCUS + String.join(", ", pl));
+			sender.sendMessage("");
 
 			return true;
 

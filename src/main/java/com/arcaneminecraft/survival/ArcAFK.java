@@ -16,8 +16,7 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.scheduler.BukkitScheduler;
-import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import com.arcaneminecraft.ArcaneCommons;
 
@@ -25,19 +24,23 @@ import com.arcaneminecraft.ArcaneCommons;
 
 final class ArcAFK implements CommandExecutor, Listener {
 	private final ArcaneSurvival plugin;
-	private final BukkitScheduler scheduler;
 	private final HashSet<Player> resetTimerQueue = new HashSet<>();
-	private final HashMap<Player, BukkitTask> afkTask = new HashMap<>(); // nothing: active, hasObject: active, null: afk
+	/** Variable that stores task if player has a running task.  If null, player is afk. */
+	private final HashMap<Player, BukkitRunnable> afkTask = new HashMap<>(); // nothing: active, hasObject: active, null: afk
 	private static final long AFK_COUNTDOWN = 6000L; // 6000 tick (5 minute) countdown to being afk
 	private static final String FORMAT_AFK = ChatColor.GRAY + "* ";
 	private static final String TAG_AFK = ChatColor.DARK_PURPLE + "[AFK] " + ChatColor.RESET;
 	
 	ArcAFK(ArcaneSurvival plugin) {
 		this.plugin = plugin;
-		scheduler = plugin.getServer().getScheduler();
+		
+		// if players are already online
+		for (Player p : plugin.getServer().getOnlinePlayers()) {
+			resetTimerQueue.add(p);
+		}
 		
 		// resetTimer Queue Runner (because creating multiple new object didn't seem ideal at all)
-		scheduler.runTaskTimerAsynchronously(plugin, new Runnable() {
+		new BukkitRunnable() {
 			@Override
 			public void run() {
 				for (Player p : resetTimerQueue) {
@@ -45,14 +48,19 @@ final class ArcAFK implements CommandExecutor, Listener {
 				}
 				resetTimerQueue.clear();
 			}
-		}, 0L, 1200L); // run every 1200 ticks (1 minute)
+		}.runTaskTimerAsynchronously(plugin, 0L, 1200L); // run every 1200 ticks (1 minute)
 		
-		// if players are already online
-		for (Player p : plugin.getServer().getOnlinePlayers()) {
-			resetTimerQueue.add(p);
-		}
 	}
-
+	
+	/**
+	 * Shows whether the player is afk.
+	 * @param p Player in question.
+	 * @return ture if the player is afk.
+	 */
+	public boolean isAFK(Player p) { // AFK if object is null.
+		return afkTask.containsKey(p) && afkTask.get(p) == null;
+	}
+	
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (!(sender instanceof Player)) {
@@ -67,25 +75,25 @@ final class ArcAFK implements CommandExecutor, Listener {
 	}
 	
 	private void resetTimer(Player p) { // this is run for active players every minute
-		BukkitTask t = afkTask.put(p, scheduler.runTaskLaterAsynchronously(plugin, new Runnable(){
+		BukkitRunnable b = new BukkitRunnable(){
 			@Override
 			public void run() {
 				setAFK(p);
 			}
-		}, AFK_COUNTDOWN));
+		};
+		b.runTaskLater(plugin, AFK_COUNTDOWN);
+		
+		BukkitRunnable t = afkTask.put(p, b);
+		
 		// If task existed before, cancel that task.
 		if (t != null) t.cancel();
-	}
-	
-	private boolean isAFK(Player p) {
-		return afkTask.containsKey(p) && afkTask.get(p) == null;
 	}
 	
 	private void setAFK(Player p) {
 		if (isAFK(p)) return;
 		
 		// If a timer was already running, cancel it.
-		BukkitTask t = afkTask.put(p, null);
+		BukkitRunnable t = afkTask.put(p, null);
 		if (t != null) t.cancel();
 		
 		// Player is now afk.
@@ -100,10 +108,10 @@ final class ArcAFK implements CommandExecutor, Listener {
 		if (!isAFK(p)) return;
 		// only truly afk players below this comment
 		
-		BukkitTask t = afkTask.remove(p);
+		BukkitRunnable t = afkTask.remove(p);
 		if (t != null) t.cancel();
 		
-		// Check leaderboard string
+		// Check tab list string
 		String temp = p.getPlayerListName();
 		if (temp.isEmpty() || temp == null || temp.length() < 9)
 		{
@@ -124,7 +132,7 @@ final class ArcAFK implements CommandExecutor, Listener {
 	@EventHandler (priority=EventPriority.MONITOR)
 	public void detectQuit (PlayerQuitEvent e) {
 		resetTimerQueue.remove(e.getPlayer());
-		BukkitTask t = afkTask.remove(e.getPlayer());
+		BukkitRunnable t = afkTask.remove(e.getPlayer());
 		if (t != null) t.cancel();
 	}
 	
