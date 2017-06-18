@@ -52,6 +52,10 @@ final class ArcAFK implements CommandExecutor, Listener {
 		
 	}
 	
+	void onDisable() {
+		// TODO: remove AFK from everyone.
+	}
+	
 	/**
 	 * Shows whether the player is afk.
 	 * @param p Player in question.
@@ -98,12 +102,13 @@ final class ArcAFK implements CommandExecutor, Listener {
 		
 		// Player is now afk.
 		p.setSleepingIgnored(true);
+		p.setDisplayName(TAG_AFK + p.getDisplayName());
 		p.setPlayerListName(TAG_AFK + p.getPlayerListName());
 		p.sendMessage(FORMAT_AFK + "You are now AFK.");
 	}
 	
 	private void unsetAFK(Player p) {
-		resetTimerQueue.add(p);
+		resetTimerQueue.add(p); // TODO: Figure out what's wrong (Sometimes not aware player is afk.)
 		
 		if (!isAFK(p)) return;
 		// only truly afk players below this comment
@@ -112,13 +117,10 @@ final class ArcAFK implements CommandExecutor, Listener {
 		if (t != null) t.cancel();
 		
 		// Check tab list string
-		String temp = p.getPlayerListName();
-		if (temp.isEmpty() || temp == null || temp.length() < 9)
-		{
-			plugin.getLogger().info("ArcaneSurvival: AFK: empty player name? " + String.valueOf(temp));
-			p.setPlayerListName("I Am Error");
-		}
-		p.setPlayerListName(temp.substring(8)); // magic number much? TAG_AFK is odd.
+		String pdn = p.getDisplayName();
+		String pln = p.getPlayerListName();
+		p.setDisplayName(pdn.startsWith(TAG_AFK) ? pdn.substring(8) : p.getName());
+		p.setPlayerListName(pln.startsWith(TAG_AFK) ? pln.substring(8) : p.getName()); // magic number much? TAG_AFK is odd.
 		
 		p.setSleepingIgnored(false);
 		p.sendRawMessage(FORMAT_AFK + "You are no longer AFK.");

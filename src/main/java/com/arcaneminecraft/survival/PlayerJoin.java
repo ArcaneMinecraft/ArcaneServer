@@ -93,7 +93,7 @@ final class PlayerJoin implements CommandExecutor, Listener {
 					return true;
 				}
 				
-				sender.sendMessage(ArcaneCommons.tag(NEWS_TAG, "Usage: /news (set|clear) [<new news...>]"));
+				sender.sendMessage(ArcaneCommons.tag(NEWS_TAG, "Admin Usage: /news (set|clear) [<new news...>]"));
 				return true;
 			}
 			
@@ -105,25 +105,21 @@ final class PlayerJoin implements CommandExecutor, Listener {
 		return false;
 	}
 	
-	// Low priority for this; normal for donor, high for mod
+	// Low priority for this; normal for donor message
 	@EventHandler (priority=EventPriority.LOW)
-	public void playerJoin(PlayerJoinEvent e) {
+	public void joinMessage(PlayerJoinEvent e) {
 		Player p = e.getPlayer();
 		// Send Splash Message
 		sendWelcomeMessage(p);
-		
+	}
+	
+	@EventHandler (priority=EventPriority.HIGH)
+	public void news(PlayerJoinEvent e) {
 		if (newsMsg != null) {
+			Player p = e.getPlayer();
 			p.sendMessage(ArcaneCommons.tag(NEWS_TAG, newsMsg));
 			p.sendMessage("");
 		}
-		// Send non-greylisted message
-		if (p.hasPermission("arcane.new"))
-			sendUnlistedMessage(p);
-		
-		// First join message
-		if (!p.hasPlayedBefore())
-			plugin.getServer().broadcastMessage(ColorPalette.META + p.getName()
-					+ " has joined Arcane for the first time");
 	}
 	
 	final void sendWelcomeMessage(Player p) {
@@ -138,28 +134,6 @@ final class PlayerJoin implements CommandExecutor, Listener {
 
 		p.sendMessage("");
 		p.sendMessage(ChatColor.GRAY.toString() + ChatColor.STRIKETHROUGH + "    " + HR + HR + HR);
-		p.sendMessage("");
-	}
-	
-	final void sendUnlistedMessage(Player p) {
-		TextComponent msg = ArcaneCommons.tagTC("Notice");
-		
-		msg.addExtra("You do ");
-		
-		TextComponent not = new TextComponent("not");
-		not.setColor(ColorPalette.NEGATIVE);
-		msg.addExtra(not);
-		msg.addExtra(" have build permissions!\n Type ");
-		
-		TextComponent apply = new TextComponent("/apply");
-		apply.setColor(ColorPalette.POSITIVE);
-		msg.addExtra(apply);
-		msg.addExtra(" to apply via our application.");
-		
-		msg.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND,"/apply"));
-		p.spigot().sendMessage(msg);
-		
-		p.sendMessage(ColorPalette.CONTENT + " You can ask a staff member to approve your application.");
 		p.sendMessage("");
 	}
 }

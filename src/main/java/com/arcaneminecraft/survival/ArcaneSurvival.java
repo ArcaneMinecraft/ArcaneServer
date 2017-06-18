@@ -2,6 +2,7 @@ package com.arcaneminecraft.survival;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 
 import org.bukkit.command.Command;
@@ -28,6 +29,10 @@ public final class ArcaneSurvival extends JavaPlugin {
 		getCommand("news").setExecutor(pj);
 		getServer().getPluginManager().registerEvents(pj, this);
 		
+		Greylist gl = new Greylist(this);
+		getCommand("greylist").setExecutor(gl);
+		getServer().getPluginManager().registerEvents(gl, this);
+		
 		FindSeen sn = new FindSeen(this);
 		getCommand("findplayer").setExecutor(sn);
 		getCommand("seen").setExecutor(sn);
@@ -41,6 +46,7 @@ public final class ArcaneSurvival extends JavaPlugin {
 	
 	@Override
 	public void onDisable() {
+		afk.onDisable();
 		saveConfig();
 	}
 
@@ -70,37 +76,6 @@ public final class ArcaneSurvival extends JavaPlugin {
 			return true;
 		}
 		
-		// Shows greylist status / greylists players
-		if (cmd.getName().equalsIgnoreCase("greylist")) {
-			// Moderators will get a different message
-			if (sender.hasPermission("arcane.chatmod")) {
-				if (args.length == 0) {
-					sender.sendMessage(ArcaneCommons.tagMessage("Usage: /greylist <player>..."));
-				} else {
-					for (String pl : args)
-						((Player)sender).performCommand("pex group trusted user add " + pl);
-					// Validity responsibility lies on PEx plugin.
-				}
-				return true;
-			}
-			
-			// if normal player ran it with some parameters
-			if (args.length != 0) {
-				sender.sendMessage(ArcaneCommons.noPermissionMsg(label,String.join(" ", args)));
-				return true;
-			}
-			
-			if (sender.hasPermission("arcane.trusted"))
-				sender.sendMessage(ArcaneCommons.tagMessage("You are on the greylist!"));
-			
-			else {
-				sender.sendMessage(ArcaneCommons.tagMessage("You are " + ColorPalette.NEGATIVE + "not" + ColorPalette.CONTENT + " on the greylist!"));
-				sender.sendMessage(ArcaneCommons.tagMessage("Apply for greylist using the /apply command, then talk with a staff member to become greylisted."));
-			}
-
-			return true;
-		}
-		
 		if (cmd.getName().equalsIgnoreCase("kill")) {
 			if (args.length == 0) {
 				getServer().dispatchCommand(getServer().getConsoleSender(), "minecraft:kill" + (sender instanceof Player ? " " + ((Player)sender).getUniqueId() : ""));
@@ -114,10 +89,8 @@ public final class ArcaneSurvival extends JavaPlugin {
 		
 		if (cmd.getName().equalsIgnoreCase("list")) {
 			ArrayList<String> pl = new ArrayList<>();
-			for (Player p : getServer().getOnlinePlayers()) {
-				if (afk.isAFK(p)) pl.add( p.getDisplayName());
-				else pl.add(ColorPalette.FOCUS + p.getDisplayName() +  ColorPalette.CONTENT);
-			}
+			for (Player p : getServer().getOnlinePlayers()) pl.add(p.getDisplayName());
+			Collections.sort(pl);
 
 			sender.sendMessage(ArcaneCommons.tagMessage("Online players: " + ColorPalette.FOCUS
 					+ getServer().getOnlinePlayers().size() + "/" + getServer().getMaxPlayers()));
