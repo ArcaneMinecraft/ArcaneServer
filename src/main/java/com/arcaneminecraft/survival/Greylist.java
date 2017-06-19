@@ -2,6 +2,7 @@ package com.arcaneminecraft.survival;
 
 import java.util.HashSet;
 
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.FlowerPot;
@@ -23,10 +24,10 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
@@ -38,9 +39,9 @@ import org.bukkit.event.player.PlayerShearEntityEvent;
 import org.bukkit.event.player.PlayerUnleashEntityEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.material.MaterialData;
 import org.bukkit.material.Redstone;
 
+import com.arcaneminecraft.ActionBarAPI;
 import com.arcaneminecraft.ArcaneCommons;
 import com.arcaneminecraft.ColorPalette;
 
@@ -63,12 +64,14 @@ public class Greylist implements CommandExecutor, Listener {
 	
 	// In ALL cases, it adds to list only if the player has "arcane.new" permission.
 	private void addNewPlayer(Player p) {
+		// Check if player has new player permission
 		if (!p.hasPermission(NEW_PERMISSION))
 			return;
 		
+		newPlayers.add(p);
+		
 		plugin.getServer().getPluginManager().registerEvents(listener, plugin);
 		
-		newPlayers.add(p);
 		TextComponent msg = ArcaneCommons.tagTC("Notice");
 		msg.addExtra("You do ");
 		TextComponent not = new TextComponent("not");
@@ -83,7 +86,6 @@ public class Greylist implements CommandExecutor, Listener {
 		p.spigot().sendMessage(msg);
 		p.sendMessage(ColorPalette.CONTENT + " You can ask a staff member to approve your application.");
 		p.sendMessage("");
-		
 	}
 	
 	private void removeNewPlayer(Player p) {
@@ -94,11 +96,20 @@ public class Greylist implements CommandExecutor, Listener {
 	}
 	
 	private void noPerm(Cancellable e, Player p) {
-		if (p == null || !p.hasPermission(NEW_PERMISSION))
+		if (!p.hasPermission(NEW_PERMISSION)) {
+			removeNewPlayer(p);
 			return;
+		}
 		
 		e.setCancelled(true);
-		p.sendMessage("From: " + e.getClass().getName());
+		//p.sendMessage("From: " + e.getClass().getName());
+		ActionBarAPI.sendMessage(p, ColorPalette.CONTENT + "You do " 
+				+ ColorPalette.NEGATIVE + "not" 
+				+ ColorPalette.CONTENT + " have build permissions! Apply for it via " 
+				+ ColorPalette.POSITIVE + "/apply" 
+				+ ColorPalette.CONTENT + "!");
+		
+		// Counter
 		/*TextComponent msg = ArcaneCommons.tagTC("Notice");
 		
 		msg.addExtra("You don't have permission to do that.\n Type ");
@@ -167,7 +178,7 @@ public class Greylist implements CommandExecutor, Listener {
 	
 	// The class with all the actions player cannot commit.
 	public class NewPlayerListener implements Listener {
-		// Player
+		// Player and Entity
 		@EventHandler (priority=EventPriority.HIGHEST) public void armorStandManipulate(PlayerArmorStandManipulateEvent e) { noPerm(e, e.getPlayer()); }
 		@EventHandler (priority=EventPriority.HIGHEST) public void bucket(PlayerBucketEmptyEvent e) { noPerm(e, e.getPlayer()); }
 		@EventHandler (priority=EventPriority.HIGHEST) public void bucket(PlayerBucketFillEvent e) { noPerm(e, e.getPlayer()); }
@@ -229,34 +240,50 @@ public class Greylist implements CommandExecutor, Listener {
 				return;
 			
 			BlockState s = b.getState();
-			p.sendMessage("Interact: " + b.getClass().getName());
+			Material m = e.getMaterial();
 			
 			if (
 					a == Action.PHYSICAL || // No Automatic Redstone Triggers
 					(a == Action.RIGHT_CLICK_BLOCK && (
-							s.getData() instanceof Redstone ||
-							s instanceof FlowerPot
-							
-							)) // No Redstone-related and storage block triggers
-					) 
+							s.getData() instanceof Redstone || // No Redstone device clicks
+							s instanceof FlowerPot || // because Flower Pot
+							(m != null && ( // Prevent placement of entities below
+									m == Material.ITEM_FRAME ||
+									m == Material.ARMOR_STAND ||
+									m == Material.PAINTING
+							))
+					))
+			) 
 				noPerm(e, e.getPlayer());
 		}
 		
 		// Inventory
 		@EventHandler (priority=EventPriority.HIGHEST) public void inventoryClick(InventoryClickEvent e) {
-			;
 			Player p; 
 			if (!(e.getWhoClicked() instanceof Player && (p = (Player)e.getWhoClicked()).hasPermission(NEW_PERMISSION)))
 				return;
 			
-			// If clicked inventory is NOT the upper inventory (chest, hopper, furnance, etc.)
-			if (e.getClickedInventory() != e.getInventory())
+			Inventory i = e.getInventory();
+			InventoryType it = i.getType();
+			
+			// TODO: Allow crafting table, enchantment table, Ender Chest, and anything else that doesn't affect other players.
+			if (
+					it == InventoryType.PLAYER ||
+					it == InventoryType.CRAFTING ||
+					it == InventoryType.WORKBENCH ||
+					it == InventoryType.ENDER_CHEST ||
+					it == InventoryType.ENCHANTING ||
+					it == InventoryType.MERCHANT)
 				return;
 			
-			// TODO: block double-clicking or shift-clicking item into another inventory.
-			// TODO: Allow crafting table, enchantment table, and Ender Chest.
+			InventoryAction a = e.getAction();
 			
-			noPerm(e, p);
+			// If item ends up in different inventory, block it.
+			// Caveat: If holding item on cursor, spamming it enough will make it pass through.
+			if (
+					e.getClickedInventory() == i ||
+					a == InventoryAction.MOVE_TO_OTHER_INVENTORY ||
+					a == InventoryAction.COLLECT_TO_CURSOR) noPerm(e, p);
 		}
 		
 	}
