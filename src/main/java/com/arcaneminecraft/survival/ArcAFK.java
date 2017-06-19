@@ -21,6 +21,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import com.arcaneminecraft.ArcaneCommons;
 
 final class ArcAFK implements CommandExecutor, Listener {
+	private final ArcaneSurvival plugin;
 	private final HashMap<Player,Integer> afkCounter = new HashMap<>();
 	private static final int AFK_COUNTDOWN = 10; // 10 rounds (this * AFK_CHECK = 5 minute) countdown to being afk
 	private static final long AFK_CHECK = 600L; // run every 600 ticks (30 seconds)
@@ -28,6 +29,7 @@ final class ArcAFK implements CommandExecutor, Listener {
 	private static final String TAG_AFK = ChatColor.DARK_PURPLE + "[AFK] " + ChatColor.RESET;
 	
 	ArcAFK(ArcaneSurvival plugin) {
+		this.plugin = plugin;
 		// if players are already online
 		for (Player p : plugin.getServer().getOnlinePlayers()) {
 			afkCounter.put(p, AFK_COUNTDOWN);
@@ -54,7 +56,7 @@ final class ArcAFK implements CommandExecutor, Listener {
 	}
 	
 	void onDisable() {
-		for (Player p : afkCounter.keySet()) {
+		for (Player p : plugin.getServer().getOnlinePlayers()) {
 			unsetAFK(p);
 		}
 	}
