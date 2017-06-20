@@ -38,6 +38,7 @@ final class FindSeen implements CommandExecutor {
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (cmd.getName().equalsIgnoreCase("findplayer")) {
 			if (args.length == 0) {
+				sender.sendMessage(ArcaneCommons.tag(TAG, "Usage: /seenf [player]"));
 				return true;
 			}
 			

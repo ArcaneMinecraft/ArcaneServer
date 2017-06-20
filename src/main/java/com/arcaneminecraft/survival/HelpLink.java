@@ -115,7 +115,7 @@ final class HelpLink implements CommandExecutor {
 			{
 				{"seen","displays the date a player was last seen","/seen [player]"},
 				{"seenf","displays the date a player joined Arcane","/seenf [player]\nAlias:\n /fseen"},
-				{"findplayer","displays the date a player joined Arcane","/seenf [player]\nAlias:\n /fplayer\n /fp"},
+				{"findplayer","displays the date a player joined Arcane","/seenf [player]\nAlias:\n /fplayer\n /fp\n /find"},
 				{"ping","get a player's ping","/ping [player]"},
 				{"tps","checks server ticks per second"},
 				{"links","links to arcane sites"},

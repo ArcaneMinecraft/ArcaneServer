@@ -66,7 +66,7 @@ final class PlayerJoin implements CommandExecutor, Listener {
 					sender.sendMessage(ArcaneCommons.tag(NEWS_TAG, newsMsg));
 			}
 			
-			if (sender.hasPermission("arcane.command.newsmod")) {
+			if (sender.hasPermission("arcane.command.news.set")) {
 				if (args.length == 0) {
 					sender.sendMessage(ArcaneCommons.tag(NEWS_TAG, "Usage: /news (set|clear) [<new news...>]"));
 					return true;

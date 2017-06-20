@@ -20,7 +20,7 @@ commands:
     aliases: [graylist]
     description: Greylist command
   findplayer:
-    aliases: [fplayer, fp]
+    aliases: [fplayer, fp, find]
     description: Find players based on part of their name.
   help:
     aliases: ["?"]
@@ -35,8 +35,8 @@ commands:
   list:
     description: Display a list of online users.
   news:
-    alias: [motd]
-    description: Display the news. Edit the news with arcane.command.news permission.
+    aliases: [motd]
+    description: Display the news. Edit the news with arcane.command.news.set permission.
   ping:
     description: Pings a player and shows their ping in milliseconds
     usage: /ping [player]
@@ -62,17 +62,17 @@ permissions:
       arcane.chatmod: true
   arcane.chatmod:
     description: Arcane Chatmod.
+  arcane.trusted:
+    description: Arcane greylisted players.
+    default: op
+    children:
+      arcane.new: false
   arcane.homes:
     description: Arcane extra home donor.
     default: op
   arcane.donor:
     description: Arcane donor.
     default: false
-  arcane.trusted:
-    description: Arcane greylisted players.
-    default: op
-    children:
-      arcane.new: false
   arcane.new:
     description: Arcane 'new' player permission
     default: not op
