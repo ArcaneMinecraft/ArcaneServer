@@ -41,10 +41,10 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.material.Redstone;
 
-import com.arcaneminecraft.ActionBarAPI;
 import com.arcaneminecraft.ArcaneCommons;
 import com.arcaneminecraft.ColorPalette;
 
+import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import ru.tehkode.permissions.bukkit.PermissionsEx;
@@ -103,11 +103,11 @@ public class Greylist implements CommandExecutor, Listener {
 		
 		e.setCancelled(true);
 		//p.sendMessage("From: " + e.getClass().getName());
-		ActionBarAPI.sendMessage(p, ColorPalette.CONTENT + "You do " 
+		p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ColorPalette.CONTENT + "You do " 
 				+ ColorPalette.NEGATIVE + "not" 
 				+ ColorPalette.CONTENT + " have build permissions! Apply for it via " 
 				+ ColorPalette.POSITIVE + "/apply" 
-				+ ColorPalette.CONTENT + "!");
+				+ ColorPalette.CONTENT + "!"));
 		
 		// Counter
 		/*TextComponent msg = ArcaneCommons.tagTC("Notice");

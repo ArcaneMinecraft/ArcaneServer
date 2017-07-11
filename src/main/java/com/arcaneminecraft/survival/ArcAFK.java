@@ -104,8 +104,8 @@ final class ArcAFK implements CommandExecutor, Listener {
 		String pdn = p.getDisplayName();
 		String pln = p.getPlayerListName();
 		p.setSleepingIgnored(false);
-		p.setDisplayName(pdn.startsWith(TAG_AFK) ? pdn.substring(8) : p.getName());
-		p.setPlayerListName(pln.startsWith(TAG_AFK) ? pln.substring(8) : p.getName()); // magic number much? TAG_AFK is odd.
+		p.setDisplayName(pdn.startsWith(TAG_AFK) ? pdn.substring(10) : p.getName());
+		p.setPlayerListName(pln.startsWith(TAG_AFK) ? pln.substring(10) : p.getName());
 		p.sendRawMessage(FORMAT_AFK + "You are no longer AFK.");
 	}
 	
