@@ -27,7 +27,7 @@ final class ArcAFK implements CommandExecutor, Listener {
 	private static final long AFK_CHECK = 600L; // run every 600 ticks (30 seconds)
 	private static final String FORMAT_AFK = ChatColor.GRAY + "* ";
 	private static final String DISPLAY_TAG_AFK = "[AFK] ";
-	private static final String PL_TAG_AFK = ChatColor.DARK_GRAY + "[" +ChatColor.DARK_PURPLE + "AFK" + ChatColor.DARK_GRAY + "] " + ChatColor.RESET;
+	private static final String PL_TAG_AFK = ChatColor.DARK_PURPLE + "[AFK] " + ChatColor.RESET;
 	
 	ArcAFK(ArcaneSurvival plugin) {
 		this.plugin = plugin;
@@ -106,7 +106,7 @@ final class ArcAFK implements CommandExecutor, Listener {
 		String pln = p.getPlayerListName();
 		p.setSleepingIgnored(false);
 		if (pdn.startsWith(DISPLAY_TAG_AFK)) p.setDisplayName(pdn.substring(6));
-		p.setPlayerListName(pln.substring(12)); // this thing seems to do some advanced computation ;-;
+		p.setPlayerListName(pln.substring(8)); // this thing seems to do some advanced computation ;-;
 		p.sendMessage(FORMAT_AFK + "You are no longer AFK.");
 	}
 	
