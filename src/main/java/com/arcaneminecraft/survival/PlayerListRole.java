@@ -26,8 +26,7 @@ public class PlayerListRole implements Listener {
 		else if (p.hasPermission("arcane.chatmod"))
 			p.setPlayerListName(ColorPalette.CHAT_MOD + "ChatMod" + ChatColor.DARK_GRAY + " | " + ColorPalette.RESET + p.getPlayerListName());
 		else if (p.hasPermission("arcane.donor"))
-			p.setPlayerListName(ColorPalette.DONOR + "ChatMod" + ChatColor.DARK_GRAY + " | " + ColorPalette.RESET + p.getPlayerListName());
-
+			p.setPlayerListName(ColorPalette.DONOR + "Donor" + ChatColor.DARK_GRAY + " | " + ColorPalette.RESET + p.getPlayerListName());
 	}
 	
 	@EventHandler (priority=EventPriority.HIGHEST)
