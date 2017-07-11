@@ -1,18 +1,34 @@
 package com.arcaneminecraft.survival;
 
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 import com.arcaneminecraft.ArcaneCommons;
+import com.arcaneminecraft.ColorPalette;
 
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.TextComponent;
-
-final class HelpLink {
+final class HelpLink implements CommandExecutor {
+	
+	@Override
+	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+		// All in HelpLink class
+		if (cmd.getName().equalsIgnoreCase("help")) {
+			return commandHelp(sender, label, args);
+		}
+		
+		// HelpLink class as well. This is a super-command.
+		// links, link, website, map, forum, discord, mumble, donate
+		if (cmd.getName().equalsIgnoreCase("links")) {
+			return HelpLink.commandLink(sender);
+		}
+		
+		return false;
+	}
+	
 	// Main function; filter it
-	static boolean commandHelp(CommandSender sender, String label, String args[]) {
+	private boolean commandHelp(CommandSender sender, String label, String args[]) {
 		// Default
 		if (args.length == 0) {
 			return ArcaneCommons.sendCommandMenu(sender, "General Help", HELP, label, null, 1);
@@ -32,12 +48,9 @@ final class HelpLink {
 		switch (subcmd) {
 		case "lwc":
 			return ArcaneCommons.sendCommandMenu(sender, "LWC Help", LWC, label, subcmd, page);
-		case "message":
-		case "msg":
-			return ArcaneCommons.sendCommandMenu(sender, "Messaging Help", MESSAGE, label, subcmd, page);
 		case "donors":
 		case "donor":
-			if (sender.hasPermission("arcane.mod")) {
+			if (sender.hasPermission("arcane.donor")) {
 				return ArcaneCommons.sendCommandMenu(sender, "Donor Help", DONOR, label, subcmd, page);
 			}
 			sender.sendMessage(ArcaneCommons.noPermissionMsg(label, subcmd));
@@ -63,32 +76,15 @@ final class HelpLink {
 	// Function for getting links
 	static boolean commandLink(CommandSender sender) {
 		String footerData[] = {"Main Website", "https://arcaneminecraft.com/"};
-		return ArcaneCommons.sendCommandMenu(sender, "Arcane Links", LINK, footerData);
-	}
-	
-	static boolean commandSingleLink(CommandSender sender, String label) {
-		if (!(sender instanceof Player))
-			return false;
-		for (String[] ls : LINK) {
-			if (ls[0].equals(label.toLowerCase())) {
-				TextComponent ret = new TextComponent(ArcaneCommons.tag() + " ");
-				TextComponent ln = new TextComponent(ls[2]);
-				ln.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL
-						, ls[1]));
-				ret.addExtra(ln);
-				((Player)sender).spigot().sendMessage(ret);
-				return true;
-			}
-		}
-			
-		return false;
+		return ArcaneCommons.sendListMenu(sender, "Arcane Links", LINK, footerData);
 	}
 	
 	private static final String LINK[][] = {
-			{"map","https://arcaneminecraft.com/dynmap/",ChatColor.GRAY + "Click here to view our " + ChatColor.WHITE + "Dynmap" + ChatColor.GRAY + "."},
-			{"discord","https://arcaneminecraft.com/discord/",ChatColor.GRAY + "Click here for our " + ChatColor.WHITE + "Discord" + ChatColor.GRAY + " invite link."},
-			{"forum","https://arcaneminecraft.com/forum/",ChatColor.GRAY + "Click here to visit our " + ChatColor.WHITE + "forum" + ChatColor.GRAY + "."},
-			{"donate","https://arcaneminecraft.com/donate/",ChatColor.GRAY + "To " + ChatColor.WHITE + "donate" + ChatColor.GRAY + " to the Arcane, click here."}
+			{"Rules","https://arcaneminecraft.com/rules/"},
+			{"Forum","https://arcaneminecraft.com/forum/"},
+			{"Dynmap","https://arcaneminecraft.com/dynmap/"},
+			{"Discord","https://arcaneminecraft.com/discord/"},
+			{"Donation","https://arcaneminecraft.com/donate/"}
 	};
 	
 	// Seven commands per page.
@@ -100,38 +96,38 @@ final class HelpLink {
 	private static final String HELP[][][] = {
 			{
 				{"help","show this page","/help [1|2|lwc 1|lwc 2|msg|donor]"},
-				{"spawn","return to the spawn","/spawn [old | new]"},
+				{"spawn","return to the spawn"},
 				{"home","return to your home","/home [name]"},
 				{"sethome","set your home","/sethome [name]"},
 				{"kill","temporary ends your suffering just to revive you"},
 				{"afk","mark yourself as afk"},
-				{"pvp","toggle PvP combat"},
+				{"pvp","toggle PvP combat"}
 			},
 			{
-				{"seen","gets last logoff date","/seen [player]"},
-				{"seenf","gets first logged on date","/seenf [player]\nAlias:\n /fseen"},
-				{"list","lists online players"},
-				{"tps","check server ticks per second"},
-				{"username", "an advanced username command"},
+				{"tell","message an online player","/tell <player> <message>\nAlias:\n /t\n /message\n /msg\n /m"},
+				{"reply","reply to a recently messaged person","/reply <message>\nAlias:\n /r"},
+				{"local","local chat","/l <message>\nAlias:\n /l"},
+				{"localtoggle","toggle local chat","Alias:\n /ltoggle\n /lt"},
+				{"localradius","set local chat sending radius","Alias:\n /lr"},
+				{"global","send regular chat (when toggled)","/g <message>\nAlias:\n /g"},
+				{"list","lists all online players"}
+			},
+			{
+				{"seen","displays the date a player was last seen","/seen [player]"},
+				{"seenf","displays the date a player joined Arcane","/seenf [player]\nAlias:\n /fseen"},
+				{"findplayer","displays the date a player joined Arcane","/seenf [player]\nAlias:\n /fplayer\n /fp\n /find"},
+				{"ping","get a player's ping","/ping [player]"},
+				{"tps","checks server ticks per second"},
 				{"links","links to arcane sites"},
-				{"donors", "list of donor commands", "Alias:\n /donor"}
+				{"news","review the news"}
 			},
 			{
-				{"help message","message commands","Alias:\n /help msg"},
+				{"username", "an advanced username command"},
+				{"donors", "list of donor commands", "Alias:\n /donor"},
 				{"help lwc", "chest/door protection help","More help:\n /lwc"},
 				{"help donor", "donor help", "Alias:\n /help donors", "arcane.donor"},
 				{"help chatmod", "chat moderator help", "Alias:\n /help chatmods", "arcane.chatmod"},
 				{"help mod", "moderator help", "Alias:\n /help mods", "arcane.mod"}
-			}
-	};
-	private static final String MESSAGE[][][] = {
-			{
-				{"msg","message an online player","/msg <player> <message>\nAlias:\n /m"},
-				{"reply","reply to a recently messaged person","/reply <message>\nAlias:\n /r"},
-				{"local","local chat","/l <message>\nAlias:\n /l"},
-				{"ltoggle","toggle local chat"},
-				{"a","admin chat","/a <message>","arcane.mod"},
-				{"atoggle","toggle admin chat",null,"arcane.mod"}
 			}
 	};
 	private static final String LWC[][][] = {
@@ -153,42 +149,47 @@ final class HelpLink {
 			{
 				{"slap", "lets you slap a player"},
 				{"dynmap hide", "hide your location from the Dynmap"},
-				{"dynmap show", "show your location in the Dynmap"}
+				{"dynmap show", "show your location in the Dynmap"},
+				{"badge", "your tag management"}
 			}
 	};
 	private static final String CHATMOD[][][] = {
 			{
-				{"warn","warns a player","/warn <player> <reason>"},
-				{"mute","mutes a player","/mute <player> <reason>"},
-				{"tempmute","temporary mutes a player","/tempmute <player> <reason>"},
-				{"unmute","unmutes a player","/unmute <player>"},
+				{"badge", "your tag management"},
+				{"greylist <user>","greylist command","/greylist <player>"},
+				{"warn","warn a player","/warn <player> <reason>"},
+				{"kick","kick a player","/kick <player> <reason>"},
+				{"mute","mute a player","/mute <player> <reason>"},
+				{"tempmute","temporarily mute a player","/tempmute <player> <reason>"},
+				{"unmute","unmute a player","/unmute <player>"}
+			},
+			{
 				{"bminfo","view a player information","/bminfo <player>"},
-				{"alts","view a player's alts.","/alts <player>"},
-				{"greylist <user>","greylist command","/greylist <player>"}
+				{"alts","view a player's alts.","/alts <player>"}
 			}
 	};
 	private static final String MOD[][][] = {
 			{
-				{"kick","kick a player","/kick <player> <reason>"},
-				{"ban","ban a player" + ChatColor.RED + ChatColor.ITALIC + " like a boss","/ban <player> <reason>"},
+				{"tp","teleport to a player or location"},
+				{"frz","freeze a player" + ColorPalette.POSITIVE + ChatColor.ITALIC + " Agent's favorite," + ColorPalette.NEGATIVE + ChatColor.ITALIC + " Simon hates this!","/frz <player>"},
+				{"ban","ban a player" + ColorPalette.NEGATIVE + ChatColor.ITALIC + " like a boss","/ban <player> <reason>"},
 				{"tempban","temporary ban a player","/tempban <player> <reason>"},
 				{"unban","pardon a player","/unban <player>"},
-				{"frz","freeze a player" + ChatColor.RED + ChatColor.ITALIC + " Agent's favorite, Simon hates this!","/frz <player>"},
-				{"a","admin chat","/a <message>"},
-				{"atoggle","toggle admin chat"}
-			},
-			{
 				{"supervanish","vanish toggle","Alias:\n/sv"},
-				{"tp","teleport to a player or location"},
-				{"openinv","open a player's inventory","Alias:\n/open\n/inv\noi"},
-				{"openender","open a player's Ender chest","Alias:\n/oe"},
-				{"coreprotect i","enable the inspection wand","Alias:\n/co i"},
-				{"whitelist","whitelist help"},
-				{"restart","restart the server","This has slight chance of failing.\nPlease make sure an admin is semi-around in case\nthe restart fails."}
+				{"coreprotect","official CoreProtect help","Alias:\n /co"}
 			},
 			{
-				{"ultraban","super special command" + ChatColor.RED + ChatColor.ITALIC + " in development! Don't use!"},
-				{"coreprotect","official CoreProtect help","Alias:\n/co"},
+				{"a","admin chat","/a <message>"},
+				{"atoggle","toggle admin chat"},
+				{"openinv","open a player's inventory","Alias:\n /open\n /inv\n /oi"},
+				{"openender","open a player's Ender chest","Alias:\n /oe"},
+				{"whitelist","whitelist help"},
+				{"news set","set a new news","/news set <news...>"},
+				{"news set","clear existing news"}
+			},
+			{
+				{"restart","restart the server"},
+				{"ultraban","super special command" + ColorPalette.NEGATIVE + ChatColor.ITALIC + " in development! Don't use!"},
 				{"help chatmod", "More moderation help", "Alias:\n/help chatmods"}
 			}
 	};

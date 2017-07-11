@@ -1,0 +1,81 @@
+name: ArcaneSurvival
+version: ${project.version}
+authors: [Agentred100, jugglingman456, Morios, SimonOrJ]
+description: Arcane Survival Essentials
+main: com.arcaneminecraft.survival.ArcaneSurvival
+website: https://arcaneminecraft.com/
+
+load: STARTUP
+
+commands:
+  afk:
+    description: Sets you to [AFK] in the player list. Motion or chat will end it.
+    usage: /afk
+  apply:
+    description: Display the greylist application link.
+  arcanesurvival:
+    aliases: [arc, arcane]
+    description: Arcane help
+  greylist:
+    aliases: [graylist]
+    description: Greylist command
+  findplayer:
+    aliases: [fplayer, fp, find]
+    description: Find players based on part of their name.
+  help:
+    aliases: ["?"]
+    description: Arcane help
+    usage: /help [help topic]
+  kill:
+    description: Lets players self-destruct
+    usage: /kill
+  links:
+    aliases: [link,discord,donate,forum,forums,map,mumble,rule,rules,website]
+    description: Command that displays Arcane links
+  list:
+    description: Display a list of online users.
+  news:
+    aliases: [motd]
+    description: Display the news. Edit the news with arcane.command.news.set permission.
+  ping:
+    description: Pings a player and shows their ping in milliseconds
+    usage: /ping [player]
+  seen:
+    description: Check a player's last join date and time.
+    usage: /seen <player>
+  seenf:
+    aliases: [fseen]
+    description: Check a player's first join date and time.
+    usage: /seenf [player]
+  username:
+    description: Display your username!
+
+permissions:
+  arcane.admin:
+    description: Arcane Administrator.
+    children:
+      arcane.mod: true
+      arcane.chatmod: true
+  arcane.mod:
+    description: Arcane Moderator.
+    children:
+      arcane.chatmod: true
+  arcane.chatmod:
+    description: Arcane Chatmod.
+  arcane.trusted:
+    description: Arcane greylisted players.
+    default: op
+    children:
+      arcane.new: false
+  arcane.homes:
+    description: Arcane extra home donor.
+    default: op
+  arcane.donor:
+    description: Arcane donor.
+    default: false
+  arcane.new:
+    description: Arcane 'new' player permission
+    default: not op
+  arcane.command.news.set:
+    description: Permission to set/clear Arcane News
+    default: op

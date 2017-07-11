@@ -15,24 +15,25 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
-public class ArcaneCommons {
-	private static final String TAG = ChatColor.GOLD + "[Arcane]";
+public final class ArcaneCommons {
+	public static final String TAG = tag("Arcane");
 	
 	/**
 	 * Message with a generic tag
-	 * @return tag
+	 * @param message - Message to send with the tag. Default color is ColorPalette.CONTENT.
+	 * @return String of the message
 	 */
-	public static String tag() {
-		return TAG;
+	public static String tagMessage(String message) {
+		return TAG + ColorPalette.CONTENT + message;
 	}
 	
 	/**
-	 * Message with a generic tag
-	 * @param message - Message to send with the tag. Default color is gray.
-	 * @return String of the message
+	 * A tag in Arcane format
+	 * @param tag - Tag to be formatted (don't insert brackets)
+	 * @return String of tag in legacy color format (with a space at the end)
 	 */
-	public static String tag(String message) {
-		return TAG + " " + ChatColor.GRAY + message;
+	public static String tag(String tag) {
+		return ColorPalette.HEADING.toString() + ChatColor.BOLD + "[" + ChatColor.RESET + ColorPalette.HEADING + tag + ChatColor.BOLD + "] " + ColorPalette.CONTENT;
 	}
 	/**
 	 * Message with a generic tag
@@ -41,7 +42,34 @@ public class ArcaneCommons {
 	 * @return String of the message
 	 */
 	public static String tag(String tag, String message) {
-		return ChatColor.GOLD + "[" + tag + "] " + ChatColor.GRAY + message;
+		return ColorPalette.HEADING.toString() + ChatColor.BOLD + "[" + ChatColor.RESET + ColorPalette.HEADING + tag + ChatColor.BOLD + "] " + ColorPalette.CONTENT + message;
+	}
+	
+	/**
+	 * Constructible TextComponent with pre-formatted tag
+	 * @param tag - Message to send with the tag. Default color is ColorPalette.CONTENT.
+	 * @return TextComponent of tag (with a space at the end)
+	 */
+	public static TextComponent tagTC(String tag) {
+		TextComponent ret = new TextComponent();
+		ret.setColor(ColorPalette.CONTENT);
+		
+		TextComponent a = new TextComponent("[");
+		a.setBold(true);
+		a.setColor(ColorPalette.HEADING);
+		ret.addExtra(a);
+		
+		a = new TextComponent(tag);
+		a.setColor(ColorPalette.HEADING);
+		ret.addExtra(a);
+		
+		a = new TextComponent("]");
+		a.setBold(true);
+		a.setColor(ColorPalette.HEADING);
+		ret.addExtra(a);
+
+		ret.addExtra(" ");
+		return ret;
 	}
 
 	/**
@@ -49,15 +77,15 @@ public class ArcaneCommons {
 	 * @return
 	 */
 	public static String noPermissionMsg() {
-		return tag("You do not have permission to do that.");
+		return tagMessage("You do not have permission to do that.");
 	}
 	/**
 	 * Generic no permission message containing command.
 	 * @param cLabel
 	 * @return
 	 */
-	public static String noPermissionMsg(String cLabel) {
-		return tag("You do not have permission to run \"/" + cLabel + "\".");
+	public static String noPermissionMsg(String label) {
+		return tagMessage("You do not have permission to run \"/" + label + "\".");
 	}
 	/**
 	 * Generic no permission message with arguments.
@@ -65,9 +93,9 @@ public class ArcaneCommons {
 	 * @param subcommand
 	 * @return
 	 */
-	public static String noPermissionMsg(String cLabel, String subcommand) {
-		return tag("You do not have permission to use \""
-				+ subcommand + "\" in \"/" + cLabel + "\".");
+	public static String noPermissionMsg(String label, String subcommand) {
+		return tagMessage("You do not have permission to use \""
+				+ subcommand + "\" in \"/" + label + "\".");
 	}
 	
 	/**
@@ -75,7 +103,7 @@ public class ArcaneCommons {
 	 * @return
 	 */
 	public static String noConsoleMsg() {
-		return tag("You must be a player.");
+		return tagMessage("You must be a player.");
 	}
 
 	/**
@@ -86,18 +114,18 @@ public class ArcaneCommons {
 	 * @param sender - the sender as shown exactly in CommandSender.
 	 * @param header - Custom string to use for help heading.
 	 * @param LIST - 3-dimensional array: [page][command line][index]
-	 * where "command line" contains:
-	 * {
-	 *     Command (without leading slash),
-	 *     Command details,
-	 *     Tooltip menu or URL,
-	 *     Permission required
-	 * }
-	 * OR
-	 * {
-	 *     A sentence string
-	 * }
-	 * The first field is mandatory. To skip third or fourth index, use null.
+	 * <br>where "command line" contains:
+	 * <br>{
+	 * <br>    Command (without leading slash),
+	 * <br>    Command details,
+	 * <br>    Tooltip menu or URL,
+	 * <br>    Permission required
+	 * <br>}
+	 * <br>OR
+	 * <br>{
+	 * <br>    A sentence string
+	 * <br>}
+	 * <br>The first field is mandatory. To skip third or fourth index, use null.
 	 *  
 	 * @param label - Command used to call help. 
 	 * @param subcmd - Sub-command used to call help. 
@@ -107,7 +135,13 @@ public class ArcaneCommons {
 	public static boolean sendCommandMenu(CommandSender sender, String header, String LIST[][][], String label, String subcmd, int page) {
 		String[] fData = {label, subcmd};
 		int a = page - 1;
-		return sendCmdMuCommon(sender, header, LIST[a], LIST, fData, a);
+		String[][] list;
+		// Catch out of bounds
+		if (a < LIST.length && a >= 0)
+			list = LIST[a];
+		else
+			list = new String[0][0];
+		return sendListCommon(sender, header, list, LIST, fData, a, true);
 	}
 	
 	/**
@@ -119,46 +153,53 @@ public class ArcaneCommons {
 	 * @param sender - the sender as shown exactly in CommandSender.
 	 * @param header - Custom string to use for help heading.
 	 * @param LIST - 2-dimensional array: [command line][index]
-	 * where "command line" contains:
-	 * {
-	 *     Command (without leading slash),
-	 *     Command details,
-	 *     Tooltip menu or URL,
-	 *     Permission required
-	 * }
-	 * OR
-	 * {
-	 *     A sentence string
-	 * }
-	 * The first two fields are mandatory. To skip third or fourth index, use null.
+	 * <br>where "command line" contains:
+	 * <br>{
+	 * <br>    Command (without leading slash),
+	 * <br>    Command details,
+	 * <br>    Tooltip menu or URL,
+	 * <br>    Permission required
+	 * <br>}
+	 * <br>OR
+	 * <br>{
+	 * <br>    A sentence string
+	 * <br>}
+	 * <br>The first two fields are mandatory. To skip third or fourth index, use null.
 	 *  
 	 * @param footerData - 1-dimensional array:
-	 * {
-	 *     Head,
-	 *     Description,
-	 *     Link/Command/Tooltip
-	 * }
-	 * The first field is mandatory.
+	 * <br>{
+	 * <br>    Head,
+	 * <br>    Description,
+	 * <br>    Link/Command/Tooltip
+	 * <br>}
+	 * <br>The first field is mandatory.
 	 * 
 	 * @return true all the time to aid in quick return.
 	 */
 	public static boolean sendCommandMenu(CommandSender sender, String header, String LIST[][], String[] footerData) {
-		return sendCmdMuCommon(sender, header, LIST, null, footerData, 0);
+		return sendListCommon(sender, header, LIST, null, footerData, 0, true);
+	}
+	
+	/**
+	 * Same parameters, but lists "commands" in a list format.
+	 * @see sendCommandMenu()
+	 */
+	public static boolean sendListMenu(CommandSender sender, String header, String LIST[][], String[] footerData) {
+		return sendListCommon(sender, header, LIST, null, footerData, 0, false);
 	}
 
-	private static boolean sendCmdMuCommon(CommandSender sender, String header, String LIST[][], String PGLIST[][][], String fData[], int a) {
-		Player p = (Player)sender;
+	private static boolean sendListCommon(CommandSender sender, String header, String LIST[][], String PGLIST[][][], String fData[], int a, boolean isCommand) {
 		
 		// Heading
-		p.sendMessage("" + ChatColor.GRAY + ChatColor.BOLD + " ----- "
-					+ ChatColor.GOLD + ChatColor.BOLD + header
-					+ ChatColor.GRAY + ChatColor.BOLD + " -----");
+		sender.sendMessage("" + ColorPalette.CONTENT + ChatColor.BOLD + " ----- "
+					+ ColorPalette.HEADING + ChatColor.BOLD + header
+					+ ColorPalette.CONTENT + ChatColor.BOLD + " -----");
 		
 		// Body
 		// Iterate through each line
 		for (int i = 0; i < LIST.length; i++) {
 			// skip line if the player has no permission
-			if (LIST[i].length > 3 && sender.hasPermission(LIST[i][3]))
+			if (LIST[i].length > 3 && !sender.hasPermission(LIST[i][3]))
 				continue;
 			
 			TextComponent ret = new TextComponent("> ");
@@ -170,10 +211,16 @@ public class ArcaneCommons {
 				ret.addExtra(c);
 			} else {
 				// Multiple-index array (2 or 3, maybe 4)
-				TextComponent c = new TextComponent(ChatColor.GOLD + "/" + LIST[i][0]
+				TextComponent c = new TextComponent(ColorPalette.HEADING
+						+ (isCommand ? "/" : "")
+						+ LIST[i][0]
 						+ ChatColor.DARK_GRAY + " - "
-						+ ChatColor.GRAY + LIST[i][1]);
-				if (LIST[i][1].startsWith("http")) {
+						+ ColorPalette.CONTENT + LIST[i][1]);
+				if (isCommand) {
+					// command list
+					c.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND
+							, "/" + LIST[i][0] + " "));
+				} else if (LIST[i][1].startsWith("http")) {
 					// If URL in description
 					c.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL
 							, LIST[i][1]));
@@ -181,33 +228,35 @@ public class ArcaneCommons {
 					// If URL in tooltip
 					c.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL
 							, LIST[i][2]));
-				} else {
-					// No URL
-					c.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND
-							, "/" + LIST[i][0] + " "));
 				}
+				
 				if (LIST[i].length > 2 && LIST[i][2] != null)
 					// If tooltip parameter exists 
 					c.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT
 							, new ComponentBuilder(LIST[i][2]).create()));
 				ret.addExtra(c);
 			}
-			p.spigot().sendMessage(ret);
+			if (sender instanceof Player)
+				((Player)sender).spigot().sendMessage(ret);
+			else
+				sender.sendMessage(ret.toPlainText());
 		}
 		
 		// Footer
 		TextComponent ft = new TextComponent("" + ChatColor.GRAY + ChatColor.BOLD + " -- ");
 		if (PGLIST != null) {
 			// footerData: 0=label, 1=subcmd
-			ft.addExtra(ChatColor.GOLD + "Pages: ");
+			ft.addExtra(ColorPalette.HEADING + "Pages: ");
 			for (int i = 0; i < PGLIST.length; i++) {
 				int npg = i + 1;
 				// Compose a list of commands
 				String pgLs = ChatColor.GRAY + "Page " + npg + ":" + ChatColor.GOLD;
 				
-				for (String c[] : PGLIST[i])
-					pgLs += "\n /" + c[0];
-				
+				for (String c[] : PGLIST[i]) {
+					// Show if only player has permission
+					if (c.length < 4 || sender.hasPermission(c[3]))
+						pgLs += "\n /" + c[0];
+				}
 				TextComponent pg = new TextComponent("[" + npg + "]");
 				if (i == a)
 					pg.setColor(ChatColor.DARK_GRAY);
@@ -221,26 +270,34 @@ public class ArcaneCommons {
 				ft.addExtra(" ");
 			}
 		} else {
-			TextComponent mw = new TextComponent(ChatColor.GOLD + fData[0] + ": " + ChatColor.GRAY + fData[1]);
-			// If second argument is a link
-			if (fData[1].startsWith("http"))
-				mw.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL
-						, fData[1]));
-			// If has third argument
-			if (fData.length > 2) {
-				if (fData[2].startsWith("http"))
+			TextComponent mw; 
+			if (fData.length == 1)
+				mw = new TextComponent(ColorPalette.CONTENT + fData[0]);
+			else {
+				mw = new TextComponent(ColorPalette.HEADING + fData[0] + ": " + ColorPalette.CONTENT + fData[1]);
+				// If second argument is a link
+				if (fData[1].startsWith("http"))
 					mw.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL
-							, fData[2]));
-				else if (fData[2].startsWith("/"))
-					mw.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND
-							, fData[2]));
-				mw.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT
-						, new ComponentBuilder(fData[2]).create()));
+							, fData[1]));
+				// If has third argument
+				if (fData.length > 2) {
+					if (fData[2].startsWith("http"))
+						mw.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL
+								, fData[2]));
+					else if (fData[2].startsWith("/"))
+						mw.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND
+								, fData[2]));
+					mw.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT
+							, new ComponentBuilder(fData[2]).create()));
+				}
 			}
 			ft.addExtra(mw);
 		}
 		
-		p.spigot().sendMessage(ft);
+		if (sender instanceof Player)
+			((Player)sender).spigot().sendMessage(ft);
+		else
+			sender.sendMessage(ft.toPlainText());
 		return true;
 	}
 }
