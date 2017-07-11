@@ -20,13 +20,13 @@ public class PlayerListRole implements Listener {
 	
 	private void addRole(Player p) {
 		if (p.hasPermission("arcane.admin"))
-			p.setPlayerListName(ColorPalette.ADMIN + "Admin" + ChatColor.DARK_GRAY + " | " + ColorPalette.RESET + p.getPlayerListName());
+			p.setPlayerListName(p.getName() + ChatColor.DARK_GRAY + " | " + ColorPalette.ADMIN + "Admin");
 		else if (p.hasPermission("arcane.mod"))
-			p.setPlayerListName(ColorPalette.MOD + "Mod" + ChatColor.DARK_GRAY + " | " + ColorPalette.RESET + p.getPlayerListName());
+			p.setPlayerListName(p.getName() + ChatColor.DARK_GRAY + " | " + ColorPalette.MOD + "Mod" + ChatColor.DARK_GRAY);
 		else if (p.hasPermission("arcane.chatmod"))
-			p.setPlayerListName(ColorPalette.CHAT_MOD + "ChatMod" + ChatColor.DARK_GRAY + " | " + ColorPalette.RESET + p.getPlayerListName());
+			p.setPlayerListName(p.getName() + ChatColor.DARK_GRAY + " | " + ColorPalette.CHAT_MOD + "ChatMod" + ChatColor.DARK_GRAY);
 		else if (p.hasPermission("arcane.donor"))
-			p.setPlayerListName(ColorPalette.DONOR + "Donor" + ChatColor.DARK_GRAY + " | " + ColorPalette.RESET + p.getPlayerListName());
+			p.setPlayerListName(p.getName() + ChatColor.DARK_GRAY + " | " + ColorPalette.DONOR + "Donor" + ChatColor.DARK_GRAY);
 	}
 	
 	@EventHandler (priority=EventPriority.HIGHEST)

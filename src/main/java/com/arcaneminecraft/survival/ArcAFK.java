@@ -26,7 +26,8 @@ final class ArcAFK implements CommandExecutor, Listener {
 	private static final int AFK_COUNTDOWN = 10; // 10 rounds (this * AFK_CHECK = 5 minute) countdown to being afk
 	private static final long AFK_CHECK = 600L; // run every 600 ticks (30 seconds)
 	private static final String FORMAT_AFK = ChatColor.GRAY + "* ";
-	private static final String TAG_AFK = ChatColor.DARK_PURPLE + "[AFK] " + ChatColor.RESET;
+	private static final String DISPLAY_TAG_AFK = "[AFK] ";
+	private static final String PL_TAG_AFK = ChatColor.DARK_GRAY + "[" +ChatColor.DARK_PURPLE + "AFK" + ChatColor.DARK_GRAY + "] " + ChatColor.RESET;
 	
 	ArcAFK(ArcaneSurvival plugin) {
 		this.plugin = plugin;
@@ -89,8 +90,8 @@ final class ArcAFK implements CommandExecutor, Listener {
 		
 		// Player is now afk.
 		p.setSleepingIgnored(true);
-		if (!p.getDisplayName().startsWith(TAG_AFK)) p.setDisplayName(TAG_AFK + p.getDisplayName());
-		p.setPlayerListName(TAG_AFK + p.getPlayerListName());
+		if (!p.getDisplayName().startsWith(DISPLAY_TAG_AFK)) p.setDisplayName(DISPLAY_TAG_AFK + p.getDisplayName());
+		p.setPlayerListName(PL_TAG_AFK + p.getPlayerListName());
 		p.sendMessage(FORMAT_AFK + "You are now AFK.");
 	}
 	
@@ -104,8 +105,8 @@ final class ArcAFK implements CommandExecutor, Listener {
 		String pdn = p.getDisplayName();
 		String pln = p.getPlayerListName();
 		p.setSleepingIgnored(false);
-		if (pdn.startsWith(TAG_AFK)) p.setDisplayName(pdn.substring(10));
-		p.setPlayerListName(pln.substring(8)); // this thing seems to do some advanced computation - it also strips role colors ;-;
+		if (pdn.startsWith(DISPLAY_TAG_AFK)) p.setDisplayName(pdn.substring(6));
+		p.setPlayerListName(pln.substring(12)); // this thing seems to do some advanced computation ;-;
 		p.sendMessage(FORMAT_AFK + "You are no longer AFK.");
 	}
 	
