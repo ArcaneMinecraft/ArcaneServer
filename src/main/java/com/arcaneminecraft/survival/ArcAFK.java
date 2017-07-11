@@ -66,7 +66,7 @@ final class ArcAFK implements CommandExecutor, Listener {
 	 * @param p Player in question.
 	 * @return ture if the player is afk.
 	 */
-	public boolean isAFK(Player p) { // AFK if object is null.
+	public boolean isAFK(Player p) {
 		return !afkCounter.containsKey(p);
 	}
 	
@@ -90,7 +90,7 @@ final class ArcAFK implements CommandExecutor, Listener {
 		// Player is now afk.
 		p.setSleepingIgnored(true);
 		if (!p.getDisplayName().startsWith(TAG_AFK)) p.setDisplayName(TAG_AFK + p.getDisplayName());
-		if (!p.getPlayerListName().startsWith(TAG_AFK)) p.setPlayerListName(TAG_AFK + p.getPlayerListName());
+		p.setPlayerListName(TAG_AFK + p.getPlayerListName());
 		p.sendMessage(FORMAT_AFK + "You are now AFK.");
 	}
 	
@@ -104,9 +104,9 @@ final class ArcAFK implements CommandExecutor, Listener {
 		String pdn = p.getDisplayName();
 		String pln = p.getPlayerListName();
 		p.setSleepingIgnored(false);
-		p.setDisplayName(pdn.startsWith(TAG_AFK) ? pdn.substring(10) : p.getName());
-		p.setPlayerListName(pln.startsWith(TAG_AFK) ? pln.substring(10) : p.getName());
-		p.sendRawMessage(FORMAT_AFK + "You are no longer AFK.");
+		if (pdn.startsWith(TAG_AFK)) p.setDisplayName(pdn.substring(10));
+		p.setPlayerListName(pln.substring(8)); // it also cuts some important parts as well ;-;
+		p.sendMessage(FORMAT_AFK + "You are no longer AFK.");
 	}
 	
 	@EventHandler (priority=EventPriority.MONITOR)

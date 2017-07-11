@@ -10,6 +10,7 @@ public class ColorPalette {
 	public static final ChatColor POSITIVE = ChatColor.GREEN;
 	public static final ChatColor MAP = ChatColor.DARK_GREEN;
 	public static final ChatColor DONOR = ChatColor.DARK_AQUA;
+	public static final ChatColor CHAT_MOD = ChatColor.DARK_GREEN;
 	public static final ChatColor MOD = ChatColor.BLUE;
 	public static final ChatColor ADMIN = ChatColor.RED;
 	public static final ChatColor RESET = ChatColor.RESET;

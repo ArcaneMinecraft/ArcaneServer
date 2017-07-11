@@ -3,6 +3,8 @@ package com.arcaneminecraft.survival;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.Random;
 
 import org.bukkit.command.Command;
@@ -13,6 +15,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.arcaneminecraft.ArcaneCommons;
 import com.arcaneminecraft.ColorPalette;
+
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 
 public final class ArcaneSurvival extends JavaPlugin {
 	private ArcAFK afk;
@@ -38,6 +43,9 @@ public final class ArcaneSurvival extends JavaPlugin {
 		getCommand("seen").setExecutor(sn);
 		getCommand("seenf").setExecutor(sn);
 		
+		// This must come before ArcAFK
+		getServer().getPluginManager().registerEvents(new PlayerListRole(this), this);
+		
 		this.afk = new ArcAFK(this);
 		getCommand("afk").setExecutor(afk);
 		getServer().getPluginManager().registerEvents(afk, this);
@@ -47,6 +55,9 @@ public final class ArcaneSurvival extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		afk.onDisable();
+		for (Player p : getServer().getOnlinePlayers()) {
+			p.setPlayerListName(p.getName());
+		}
 		saveConfig();
 	}
 
@@ -88,13 +99,44 @@ public final class ArcaneSurvival extends JavaPlugin {
 		}
 		
 		if (cmd.getName().equalsIgnoreCase("list")) {
-			ArrayList<String> pl = new ArrayList<>();
-			for (Player p : getServer().getOnlinePlayers()) pl.add(p.getDisplayName());
-			Collections.sort(pl);
+			ArrayList<Player> pl = new ArrayList<>();
+			
+			for (Player p : getServer().getOnlinePlayers()) {
+				pl.add(p);
+			}
+			
+			Collections.sort(pl, new Comparator<Player>(){
+				@Override
+				public int compare(Player a, Player b) {
+					return a.getName().compareTo(b.getName());
+				}
+			});
+			
+			TextComponent list = new TextComponent(" ");
+			list.setColor(ColorPalette.CONTENT);
+			
+			Iterator<Player> it = pl.iterator();
+			
+			while (it.hasNext()) {
+				Player p = it.next();
+				TextComponent tc = new TextComponent(p.getName());
+				tc.setColor(this.afk.isAFK(p) ? ColorPalette.CONTENT : ColorPalette.FOCUS);
+				tc.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/msg " + p.getName() + " "));
+				
+				if (this.afk.isAFK(p))
+					tc.setItalic(true);
+				else 
+					tc.setColor(ColorPalette.FOCUS);
+				
+				list.addExtra(tc);
+				
+				if (it.hasNext())
+					list.addExtra(", ");
+			}
 
 			sender.sendMessage(ArcaneCommons.tagMessage("Online players: " + ColorPalette.FOCUS
 					+ getServer().getOnlinePlayers().size() + "/" + getServer().getMaxPlayers()));
-			sender.sendMessage(" " + ColorPalette.CONTENT + String.join(", ", pl));
+			sender.spigot().sendMessage(list);
 			sender.sendMessage("");
 
 			return true;
