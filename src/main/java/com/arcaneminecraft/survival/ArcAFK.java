@@ -105,7 +105,7 @@ final class ArcAFK implements CommandExecutor, Listener {
 		String pln = p.getPlayerListName();
 		p.setSleepingIgnored(false);
 		if (pdn.startsWith(TAG_AFK)) p.setDisplayName(pdn.substring(10));
-		p.setPlayerListName(pln.substring(8)); // it also cuts some important parts as well ;-;
+		p.setPlayerListName(pln.substring(8)); // this thing seems to do some advanced computation - it also strips role colors ;-;
 		p.sendMessage(FORMAT_AFK + "You are no longer AFK.");
 	}
 	
