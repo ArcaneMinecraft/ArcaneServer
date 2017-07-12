@@ -9,6 +9,9 @@ import org.bukkit.command.CommandSender;
 import com.arcaneminecraft.ArcaneCommons;
 import com.arcaneminecraft.ColorPalette;
 
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+
 final class HelpLink implements CommandExecutor {
 	
 	@Override
@@ -19,9 +22,55 @@ final class HelpLink implements CommandExecutor {
 		}
 		
 		// HelpLink class as well. This is a super-command.
-		// links, link, website, map, forum, discord, mumble, donate
 		if (cmd.getName().equalsIgnoreCase("links")) {
-			return HelpLink.commandLink(sender);
+			TextComponent t = ArcaneCommons.tagTC("Arcane");
+			t.addExtra("Click here to open the ");
+			
+			TextComponent a = new TextComponent();
+			a.setColor(ColorPalette.FOCUS);
+			
+			TextComponent b = new TextComponent(" page.");
+			
+			switch (label.toLowerCase()) {
+			case "rule":
+			case "rules":
+				t.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, LINK[0][1]));
+				a.addExtra("rules");
+				break;
+			case "forum":
+			case "forums":
+				t.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, LINK[1][1]));
+				a.addExtra("forum");
+				break;
+			case "map":
+				t.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, LINK[2][1]));
+				a.addExtra("map");
+				break;
+			case "discord":
+			case "mumble":
+				t.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, LINK[3][1]));
+				a.addExtra("Discord");
+				b.addExtra("\n Invite code: ");
+				TextComponent c = new TextComponent("64WQHhM");
+				c.setColor(ColorPalette.FOCUS);
+				b.addExtra(c);
+				break;
+			case "donation":
+			case "donate":
+				t.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, LINK[4][1]));
+				a.addExtra("Donation");
+				break;
+			default:
+				return HelpLink.commandLink(sender);
+			}
+			
+			t.addExtra(a);
+			t.addExtra(b);
+			
+			sender.sendMessage("");
+			sender.spigot().sendMessage(t);
+			sender.sendMessage("");
+			return true;
 		}
 		
 		return false;
