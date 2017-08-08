@@ -17,8 +17,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import com.arcaneminecraft.ArcaneCommons;
-import com.arcaneminecraft.ColorPalette;
+import com.arcaneminecraft.api.ArcaneCommons;
+import com.arcaneminecraft.api.ColorPalette;
 
 final class FindSeen implements CommandExecutor {
 	private static final String TAG = "Seen";

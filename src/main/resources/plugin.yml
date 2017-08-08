@@ -5,7 +5,7 @@ description: Arcane Survival Essentials
 main: com.arcaneminecraft.survival.ArcaneSurvival
 website: https://arcaneminecraft.com/
 
-load: STARTUP
+depend: [ArcaneAPI]
 
 commands:
   afk:
@@ -13,9 +13,6 @@ commands:
     usage: /afk
   apply:
     description: Display the greylist application link.
-  arcanesurvival:
-    aliases: [arc, arcane]
-    description: Arcane help
   greylist:
     aliases: [graylist]
     description: Greylist command

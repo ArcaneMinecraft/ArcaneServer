@@ -10,8 +10,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-import com.arcaneminecraft.ArcaneCommons;
-import com.arcaneminecraft.ColorPalette;
+import com.arcaneminecraft.api.ArcaneCommons;
+import com.arcaneminecraft.api.ColorPalette;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;

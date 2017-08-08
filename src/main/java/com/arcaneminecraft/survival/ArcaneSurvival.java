@@ -13,8 +13,8 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.arcaneminecraft.ArcaneCommons;
-import com.arcaneminecraft.ColorPalette;
+import com.arcaneminecraft.api.ArcaneCommons;
+import com.arcaneminecraft.api.ColorPalette;
 
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -63,21 +63,6 @@ public final class ArcaneSurvival extends JavaPlugin {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		
-		// Informational command
-		if (cmd.getName().equalsIgnoreCase("arcanesurvival")) {
-			sender.sendMessage(ArcaneCommons.tagMessage(this.getDescription().getFullName()));
-			// Build Author array
-			StringBuilder authors = new StringBuilder();
-			Object[] alist = this.getDescription().getAuthors().toArray();
-			for (int i = 0; i < alist.length-1; i++) {
-				authors.append(alist[i]).append(", ");
-			}
-			authors.append("and ").append(alist[alist.length-1]);
-			
-			sender.sendMessage(ColorPalette.CONTENT + " Written with <3 by " + authors + ".");
-			return true;
-		}
 		
 		// apply
 		if (cmd.getName().equalsIgnoreCase("apply")) {

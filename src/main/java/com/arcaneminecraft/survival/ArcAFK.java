@@ -18,7 +18,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import com.arcaneminecraft.ArcaneCommons;
+import com.arcaneminecraft.api.ArcaneCommons;
 
 final class ArcAFK implements CommandExecutor, Listener {
 	private final ArcaneSurvival plugin;

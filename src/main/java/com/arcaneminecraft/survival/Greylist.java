@@ -41,8 +41,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.material.Redstone;
 
-import com.arcaneminecraft.ArcaneCommons;
-import com.arcaneminecraft.ColorPalette;
+import com.arcaneminecraft.api.ArcaneCommons;
+import com.arcaneminecraft.api.ColorPalette;
 
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.ClickEvent;
