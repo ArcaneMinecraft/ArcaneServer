@@ -44,10 +44,13 @@ import org.bukkit.material.Redstone;
 import com.arcaneminecraft.api.ArcaneCommons;
 import com.arcaneminecraft.api.ColorPalette;
 
+import me.lucko.luckperms.LuckPerms;
+import me.lucko.luckperms.api.LuckPermsApi;
+import me.lucko.luckperms.exceptions.ObjectAlreadyHasException;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-import ru.tehkode.permissions.bukkit.PermissionsEx;
+
 
 public class Greylist implements CommandExecutor, Listener {
 	private final ArcaneSurvival plugin;
@@ -130,10 +133,14 @@ public class Greylist implements CommandExecutor, Listener {
 			} else {
 				for (String pl : args) {
 					try {
-						PermissionsEx.getUser(pl).addGroup("trusted");
+						LuckPermsApi api = LuckPerms.getApi();
+						api.getUser(pl).setPermission(api.getNodeFactory().makeGroupNode(api.getGroup("trusted")).build());
 						sender.sendMessage(ArcaneCommons.tagMessage("Player " + ColorPalette.FOCUS + pl + ColorPalette.CONTENT + " greylisted!"));
-					} catch (NoClassDefFoundError e) {
-						sender.sendMessage(ArcaneCommons.tagMessage("Is PermissionsEx loaded on the server?"));
+					} catch (IllegalStateException | NoClassDefFoundError e) {
+						sender.sendMessage(ArcaneCommons.tagMessage("Is LuckPerms loaded on the server?"));
+					} catch (ObjectAlreadyHasException e) {
+						// TODO Auto-generated catch block
+						sender.sendMessage(ArcaneCommons.tagMessage("Player " + ColorPalette.FOCUS + pl + ColorPalette.CONTENT + " was already greylisted!"));
 					}
 				}
 			}
