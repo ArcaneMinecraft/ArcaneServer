@@ -160,8 +160,17 @@ public class Greylist implements CommandExecutor, Listener {
 	@EventHandler (priority=EventPriority.HIGHEST)
 	public void PlayerJoin(PlayerJoinEvent e) {
 		Player p = e.getPlayer();
-		// Send non-greylisted message
+		if (p.hasPermission("arcane.chatmod")) {
+			// When staff joins and there's a non-greylisted player online
+			for (Player pl : newPlayers)
+				p.sendMessage(ArcaneCommons.tagMessage(ColorPalette.FOCUS + pl.getName() + ColorPalette.CONTENT + " is not greylisted yet."));
+			return;
+		}
+		
 		if (p.hasPermission("arcane.new")) {
+			// Notify staff about this non-greylisted person
+			plugin.getServer().broadcast(ArcaneCommons.tagMessage(ColorPalette.FOCUS + p.getName() + ColorPalette.CONTENT + " is not greylisted yet."), "arcane.chatmod");
+			// Send non-greylisted message
 			addNewPlayer(e.getPlayer());
 		}
 		
