@@ -146,11 +146,12 @@ public final class ArcaneSurvival extends JavaPlugin {
 			}
 
 			StringBuilder m;
+			m = new StringBuilder("Pong! ");
 			if (p2ping == sender)
-				m = new StringBuilder("Pong! Your ");
+				m.append("Your");
 			else
-				m = new StringBuilder(p2ping.getDisplayName()).append("'s ");
-			m.append("ping: ");
+				m = new StringBuilder(p2ping.getName()).append("'s");
+			m.append(" ping: ");
 			
 			try {
 				Object entityPlayer = p2ping.getClass().getMethod("getHandle").invoke(p2ping);
