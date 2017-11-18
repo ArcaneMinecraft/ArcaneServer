@@ -6,6 +6,7 @@ main: com.arcaneminecraft.survival.ArcaneSurvival
 website: https://arcaneminecraft.com/
 
 depend: [ArcaneAPI]
+softdepend: [LuckPerms]
 
 commands:
   afk:

@@ -1,8 +1,10 @@
 package com.arcaneminecraft.survival;
 
 import java.util.HashSet;
+import java.util.UUID;
 
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.FlowerPot;
@@ -46,6 +48,7 @@ import com.arcaneminecraft.api.ColorPalette;
 
 import me.lucko.luckperms.LuckPerms;
 import me.lucko.luckperms.api.LuckPermsApi;
+import me.lucko.luckperms.api.User;
 import me.lucko.luckperms.exceptions.ObjectAlreadyHasException;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -124,7 +127,27 @@ public class Greylist implements CommandExecutor, Listener {
 		p.spigot().sendMessage(msg);*/
 	}
 	
-	@Override
+	private void addToGreylist(OfflinePlayer p, User u, CommandSender sender) {
+		try {
+			// Load API
+			LuckPermsApi api = LuckPerms.getApi();
+			
+			// set permission and stuff
+			u.setPermission(
+					api.getNodeFactory().makeGroupNode(
+							api.getGroup("trusted")
+							).build());
+			api.getStorage().saveUser(u);
+			sender.sendMessage(ArcaneCommons.tagMessage("Player " + ColorPalette.FOCUS + p.getName() + ColorPalette.CONTENT + " greylisted!"));
+		} catch (IllegalStateException | NoClassDefFoundError e) {
+			sender.sendMessage(ArcaneCommons.tagMessage("Is LuckPerms loaded on the server?"));
+		} catch (ObjectAlreadyHasException e) {
+			// TODO Auto-generated catch block
+			sender.sendMessage(ArcaneCommons.tagMessage("Player " + ColorPalette.FOCUS + p.getName() + ColorPalette.CONTENT + " was already greylisted!"));
+		}
+	}
+	
+	@SuppressWarnings("deprecation")
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		// Moderators will get a different message
 		if (sender.hasPermission("arcane.chatmod")) {
@@ -133,14 +156,31 @@ public class Greylist implements CommandExecutor, Listener {
 			} else {
 				for (String pl : args) {
 					try {
+						// Load API
 						LuckPermsApi api = LuckPerms.getApi();
-						api.getUser(pl).setPermission(api.getNodeFactory().makeGroupNode(api.getGroup("trusted")).build());
-						sender.sendMessage(ArcaneCommons.tagMessage("Player " + ColorPalette.FOCUS + pl + ColorPalette.CONTENT + " greylisted!"));
+						
+						// Get player from server
+						OfflinePlayer ply = plugin.getServer().getPlayer(pl);
+						if (ply == null) ply = plugin.getServer().getOfflinePlayer(pl);
+						final OfflinePlayer p = ply;
+						
+						// Get lp user object
+						User u = api.getUser(p.getUniqueId());
+						if (u == null) {
+							api.getStorage().loadUser(p.getUniqueId()).thenAcceptAsync(success -> {
+								if (!success) {
+									sender.sendMessage(ArcaneCommons.tagMessage("Player " + ColorPalette.FOCUS + p.getName() + ColorPalette.CONTENT + " doesn't exist on LuckPerms database."));
+									return;
+								}
+								User ul = api.getUser(p.getUniqueId()); 
+								addToGreylist(p, ul, sender);
+								api.cleanupUser(ul);
+							}, api.getStorage().getSyncExecutor());
+						} else {
+							addToGreylist(p, api.getUser(p.getUniqueId()), sender);
+						}
 					} catch (IllegalStateException | NoClassDefFoundError e) {
 						sender.sendMessage(ArcaneCommons.tagMessage("Is LuckPerms loaded on the server?"));
-					} catch (ObjectAlreadyHasException e) {
-						// TODO Auto-generated catch block
-						sender.sendMessage(ArcaneCommons.tagMessage("Player " + ColorPalette.FOCUS + pl + ColorPalette.CONTENT + " was already greylisted!"));
 					}
 				}
 			}
