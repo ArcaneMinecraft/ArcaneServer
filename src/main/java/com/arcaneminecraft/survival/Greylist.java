@@ -46,10 +46,9 @@ import com.arcaneminecraft.api.ArcaneCommons;
 import com.arcaneminecraft.api.ColorPalette;
 
 import me.lucko.luckperms.LuckPerms;
+import me.lucko.luckperms.api.DataMutateResult;
 import me.lucko.luckperms.api.LuckPermsApi;
 import me.lucko.luckperms.api.User;
-import me.lucko.luckperms.exceptions.ObjectAlreadyHasException;
-import me.lucko.luckperms.exceptions.ObjectLacksException;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -94,6 +93,11 @@ public class Greylist implements CommandExecutor, Listener {
 		p.sendMessage("");
 	}
 	
+	private void removeNewOfflinePlayer(OfflinePlayer p) {
+		if (p.isOnline())
+			removeNewPlayer((Player)p);
+	}
+	
 	private void removeNewPlayer(Player p) {
 		if (newPlayers.remove(p) && newPlayers.isEmpty()) {
 			// unhook Listener
@@ -133,23 +137,33 @@ public class Greylist implements CommandExecutor, Listener {
 			LuckPermsApi api = LuckPerms.getApi();
 			
 			// set permission and stuff by simulating track promotion
-			u.setPermission(
+			DataMutateResult r = u.setPermission(
 					api.getNodeFactory().makeGroupNode(
 							api.getGroup("trusted")
 							).build());
+			if (r.wasFailure()) {
+				sender.sendMessage(ArcaneCommons.tagMessage("Player " + ColorPalette.FOCUS + p.getName() + ColorPalette.CONTENT + " was already greylisted!"));
+				return;
+			}
 			u.unsetPermission(
 					api.getNodeFactory().makeGroupNode(
 							api.getGroup("default")
 							).build());
-			api.getStorage().saveUser(u);
-			sender.sendMessage(ArcaneCommons.tagMessage("Player " + ColorPalette.FOCUS + p.getName() + ColorPalette.CONTENT + " greylisted!"));
-			plugin.getServer().broadcastMessage(ColorPalette.META + p.getName()
-					+ " is now greylisted");
+			api.getStorage().saveUser(u).thenAcceptAsync( success ->{
+				if (!success) {
+					sender.sendMessage(ArcaneCommons.tagMessage("There was a problem while modifying groups for " + ColorPalette.FOCUS + p.getName() + ColorPalette.CONTENT + ".  Please contact an administrator."));
+					return;
+				}
+				
+				u.refreshCachedData();
+				removeNewOfflinePlayer(p);
+				sender.sendMessage(ArcaneCommons.tagMessage("Player " + ColorPalette.FOCUS + p.getName() + ColorPalette.CONTENT + " greylisted!"));
+				plugin.getServer().broadcastMessage(ColorPalette.META + p.getName()
+						+ " is now greylisted");
+			});
+			
 		} catch (IllegalStateException | NoClassDefFoundError e) {
 			sender.sendMessage(ArcaneCommons.tagMessage("Is LuckPerms loaded on the server?"));
-		} catch (ObjectAlreadyHasException | ObjectLacksException e) {
-			// TODO Auto-generated catch block
-			sender.sendMessage(ArcaneCommons.tagMessage("Player " + ColorPalette.FOCUS + p.getName() + ColorPalette.CONTENT + " was already greylisted!"));
 		}
 	}
 	
