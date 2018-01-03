@@ -1,7 +1,6 @@
 package com.arcaneminecraft.survival;
 
 import java.util.HashSet;
-import java.util.UUID;
 
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -50,6 +49,7 @@ import me.lucko.luckperms.LuckPerms;
 import me.lucko.luckperms.api.LuckPermsApi;
 import me.lucko.luckperms.api.User;
 import me.lucko.luckperms.exceptions.ObjectAlreadyHasException;
+import me.lucko.luckperms.exceptions.ObjectLacksException;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -58,7 +58,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 public class Greylist implements CommandExecutor, Listener {
 	private final ArcaneSurvival plugin;
 	private final HashSet<Player> newPlayers = new HashSet<>();
-	private static final String NEW_PERMISSION = "arcane.new";
+	private static final String TRUSTED_PERMISSION = "arcane.trusted";
 	private NewPlayerListener listener = new NewPlayerListener();
 	
 	Greylist(ArcaneSurvival plugin) {
@@ -71,7 +71,7 @@ public class Greylist implements CommandExecutor, Listener {
 	// In ALL cases, it adds to list only if the player has "arcane.new" permission.
 	private void addNewPlayer(Player p) {
 		// Check if player has new player permission
-		if (!p.hasPermission(NEW_PERMISSION))
+		if (p.hasPermission(TRUSTED_PERMISSION))
 			return;
 		
 		newPlayers.add(p);
@@ -102,7 +102,7 @@ public class Greylist implements CommandExecutor, Listener {
 	}
 	
 	private void noPerm(Cancellable e, Player p) {
-		if (!p.hasPermission(NEW_PERMISSION)) {
+		if (p.hasPermission(TRUSTED_PERMISSION)) {
 			removeNewPlayer(p);
 			return;
 		}
@@ -132,16 +132,22 @@ public class Greylist implements CommandExecutor, Listener {
 			// Load API
 			LuckPermsApi api = LuckPerms.getApi();
 			
-			// set permission and stuff
+			// set permission and stuff by simulating track promotion
 			u.setPermission(
 					api.getNodeFactory().makeGroupNode(
 							api.getGroup("trusted")
 							).build());
+			u.unsetPermission(
+					api.getNodeFactory().makeGroupNode(
+							api.getGroup("default")
+							).build());
 			api.getStorage().saveUser(u);
 			sender.sendMessage(ArcaneCommons.tagMessage("Player " + ColorPalette.FOCUS + p.getName() + ColorPalette.CONTENT + " greylisted!"));
+			plugin.getServer().broadcastMessage(ColorPalette.META + p.getName()
+					+ " is now greylisted");
 		} catch (IllegalStateException | NoClassDefFoundError e) {
 			sender.sendMessage(ArcaneCommons.tagMessage("Is LuckPerms loaded on the server?"));
-		} catch (ObjectAlreadyHasException e) {
+		} catch (ObjectAlreadyHasException | ObjectLacksException e) {
 			// TODO Auto-generated catch block
 			sender.sendMessage(ArcaneCommons.tagMessage("Player " + ColorPalette.FOCUS + p.getName() + ColorPalette.CONTENT + " was already greylisted!"));
 		}
@@ -169,6 +175,7 @@ public class Greylist implements CommandExecutor, Listener {
 						if (u == null) {
 							api.getStorage().loadUser(p.getUniqueId()).thenAcceptAsync(success -> {
 								if (!success) {
+									// it for some reason never reaches this point.
 									sender.sendMessage(ArcaneCommons.tagMessage("Player " + ColorPalette.FOCUS + p.getName() + ColorPalette.CONTENT + " doesn't exist on LuckPerms database."));
 									return;
 								}
@@ -204,7 +211,7 @@ public class Greylist implements CommandExecutor, Listener {
 		return true;
 	}
 	
-	@EventHandler (priority=EventPriority.HIGHEST)
+	@EventHandler (priority=EventPriority.MONITOR)
 	public void PlayerJoin(PlayerJoinEvent e) {
 		Player p = e.getPlayer();
 		if (p.hasPermission("arcane.chatmod")) {
@@ -214,7 +221,7 @@ public class Greylist implements CommandExecutor, Listener {
 			return;
 		}
 		
-		if (p.hasPermission("arcane.new")) {
+		if (!p.hasPermission(TRUSTED_PERMISSION)) {
 			// Notify staff about this non-greylisted person
 			plugin.getServer().broadcast(ArcaneCommons.tagMessage(ColorPalette.FOCUS + p.getName() + ColorPalette.CONTENT + " is not greylisted yet."), "arcane.chatmod");
 			// Send non-greylisted message
@@ -244,7 +251,7 @@ public class Greylist implements CommandExecutor, Listener {
 		// Advanced Player and Entity
 		@EventHandler (priority=EventPriority.HIGHEST) public void interactEntity(PlayerInteractEntityEvent e) {
 			Player p = e.getPlayer();
-			if (!p.hasPermission(NEW_PERMISSION))
+			if (p.hasPermission(TRUSTED_PERMISSION))
 				return;
 			
 			if (e.getRightClicked() instanceof Hanging) // Item Frame and paintings 
@@ -253,7 +260,7 @@ public class Greylist implements CommandExecutor, Listener {
 		
 		@EventHandler (priority=EventPriority.HIGHEST) public void hangingBreakByEntity(HangingBreakByEntityEvent e) {
 			Player p;
-			if (!(e.getRemover() instanceof Player && (p = (Player)e.getRemover()).hasPermission(NEW_PERMISSION)))
+			if (!(e.getRemover() instanceof Player && !(p = (Player)e.getRemover()).hasPermission(TRUSTED_PERMISSION)))
 				return;
 			
 			noPerm(e, p);
@@ -261,7 +268,7 @@ public class Greylist implements CommandExecutor, Listener {
 		
 		@EventHandler (priority=EventPriority.HIGHEST) public void damageByEntity(EntityDamageByEntityEvent e) {
 			Player p;
-			if (!(e.getDamager() instanceof Player && (p = (Player)e.getDamager()).hasPermission(NEW_PERMISSION)))
+			if (!(e.getDamager() instanceof Player && !(p = (Player)e.getDamager()).hasPermission(TRUSTED_PERMISSION)))
 				return;
 			
 			Entity d = e.getEntity();
@@ -286,7 +293,7 @@ public class Greylist implements CommandExecutor, Listener {
 		// Advanced Block
 		@EventHandler (priority=EventPriority.HIGHEST) public void interact(PlayerInteractEvent e) {
 			Player p = e.getPlayer();
-			if (!p.hasPermission(NEW_PERMISSION))
+			if (p.hasPermission(TRUSTED_PERMISSION))
 				return;
 			
 			Action a = e.getAction();
@@ -316,7 +323,7 @@ public class Greylist implements CommandExecutor, Listener {
 		// Inventory
 		@EventHandler (priority=EventPriority.HIGHEST) public void inventoryClick(InventoryClickEvent e) {
 			Player p; 
-			if (!(e.getWhoClicked() instanceof Player && (p = (Player)e.getWhoClicked()).hasPermission(NEW_PERMISSION)))
+			if (!(e.getWhoClicked() instanceof Player && !(p = (Player)e.getWhoClicked()).hasPermission(TRUSTED_PERMISSION)))
 				return;
 			
 			Inventory i = e.getInventory();
