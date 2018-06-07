@@ -12,7 +12,7 @@ import net.md_5.bungee.api.ChatColor;
 
 public class PlayerListRole implements Listener {
 
-    PlayerListRole(ArcaneSurvival plugin) {
+    PlayerListRole(ArcaneServer plugin) {
         for (Player p : plugin.getServer().getOnlinePlayers()) {
             addRole(p);
         }

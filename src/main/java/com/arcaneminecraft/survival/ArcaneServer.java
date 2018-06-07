@@ -13,22 +13,24 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
-public final class ArcaneSurvival extends JavaPlugin {
+public final class ArcaneServer extends JavaPlugin {
     private ArcAFK afk;
+    private PluginMessenger pluginMessenger;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
 
-        getServer().getPluginManager().registerEvents(afk, this);
+        pluginMessenger = new PluginMessenger(this);
+        getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", pluginMessenger);
+        getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 
+        getServer().getPluginManager().registerEvents(new PlayerEvents(this), this);
         getServer().getPluginManager().registerEvents(new Greylist(), this);
-
-        // This must come before ArcAFK
+        // this must come before AFK
         getServer().getPluginManager().registerEvents(new PlayerListRole(this), this);
 
-        this.afk = new ArcAFK(this);
-        getCommand("afk").setExecutor(afk);
+        getCommand("afk").setExecutor(afk = new ArcAFK(this));
         getServer().getPluginManager().registerEvents(afk, this);
     }
 
@@ -38,6 +40,10 @@ public final class ArcaneSurvival extends JavaPlugin {
         for (Player p : getServer().getOnlinePlayers()) {
             p.setPlayerListName(p.getName());
         }
+    }
+
+    PluginMessenger getPluginMessenger() {
+        return pluginMessenger;
     }
 
     @Override
