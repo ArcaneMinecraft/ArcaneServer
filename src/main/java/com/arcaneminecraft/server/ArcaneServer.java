@@ -15,8 +15,6 @@ public final class ArcaneServer extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        saveDefaultConfig();
-
         pluginMessenger = new PluginMessenger(this);
         getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", pluginMessenger);
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");

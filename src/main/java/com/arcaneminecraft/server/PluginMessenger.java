@@ -66,7 +66,7 @@ public class PluginMessenger implements PluginMessageListener {
                 for (Player p : plugin.getServer().getOnlinePlayers())
                     p.spigot().sendMessage(ChatMessageType.CHAT, chat);
 
-                plugin.getLogger().info(chat.toLegacyText());
+                plugin.getServer().getConsoleSender().sendMessage("*" + chat.toPlainText());
             }
 
         } catch (IOException e) {
