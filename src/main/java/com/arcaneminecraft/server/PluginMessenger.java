@@ -1,4 +1,4 @@
-package com.arcaneminecraft.survival;
+package com.arcaneminecraft.server;
 
 import com.arcaneminecraft.api.ArcaneText;
 import com.google.common.io.ByteArrayDataInput;
@@ -23,7 +23,7 @@ public class PluginMessenger implements PluginMessageListener {
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF("Forward"); // So BungeeCord knows to forward it
             out.writeUTF("ONLINE");
-            // ArcaneLog is null: another server is main (survival) server. ChatAndLog.
+            // ArcaneLog is null: another server is main (server) server. ChatAndLog.
             out.writeUTF(plugin.getServer().getPluginManager().getPlugin("ArcaneLog") == null ? "ChatAndLog" : "Chat"); // Subchannel Chat
 
             ByteArrayOutputStream byteos = new ByteArrayOutputStream();

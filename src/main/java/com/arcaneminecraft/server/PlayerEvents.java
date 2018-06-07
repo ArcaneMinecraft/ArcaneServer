@@ -1,4 +1,4 @@
-package com.arcaneminecraft.survival;
+package com.arcaneminecraft.server;
 
 import com.arcaneminecraft.api.ArcaneText;
 import net.md_5.bungee.api.ChatMessageType;

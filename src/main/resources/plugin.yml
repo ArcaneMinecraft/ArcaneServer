@@ -1,8 +1,8 @@
-name: ArcaneSurvival
+name: ArcaneServer
 version: ${project.version}
 authors: [Agentred100, jugglingman456, Morios, SimonOrJ]
-description: Arcane Survival Essentials
-main: com.arcaneminecraft.survival.ArcaneSurvival
+description: Arcane Survival Network Essentials
+main: com.arcaneminecraft.server.ArcaneServer
 website: https://arcaneminecraft.com/
 
 depend: [ArcaneAPI]

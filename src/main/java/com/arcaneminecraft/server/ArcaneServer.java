@@ -1,16 +1,12 @@
-package com.arcaneminecraft.survival;
+package com.arcaneminecraft.server;
 
 import com.arcaneminecraft.api.ColorPalette;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 public final class ArcaneServer extends JavaPlugin {

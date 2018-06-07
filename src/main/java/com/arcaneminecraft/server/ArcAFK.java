@@ -1,4 +1,4 @@
-package com.arcaneminecraft.survival;
+package com.arcaneminecraft.server;
 
 import java.util.HashMap;
 import java.util.Iterator;

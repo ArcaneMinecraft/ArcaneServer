@@ -1,4 +1,4 @@
-package com.arcaneminecraft.survival;
+package com.arcaneminecraft.server;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
