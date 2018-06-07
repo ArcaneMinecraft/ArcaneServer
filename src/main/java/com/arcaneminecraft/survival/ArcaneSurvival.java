@@ -30,7 +30,6 @@ public final class ArcaneSurvival extends JavaPlugin {
         this.afk = new ArcAFK(this);
         getCommand("afk").setExecutor(afk);
         getServer().getPluginManager().registerEvents(afk, this);
-
     }
 
     @Override
@@ -39,7 +38,6 @@ public final class ArcaneSurvival extends JavaPlugin {
         for (Player p : getServer().getOnlinePlayers()) {
             p.setPlayerListName(p.getName());
         }
-        saveConfig();
     }
 
     @Override
