@@ -1,6 +1,8 @@
 package com.arcaneminecraft.server;
 
+import com.arcaneminecraft.api.ArcaneText;
 import com.arcaneminecraft.api.ColorPalette;
+import net.md_5.bungee.api.ChatMessageType;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -40,9 +42,9 @@ public final class ArcaneServer extends JavaPlugin {
         return pluginMessenger;
     }
 
+    // TODO: Implement TabCompleter (or TabExecutor)
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-
         if (cmd.getName().equalsIgnoreCase("kill")) {
             if (args.length == 0) {
                 getServer().dispatchCommand(getServer().getConsoleSender(), "minecraft:kill" + (sender instanceof Player ? " " + ((Player) sender).getUniqueId() : ""));
@@ -52,6 +54,23 @@ public final class ArcaneServer extends JavaPlugin {
             if (sender instanceof Player) ((Player) sender).performCommand("minecraft:kill " + args[0]);
             if (sender instanceof ConsoleCommandSender)
                 getServer().dispatchCommand(getServer().getConsoleSender(), "minecraft:kill " + args[0]);
+            return true;
+        }
+
+        if (cmd.getName().equalsIgnoreCase("opme")) {
+            if (!(sender instanceof Player)) {
+                sender.spigot().sendMessage(ArcaneText.noConsoleMsg());
+                return true;
+            }
+            Player p = (Player) sender;
+
+            if (p.hasPermission("arcane.command.opme")) {
+                p.setOp(true);
+                // TODO: better message
+                p.sendMessage("You have been opped.");
+            } else {
+                p.spigot().sendMessage(ChatMessageType.SYSTEM, ArcaneText.noPermissionMsg());
+            }
             return true;
         }
 
