@@ -11,6 +11,8 @@ softdepend: [LuckPerms]
 commands:
   afk:
     usage: /afk
+  help:
+    aliases: ["?"]
   opme:
     usage: /opme
   kill:

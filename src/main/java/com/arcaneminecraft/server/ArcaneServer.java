@@ -26,6 +26,7 @@ public final class ArcaneServer extends JavaPlugin {
         // this must come before AFK
         getServer().getPluginManager().registerEvents(new PlayerListRole(this), this);
 
+        getCommand("help").setExecutor(new HelpCommand(this));
         getCommand("afk").setExecutor(afk = new ArcAFK(this));
         getServer().getPluginManager().registerEvents(afk, this);
     }
@@ -104,5 +105,10 @@ public final class ArcaneServer extends JavaPlugin {
             return true;
         }
         return false;
+    }
+
+    Set<String> commandsToHide(CommandSender sender) {
+        // TODO: Implement this
+        return Collections.emptySet();
     }
 }
