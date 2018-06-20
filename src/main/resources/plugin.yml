@@ -41,3 +41,6 @@ permissions:
   arcane.homes:
     description: Arcane extra home donor.
     default: op
+  arcane.tabcomplete.hidecolon:
+    description: Hides commands with colon (e.g. bukkit:version).
+    default: not op

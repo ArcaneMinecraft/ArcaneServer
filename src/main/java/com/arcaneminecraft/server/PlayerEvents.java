@@ -15,6 +15,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.TabCompleteEvent;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 public class PlayerEvents implements Listener {
@@ -26,11 +27,20 @@ public class PlayerEvents implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void commandEvent(TabCompleteEvent e) {
-        CommandSender p = e.getSender();
         String cmd = e.getBuffer().toLowerCase();
+
+        if (!cmd.startsWith("/") || cmd.contains(" "))
+            return; // TODO: Maybe return online players on the BungeeCord Network?
+
+        CommandSender p = e.getSender();
         List<String> list = e.getCompletions();
 
         // TODO: Look into having our own command recommendations using (e.setCompletions()) and config file
+        Iterator<String> iter = list.iterator();
+
+        if (p.hasPermission("arcane.tabcomplete.hidecolon"))
+            list.removeIf((String s) -> s.contains(":"));
+
         for (BungeeCommandUsage c : BungeeCommandUsage.values()) {
             String cmdCandidate = c.getCommand();
             if ((c.getPermission() == null || p.hasPermission(c.getPermission())) && cmdCandidate.toLowerCase().startsWith(cmd))
