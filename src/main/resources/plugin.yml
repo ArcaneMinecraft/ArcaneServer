@@ -46,3 +46,9 @@ permissions:
   arcane.tabcomplete.hidecolon:
     description: Hides commands with colon (e.g. bukkit:version).
     default: not op
+  arcane.command.opme:
+    description: Allows /opme
+    default: false
+  arcane.command.help.showorigin:
+    description: Shows origin of each entry in /help
+    default: op

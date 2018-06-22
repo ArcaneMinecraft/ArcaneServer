@@ -3,13 +3,17 @@ package com.arcaneminecraft.server;
 import com.arcaneminecraft.api.ArcaneText;
 import com.arcaneminecraft.api.ColorPalette;
 import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TranslatableComponent;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Random;
+import java.util.Set;
 
 public final class ArcaneServer extends JavaPlugin {
     private ArcAFK afk;
@@ -26,7 +30,10 @@ public final class ArcaneServer extends JavaPlugin {
         // this must come before AFK
         getServer().getPluginManager().registerEvents(new PlayerListRole(this), this);
 
-        getCommand("help").setExecutor(new HelpCommand(this));
+        HelpCommand hc = new HelpCommand(this);
+        getCommand("help").setExecutor(hc);
+        getServer().getPluginManager().registerEvents(hc, this);
+
         getCommand("afk").setExecutor(afk = new ArcAFK(this));
         getServer().getPluginManager().registerEvents(afk, this);
     }
@@ -48,13 +55,16 @@ public final class ArcaneServer extends JavaPlugin {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (cmd.getName().equalsIgnoreCase("kill")) {
             if (args.length == 0) {
-                getServer().dispatchCommand(getServer().getConsoleSender(), "minecraft:kill" + (sender instanceof Player ? " " + ((Player) sender).getUniqueId() : ""));
+                if (sender instanceof Damageable)
+                    ((Damageable) sender).setHealth(0);
+                else
+                    sender.sendMessage("You must be a damageable entity");
                 return true;
             }
             // For selected kill to go through, players will need Minecraft's kill permission in the end.
-            if (sender instanceof Player) ((Player) sender).performCommand("minecraft:kill " + args[0]);
+            if (sender instanceof Player) ((Player) sender).performCommand("minecraft:kill " + String.join(" ", args));
             if (sender instanceof ConsoleCommandSender)
-                getServer().dispatchCommand(getServer().getConsoleSender(), "minecraft:kill " + args[0]);
+                getServer().dispatchCommand(getServer().getConsoleSender(), "minecraft:kill " + String.join(" ", args));
             return true;
         }
 
@@ -68,7 +78,7 @@ public final class ArcaneServer extends JavaPlugin {
             if (p.hasPermission("arcane.command.opme")) {
                 p.setOp(true);
                 // TODO: better message
-                p.sendMessage("You have been opped.");
+                p.spigot().sendMessage(ChatMessageType.SYSTEM, new TranslatableComponent("commands.op.success", p.getName()));
             } else {
                 p.spigot().sendMessage(ChatMessageType.SYSTEM, ArcaneText.noPermissionMsg());
             }
