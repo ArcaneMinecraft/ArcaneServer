@@ -49,6 +49,6 @@ permissions:
   arcane.command.opme:
     description: Allows /opme
     default: false
-  arcane.command.help.showorigin:
+  arcane.command.help.details:
     description: Shows origin of each entry in /help
     default: op

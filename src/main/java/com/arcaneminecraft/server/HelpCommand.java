@@ -3,10 +3,7 @@ package com.arcaneminecraft.server;
 import com.arcaneminecraft.api.BungeeCommandUsage;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.TranslatableComponent;
+import net.md_5.bungee.api.chat.*;
 import org.bukkit.command.*;
 import org.bukkit.command.defaults.BukkitCommand;
 import org.bukkit.configuration.ConfigurationSection;
@@ -16,7 +13,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.PluginEnableEvent;
-import org.bukkit.event.server.PluginEvent;
 import org.bukkit.plugin.SimplePluginManager;
 
 import java.lang.reflect.Field;
@@ -38,7 +34,11 @@ public class HelpCommand implements TabExecutor, Listener {
         try {
 
             ConfigurationSection cf = plugin.getConfig().getConfigurationSection("help_commands");
-            Set<String> confEntry = cf.getKeys(false);
+            if (cf == null) {
+                plugin.getLogger().warning("'help_commands' does not exist in config.yml. Help will not work.");
+                return;
+            }
+            //Set<String> confEntry = cf.getKeys(false);
 
             // Next thing you know Spigot 1.13 breaks this
             Field f = SimplePluginManager.class.getDeclaredField("commandMap");
@@ -57,10 +57,7 @@ public class HelpCommand implements TabExecutor, Listener {
                 if (temp.contains(c.getName()))
                     continue;
 
-                if (confEntry.contains(c.getName()))
-                    commands.add(new CommandWrapper(c, cf.getConfigurationSection(c.getName())));
-                else
-                    commands.add(new CommandWrapper(c));
+                commands.add(new CommandWrapper(c, cf.getConfigurationSection(c.getName())));
 
                 temp.add(c.getName());
             }
@@ -115,12 +112,12 @@ public class HelpCommand implements TabExecutor, Listener {
                 sender.spigot().sendMessage(header);
 
             // Help topics
-            boolean showOrigin = sender.hasPermission("arcane.command.help.showorigin");
+            boolean showDetails = sender.hasPermission("arcane.command.help.details");
             for (int i = (page - 1) * 7; i < pg; i++) {
                 if (sender instanceof Player)
-                    ((Player) sender).spigot().sendMessage(ChatMessageType.SYSTEM, cmdList.get(i).getUsage(showOrigin));
+                    ((Player) sender).spigot().sendMessage(ChatMessageType.SYSTEM, cmdList.get(i).getUsage(showDetails));
                 else
-                    sender.spigot().sendMessage(cmdList.get(i).getUsage(showOrigin));
+                    sender.spigot().sendMessage(cmdList.get(i).getUsage(showDetails));
             }
 
             // Last Line
@@ -176,44 +173,38 @@ public class HelpCommand implements TabExecutor, Listener {
         private final ClickEvent clickEvent;
         private final String permission;
         private final BaseComponent origin;
-
-        private CommandWrapper(Command command) {
-            this.name = command.getName();
-            this.permission = command.getPermission();
-            this.usage = command.getUsage().equals("") ? "/" + command.getName() : command.getUsage();
-            this.origin = new TextComponent(command instanceof PluginCommand
-                    ? ((PluginCommand) command).getPlugin().getName()
-                    : command instanceof BukkitCommand
-                    ? "Bukkit"
-                    : "(Unknown)");
-            this.clickEvent = new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/" + name + " ");
-            orininFormatting();
-        }
+        private final String description;
 
         private CommandWrapper(Command command, ConfigurationSection configurationSection) {
             this.name = command.getName();
+            this.origin = __getOrigin(command, configurationSection != null);
+            __originFormatting();
+            this.clickEvent = new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/" + name + " ");
+
+            if (configurationSection == null) {
+                this.permission = command.getPermission();
+                this.usage = command.getUsage().equals("") ? "/" + command.getName() : command.getUsage();
+                this.description = command.getDescription();
+                return;
+            }
+
             this.permission = configurationSection.getString("permission", command.getPermission());
             this.usage = configurationSection.getString("usage",
                     command.getUsage().equals("") ? "/" + command.getName() : command.getUsage());
-            this.origin =  new TextComponent((command instanceof PluginCommand
-                    ? ((PluginCommand) command).getPlugin().getName()
-                    : command instanceof BukkitCommand
-                    ? "Bukkit"
-                    : "(Unknown)" )+ " modified");
-            this.clickEvent = new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/" + name + " ");
-            orininFormatting();
+            this.description = configurationSection.getString("description", command.getDescription());
         }
 
         private CommandWrapper(BungeeCommandUsage command) {
             this.name = command.getName();
+            this.origin = new TextComponent("(BungeeCord)");
+            __originFormatting();
+            this.clickEvent = new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/" + name + " ");
             this.permission = command.getPermission();
             this.usage = command.getUsage();
-            this.origin = new TextComponent("(BungeeCord)");
-            this.clickEvent = new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/" + name + " ");
-            orininFormatting();
+            this.description = command.getDescription();
         }
 
-        private void orininFormatting() {
+        private void __originFormatting() {
             this.origin.setColor(ChatColor.GRAY);
             this.origin.setItalic(true);
         }
@@ -222,12 +213,39 @@ public class HelpCommand implements TabExecutor, Listener {
             return name;
         }
 
-        private BaseComponent getUsage(boolean showOrigin) {
+        private BaseComponent __getOrigin(Command command, boolean modified) {
+            return new TextComponent((command instanceof PluginCommand
+                    ? ((PluginCommand) command).getPlugin().getName()
+                    : command instanceof BukkitCommand
+                    ? "Bukkit"
+                    : "(Unknown)") + (modified ? " Modified" : ""));
+        }
+
+        private BaseComponent getUsage(boolean showDetails) {
             BaseComponent ret = usage.startsWith("commands.") ? new TranslatableComponent(usage) : new TextComponent(usage);
-            if (showOrigin) {
+            ComponentBuilder cb = null;
+            if (!description.isEmpty())
+                cb = new ComponentBuilder(description);
+
+            if (showDetails) {
                 ret.addExtra(" ");
                 ret.addExtra(origin);
+                if (permission != null) {
+                    BaseComponent perm = new TextComponent(" Permission: " + permission);
+                    perm.setColor(ChatColor.GRAY);
+                    perm.setItalic(true);
+                    if (cb == null) {
+                        cb = new ComponentBuilder(perm);
+                    } else {
+                        cb.append("\n");
+                        cb.append(perm);
+                    }
+                }
             }
+
+            if (cb != null)
+                ret.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, cb.create()));
+
             ret.setClickEvent(clickEvent);
             return ret;
         }
