@@ -1,0 +1,30 @@
+help-override:
+  commands:
+    co:
+      permission: help.coreprotect
+    core:
+      permission: help.coreprotect
+    coreprotect:
+      permission: help.coreprotect
+    luckperms:
+      permission: help.luckperms
+    luckpermsbungee:
+      permission: help.luckperms
+      description: LuckPerms on Bungee
+  # Make configuration for hiding some commands in /[Tab] list.
+
+
+# Key:
+# blockname:
+#   y-max: int
+#   biome: biome name
+spy:
+  xray-blocks:
+    diamond_ore:
+      y-max: 15
+    emerald_ore:
+      biome: extreme_hills
+    quartz_ore: # Change to nether_quartz_ore in 1.13
+      biome: hell
+
+

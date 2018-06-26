@@ -6,6 +6,7 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TranslatableComponent;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
@@ -39,6 +40,31 @@ public class PluginMessenger implements PluginMessageListener {
         } catch (IOException e1) {
             e1.printStackTrace();
         }
+    }
+
+    void xRayAlert(Player p, Block b) {
+        ArcaneAlertChannel(p, b, "XRay", b.getType().toString());
+    }
+
+    void signAlert(Player p, Block b, String[] l) {
+        ArcaneAlertChannel(p, b, "Sign", l);
+    }
+
+    private void ArcaneAlertChannel(Player p, Block b, String type, String... data) {
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF(type);
+        out.writeUTF(p.getName());
+        out.writeUTF(p.getUniqueId().toString());
+        out.writeUTF(b.getWorld().getName());
+        out.writeInt(b.getX());
+        out.writeInt(b.getY());
+        out.writeInt(b.getZ());
+
+        for (String s : data) {
+            out.writeUTF(s);
+        }
+
+        p.sendPluginMessage(plugin, "ArcaneAlert", out.toByteArray());
     }
 
     @Override

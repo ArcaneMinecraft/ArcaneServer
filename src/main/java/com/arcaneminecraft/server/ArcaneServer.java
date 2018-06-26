@@ -21,9 +21,16 @@ public final class ArcaneServer extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        saveDefaultConfig();
+
         pluginMessenger = new PluginMessenger(this);
         getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", pluginMessenger);
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+
+        // X-Ray notification Logging
+        getServer().getMessenger().registerOutgoingPluginChannel(this, "ArcaneAlert");
+        getServer().getPluginManager().registerEvents(new Alert(this), this);
+
 
         getServer().getPluginManager().registerEvents(new PlayerEvents(this), this);
         getServer().getPluginManager().registerEvents(new Greylist(), this);

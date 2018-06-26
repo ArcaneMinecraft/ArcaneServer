@@ -33,12 +33,11 @@ public class HelpCommand implements TabExecutor, Listener {
 
         try {
 
-            ConfigurationSection cf = plugin.getConfig().getConfigurationSection("help_commands");
+            ConfigurationSection cf = plugin.getConfig().getConfigurationSection("help-override.commands");
             if (cf == null) {
-                plugin.getLogger().warning("'help_commands' does not exist in config.yml. Help will not work.");
+                plugin.getLogger().warning("'help-override.commands' does not exist in config.yml. /help menu will not work.");
                 return;
             }
-            //Set<String> confEntry = cf.getKeys(false);
 
             // Next thing you know Spigot 1.13 breaks this
             Field f = SimplePluginManager.class.getDeclaredField("commandMap");
@@ -58,13 +57,21 @@ public class HelpCommand implements TabExecutor, Listener {
                     continue;
 
                 commands.add(new CommandWrapper(c, cf.getConfigurationSection(c.getName())));
-
                 temp.add(c.getName());
+            }
+
+            // Third: Remaining config.yml Commands
+            for (String c : cf.getKeys(false)) {
+                if (temp.contains(c))
+                    continue;
+
+                commands.add(new CommandWrapper(cf.getConfigurationSection(c)));
+                temp.add(c);
             }
 
             commands.sort(Comparator.comparing(CommandWrapper::getName));
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            plugin.getLogger().warning("Help menu will not work. Update plugin.");
+            plugin.getLogger().warning("Help menu will not work properly. Update plugin.");
             e.printStackTrace();
         }
     }
@@ -175,23 +182,39 @@ public class HelpCommand implements TabExecutor, Listener {
         private final BaseComponent origin;
         private final String description;
 
-        private CommandWrapper(Command command, ConfigurationSection configurationSection) {
-            this.name = command.getName();
-            this.origin = __getOrigin(command, configurationSection != null);
+        private CommandWrapper(ConfigurationSection cs) {
+            this.name = cs.getName();
+            this.origin = new TextComponent("(Config)");
             __originFormatting();
             this.clickEvent = new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/" + name + " ");
 
-            if (configurationSection == null) {
+            this.permission = cs.getString("permission");
+            this.usage = cs.getString("usage",
+                    "/" + name);
+            this.description = cs.getString("description", "");
+        }
+
+        private CommandWrapper(Command command, ConfigurationSection cs) {
+            this.name = command.getName();
+            this.origin = new TextComponent((command instanceof PluginCommand
+                    ? ((PluginCommand) command).getPlugin().getName()
+                    : command instanceof BukkitCommand
+                    ? "Bukkit"
+                    : "(Unknown)") + (cs == null ? "" : " (+Config)"));
+            __originFormatting();
+            this.clickEvent = new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/" + name + " ");
+
+            if (cs == null) {
                 this.permission = command.getPermission();
                 this.usage = command.getUsage().equals("") ? "/" + command.getName() : command.getUsage();
                 this.description = command.getDescription();
                 return;
             }
 
-            this.permission = configurationSection.getString("permission", command.getPermission());
-            this.usage = configurationSection.getString("usage",
-                    command.getUsage().equals("") ? "/" + command.getName() : command.getUsage());
-            this.description = configurationSection.getString("description", command.getDescription());
+            this.permission = cs.getString("permission", command.getPermission());
+            this.usage = cs.getString("usage",
+                    command.getUsage().equals("") ? "/" + name : command.getUsage());
+            this.description = cs.getString("description", command.getDescription());
         }
 
         private CommandWrapper(BungeeCommandUsage command) {
@@ -211,14 +234,6 @@ public class HelpCommand implements TabExecutor, Listener {
 
         private String getName() {
             return name;
-        }
-
-        private BaseComponent __getOrigin(Command command, boolean modified) {
-            return new TextComponent((command instanceof PluginCommand
-                    ? ((PluginCommand) command).getPlugin().getName()
-                    : command instanceof BukkitCommand
-                    ? "Bukkit"
-                    : "(Unknown)") + (modified ? " Modified" : ""));
         }
 
         private BaseComponent getUsage(boolean showDetails) {
