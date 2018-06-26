@@ -10,17 +10,23 @@ softdepend: [LuckPerms]
 
 commands:
   afk:
+    description: Mark yourself as afk
     usage: /afk
+  help:
+    aliases: ["?"]
+    usage: /help [page|command name]
   opme:
     usage: /opme
   kill:
-    description: Lets players self-destruct
+    description: End the suffering of your life just to revive you on a click of a button
     usage: /kill
   username:
     description: Display your username!
     usage: /username
 
 permissions:
+  # @Deprecated
+  # Arcane role permissions
   arcane.admin:
     description: Arcane Administrator.
     children:
@@ -41,6 +47,38 @@ permissions:
   arcane.homes:
     description: Arcane extra home donor.
     default: op
+
   arcane.tabcomplete.hidecolon:
     description: Hides commands with colon (e.g. bukkit:version).
     default: not op
+  arcane.command.help.details:
+    description: Shows origin of each entry in /help
+    default: op
+  arcane.command.opme:
+    description: Allows /opme
+    default: false
+
+  # Arcane anticheat/moderation hook
+  arcane.spy.on.xray:
+    description: Logs x-ray alert when mining an ore
+    default: not op
+  arcane.spy.on.sign:
+    description: Logs sign creation/modification message
+    default: not op
+  arcane.spy.on.command: # ArcaneBungee node
+    description: Logs command messages. Critical commands are not ignored.
+    default: not op
+
+  # ArcaneBungee uses these nodes; the registeration is for sake of easy autocomplete.
+  arcane.spy.receive.xray:
+    description: Receive x-ray alerts
+    default: op
+  arcane.spy.receive.sign:
+    description: Receive sign creation/modification content
+    default: op
+  arcane.spy.receive.command:
+    description: Receive critical command messages
+    default: op
+  arcane.spy.receive.command.all:
+    description: Receive all command messages
+    default: op

@@ -26,7 +26,7 @@ public class PlayerEvents implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void commandEvent(TabCompleteEvent e) {
+    public void commandTabEvent(TabCompleteEvent e) {
         String cmd = e.getBuffer().toLowerCase();
 
         if (!cmd.startsWith("/") || cmd.contains(" "))
@@ -35,9 +35,9 @@ public class PlayerEvents implements Listener {
         CommandSender p = e.getSender();
         List<String> list = e.getCompletions();
 
-        // TODO: Look into having our own command recommendations using (e.setCompletions()) and config file
         Iterator<String> iter = list.iterator();
 
+        list.removeAll(plugin.commandsToHide(e.getSender()));
         if (p.hasPermission("arcane.tabcomplete.hidecolon"))
             list.removeIf((String s) -> s.contains(":"));
 
