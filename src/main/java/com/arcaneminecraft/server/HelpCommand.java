@@ -1,5 +1,6 @@
 package com.arcaneminecraft.server;
 
+import com.arcaneminecraft.api.ArcaneText;
 import com.arcaneminecraft.api.BungeeCommandUsage;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
@@ -21,15 +22,20 @@ import java.util.*;
 public class HelpCommand implements TabExecutor, Listener {
     private final ArcaneServer plugin;
     private List<CommandWrapper> commands;
+    private Map<String, CommandWrapper> stringToCommand;
+    private final BaseComponent notFoundMsg;
+    private boolean reload = true;
+
 
     HelpCommand(ArcaneServer plugin) {
         this.plugin = plugin;
-        loadCommands();
+        this.notFoundMsg = new TranslatableComponent("commands.generic.notFound");
+        this.notFoundMsg.setColor(ChatColor.RED);
     }
 
     private void loadCommands() {
         commands = new ArrayList<>();
-        Collection<String> temp = new HashSet<>();
+        stringToCommand = new HashMap<>();
 
         try {
 
@@ -47,29 +53,41 @@ public class HelpCommand implements TabExecutor, Listener {
 
             // First: BungeeCord Commands
             for (BungeeCommandUsage c : BungeeCommandUsage.values()) {
-                commands.add(new CommandWrapper(c));
-                temp.add(c.getName());
+                CommandWrapper cw = new CommandWrapper(c);
+                commands.add(cw);
+                stringToCommand.put(c.getName(), cw);
+                for (String ca : c.getAliases())
+                    stringToCommand.put(ca, cw);
             }
 
             // Second: Registered commands
             for (Command c : commMap.getCommands()) {
-                if (temp.contains(c.getName()))
+                if (stringToCommand.containsKey(c.getName()))
                     continue;
 
-                commands.add(new CommandWrapper(c, cf.getConfigurationSection(c.getName())));
-                temp.add(c.getName());
+                CommandWrapper cw = new CommandWrapper(c, cf.getConfigurationSection(c.getName()));
+                commands.add(cw);
+                stringToCommand.put(c.getName(), cw);
+                for (String ca : c.getAliases())
+                    stringToCommand.put(ca, cw);
             }
 
             // Third: Remaining config.yml Commands
             for (String c : cf.getKeys(false)) {
-                if (temp.contains(c))
+                if (stringToCommand.containsKey(c))
                     continue;
 
-                commands.add(new CommandWrapper(cf.getConfigurationSection(c)));
-                temp.add(c);
+                CommandWrapper cw = new CommandWrapper(cf.getConfigurationSection(c));
+                commands.add(cw);
+                stringToCommand.put(c, cw);
+                for (String ca : cf.getStringList("aliases"))
+                    stringToCommand.put(ca, cw);
             }
 
             commands.sort(Comparator.comparing(CommandWrapper::getName));
+
+            this.reload = false;
+            plugin.getLogger().info("Reloaded help menu commands");
         } catch (NoSuchFieldException | IllegalAccessException e) {
             plugin.getLogger().warning("Help menu will not work properly. Update plugin.");
             e.printStackTrace();
@@ -78,6 +96,11 @@ public class HelpCommand implements TabExecutor, Listener {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+        if (reload)
+            loadCommands();
+
+        boolean showDetails = sender.hasPermission("arcane.command.help.details");
+
         try {
             // Help menu
             int page = args.length == 0 ? 1 : Integer.parseInt(args[0]);
@@ -119,12 +142,11 @@ public class HelpCommand implements TabExecutor, Listener {
                 sender.spigot().sendMessage(header);
 
             // Help topics
-            boolean showDetails = sender.hasPermission("arcane.command.help.details");
             for (int i = (page - 1) * 7; i < pg; i++) {
                 if (sender instanceof Player)
-                    ((Player) sender).spigot().sendMessage(ChatMessageType.SYSTEM, cmdList.get(i).getUsage(showDetails));
+                    ((Player) sender).spigot().sendMessage(ChatMessageType.SYSTEM, cmdList.get(i).getUsageForList(showDetails));
                 else
-                    sender.spigot().sendMessage(cmdList.get(i).getUsage(showDetails));
+                    sender.spigot().sendMessage(cmdList.get(i).getUsageForList(showDetails));
             }
 
             // Last Line
@@ -139,15 +161,79 @@ public class HelpCommand implements TabExecutor, Listener {
 
 
             return true;
-        } catch (NumberFormatException e) {
-            // Not a number: descriptive help
+        } catch (NumberFormatException ignored) {}
+
+        // Has argument and not a number
+
+        CommandWrapper cw = stringToCommand.get(args[0]);
+
+        // Command DNE
+        if (cw == null) {
+            if (sender instanceof Player)
+                ((Player) sender).spigot().sendMessage(ChatMessageType.SYSTEM, notFoundMsg);
+            else
+                sender.spigot().sendMessage(notFoundMsg);
             return true;
         }
+
+        // Send help topic
+        if (sender instanceof Player) {
+            ((Player) sender).spigot().sendMessage(ChatMessageType.SYSTEM, ArcaneText.usage(cw.getUsage()));
+        } else {
+            sender.spigot().sendMessage(ArcaneText.usage(cw.getUsage()));
+        }
+
+        // Send Description if exists
+        if (!cw.getDescription().isEmpty()) {
+            BaseComponent desc = new TextComponent(" Description: ");
+            desc.addExtra(cw.getDescription());
+            desc.setColor(ChatColor.RED);
+
+            if (sender instanceof Player) {
+                ((Player) sender).spigot().sendMessage(ChatMessageType.SYSTEM, desc);
+            } else {
+                sender.spigot().sendMessage(desc);
+            }
+        }
+
+        // Has permission to see extra details
+        if (showDetails) {
+            if (cw.getPermission() != null) {
+                BaseComponent perm = new TextComponent(" Origin:");
+                perm.addExtra(cw.getOrigin());
+                perm.addExtra(", Permission: ");
+                perm.addExtra(cw.getPermission());
+                perm.setColor(ChatColor.GRAY);
+                perm.setItalic(true);
+
+                if (sender instanceof Player) {
+                    ((Player) sender).spigot().sendMessage(ChatMessageType.SYSTEM, perm);
+                } else {
+                    sender.spigot().sendMessage(perm);
+                }
+            }
+        }
+        return true;
     }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        return null;
+        if (reload)
+            loadCommands();
+
+        if (args.length == 0) {
+            return new ArrayList<>(stringToCommand.keySet());
+        }
+        if (args.length == 1) {
+            List<String> ret = new ArrayList<>();
+
+            for (String cs : stringToCommand.keySet())
+                if (cs.startsWith(args[0]))
+                    ret.add(cs);
+
+            return ret;
+        }
+        return Collections.emptyList();
     }
 
 
@@ -165,12 +251,12 @@ public class HelpCommand implements TabExecutor, Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void pluginEnableEvent(PluginEnableEvent e) {
-        loadCommands();
+        reload = true;
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void pluginDisableEvent(PluginDisableEvent e) {
-        loadCommands();
+        reload = true;
     }
 
     // TODO: Separate out this into 'commands' subpackage
@@ -236,7 +322,7 @@ public class HelpCommand implements TabExecutor, Listener {
             return name;
         }
 
-        private BaseComponent getUsage(boolean showDetails) {
+        private BaseComponent getUsageForList(boolean showDetails) {
             BaseComponent ret = usage.startsWith("commands.") ? new TranslatableComponent(usage) : new TextComponent(usage);
             ComponentBuilder cb = null;
             if (!description.isEmpty())
@@ -263,6 +349,22 @@ public class HelpCommand implements TabExecutor, Listener {
 
             ret.setClickEvent(clickEvent);
             return ret;
+        }
+
+        private String getUsage() {
+            return usage;
+        }
+
+        private String getDescription() {
+            return description;
+        }
+
+        private BaseComponent getOrigin() {
+            return origin;
+        }
+
+        private String getPermission() {
+            return permission;
         }
 
         private boolean hasPermission(CommandSender sender) {

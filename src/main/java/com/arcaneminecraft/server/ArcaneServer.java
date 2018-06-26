@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -84,7 +85,6 @@ public final class ArcaneServer extends JavaPlugin {
 
             if (p.hasPermission("arcane.command.opme")) {
                 p.setOp(true);
-                // TODO: better message
                 p.spigot().sendMessage(ChatMessageType.SYSTEM, new TranslatableComponent("commands.op.success", p.getName()));
             } else {
                 p.spigot().sendMessage(ChatMessageType.SYSTEM, ArcaneText.noPermissionMsg());
@@ -122,6 +122,14 @@ public final class ArcaneServer extends JavaPlugin {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        if (command.getName().equalsIgnoreCase("kill") && sender.hasPermission("minecraft.command.kill"))
+            return null;
+
+        return Collections.emptyList();
     }
 
     Set<String> commandsToHide(CommandSender sender) {

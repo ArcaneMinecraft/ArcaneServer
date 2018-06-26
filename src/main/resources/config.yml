@@ -1,5 +1,7 @@
 help-override:
   commands:
+    help:
+      usage: commands.help.usage
     co:
       permission: help.coreprotect
     core:

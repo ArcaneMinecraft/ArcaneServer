@@ -1,25 +1,23 @@
 package com.arcaneminecraft.server;
 
-import java.util.HashMap;
-import java.util.Iterator;
-
 import com.arcaneminecraft.api.ArcaneText;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.scheduler.BukkitRunnable;
 
-final class ArcAFK implements CommandExecutor, Listener {
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+
+final class ArcAFK implements TabExecutor, Listener {
     private final ArcaneServer plugin;
     private final HashMap<Player, Integer> afkCounter = new HashMap<>();
     private static final int AFK_COUNTDOWN = 10; // 10 rounds (this * AFK_CHECK = 5 minute) countdown to being afk
@@ -71,6 +69,11 @@ final class ArcAFK implements CommandExecutor, Listener {
         afkCounter.remove(p);
 
         return true;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        return Collections.emptyList();
     }
 
     private boolean isAFK(Player p) {
