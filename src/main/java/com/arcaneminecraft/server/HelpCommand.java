@@ -14,6 +14,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.PluginEnableEvent;
+import org.bukkit.event.server.TabCompleteEvent;
 import org.bukkit.plugin.SimplePluginManager;
 
 import java.lang.reflect.Field;
@@ -22,7 +23,7 @@ import java.util.*;
 public class HelpCommand implements TabExecutor, Listener {
     private final ArcaneServer plugin;
     private List<CommandWrapper> commands;
-    private Map<String, CommandWrapper> stringToCommand;
+    private Map<String, CommandWrapper> commandList;
     private final BaseComponent notFoundMsg;
     private boolean reload = true;
 
@@ -34,8 +35,11 @@ public class HelpCommand implements TabExecutor, Listener {
     }
 
     private void loadCommands() {
+        if (!reload)
+            return;
+
         commands = new ArrayList<>();
-        stringToCommand = new HashMap<>();
+        commandList = new HashMap<>();
 
         try {
 
@@ -55,33 +59,34 @@ public class HelpCommand implements TabExecutor, Listener {
             for (BungeeCommandUsage c : BungeeCommandUsage.values()) {
                 CommandWrapper cw = new CommandWrapper(c);
                 commands.add(cw);
-                stringToCommand.put(c.getName(), cw);
-                for (String ca : c.getAliases())
-                    stringToCommand.put(ca, cw);
+                commandList.put(c.getName(), cw);
+                for (String ca : cw.getAliases())
+                    commandList.put(ca, cw);
             }
 
             // Second: Registered commands
             for (Command c : commMap.getCommands()) {
-                if (stringToCommand.containsKey(c.getName()))
+                if (commandList.containsKey(c.getName()) || cf.getBoolean(c.getName() + ".is-alias"))
                     continue;
 
                 CommandWrapper cw = new CommandWrapper(c, cf.getConfigurationSection(c.getName()));
                 commands.add(cw);
-                stringToCommand.put(c.getName(), cw);
-                for (String ca : c.getAliases())
-                    stringToCommand.put(ca, cw);
+                commandList.put(c.getName(), cw);
+
+                for (String ca : cw.getAliases())
+                    commandList.put(ca, cw);
             }
 
             // Third: Remaining config.yml Commands
             for (String c : cf.getKeys(false)) {
-                if (stringToCommand.containsKey(c))
+                if (commandList.containsKey(c) || cf.getBoolean(c + ".is-alias"))
                     continue;
 
                 CommandWrapper cw = new CommandWrapper(cf.getConfigurationSection(c));
                 commands.add(cw);
-                stringToCommand.put(c, cw);
-                for (String ca : cf.getStringList("aliases"))
-                    stringToCommand.put(ca, cw);
+                commandList.put(c, cw);
+                for (String ca : cw.getAliases())
+                    commandList.put(ca, cw);
             }
 
             commands.sort(Comparator.comparing(CommandWrapper::getName));
@@ -96,8 +101,7 @@ public class HelpCommand implements TabExecutor, Listener {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (reload)
-            loadCommands();
+        loadCommands();
 
         boolean showDetails = sender.hasPermission("arcane.command.help.details");
 
@@ -165,7 +169,7 @@ public class HelpCommand implements TabExecutor, Listener {
 
         // Has argument and not a number
 
-        CommandWrapper cw = stringToCommand.get(args[0]);
+        CommandWrapper cw = commandList.get(args[0]);
 
         // Command DNE
         if (cw == null) {
@@ -218,16 +222,15 @@ public class HelpCommand implements TabExecutor, Listener {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        if (reload)
-            loadCommands();
+        loadCommands();
 
         if (args.length == 0) {
-            return new ArrayList<>(stringToCommand.keySet());
+            return new ArrayList<>(commandList.keySet());
         }
         if (args.length == 1) {
             List<String> ret = new ArrayList<>();
 
-            for (String cs : stringToCommand.keySet())
+            for (String cs : commandList.keySet())
                 if (cs.startsWith(args[0]))
                     ret.add(cs);
 
@@ -259,6 +262,49 @@ public class HelpCommand implements TabExecutor, Listener {
         reload = true;
     }
 
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void commandTabEvent(TabCompleteEvent e) {
+        loadCommands();
+
+        String cmd = e.getBuffer().toLowerCase();
+        CommandSender p = e.getSender();
+
+        if (p.isOp() || !cmd.startsWith("/") || cmd.contains(" "))
+            return; // TODO: Maybe return online players on the BungeeCord Network?
+
+        List<String> list = e.getCompletions();
+
+        Iterator<String> iter = list.iterator();
+
+        // Check hide colon for this player
+        if (p.hasPermission("arcane.tabcomplete.hidecolon"))
+            list.removeIf((String s) -> s.contains(":"));
+
+        // Remove commands player has no permission for
+        for (Map.Entry<String, CommandWrapper> c : commandList.entrySet()) {
+            if (c.getValue().getPermission() != null && !p.hasPermission(c.getValue().getPermission())) {
+                list.remove("/" + c.getKey());
+            }
+        }
+
+        // Add BungeeCord commands
+        for (BungeeCommandUsage cw : BungeeCommandUsage.values()) {
+            String c = cw.getCommand();
+            if (!list.contains(c) && (cw.getPermission() == null || p.hasPermission(cw.getPermission()))) {
+                // Add main command
+                if (cmd.toLowerCase().startsWith(c))
+                    list.add(c);
+                // Add aliases
+                if (cw.getAliases() != null) {
+                    for (String a : cw.getAliases()) {
+                        if (cmd.toLowerCase().startsWith(a))
+                            list.add("/" + a);
+                    }
+                }
+            }
+        }
+    }
+
     // TODO: Separate out this into 'commands' subpackage
     private final class CommandWrapper {
         private final String name;
@@ -267,6 +313,7 @@ public class HelpCommand implements TabExecutor, Listener {
         private final String permission;
         private final BaseComponent origin;
         private final String description;
+        private final String[] aliases;
 
         private CommandWrapper(ConfigurationSection cs) {
             this.name = cs.getName();
@@ -278,6 +325,7 @@ public class HelpCommand implements TabExecutor, Listener {
             this.usage = cs.getString("usage",
                     "/" + name);
             this.description = cs.getString("description", "");
+            this.aliases = cs.getStringList("aliases").toArray(new String[0]);
         }
 
         private CommandWrapper(Command command, ConfigurationSection cs) {
@@ -294,6 +342,7 @@ public class HelpCommand implements TabExecutor, Listener {
                 this.permission = command.getPermission();
                 this.usage = command.getUsage().equals("") ? "/" + command.getName() : command.getUsage();
                 this.description = command.getDescription();
+                this.aliases = command.getAliases().toArray(new String[0]);
                 return;
             }
 
@@ -301,6 +350,9 @@ public class HelpCommand implements TabExecutor, Listener {
             this.usage = cs.getString("usage",
                     command.getUsage().equals("") ? "/" + name : command.getUsage());
             this.description = cs.getString("description", command.getDescription());
+            List<String> list = new ArrayList<>(command.getAliases());
+            list.addAll(cs.getStringList("aliases")); // Merge aliases
+            this.aliases = list.toArray(new String[0]);
         }
 
         private CommandWrapper(BungeeCommandUsage command) {
@@ -311,6 +363,7 @@ public class HelpCommand implements TabExecutor, Listener {
             this.permission = command.getPermission();
             this.usage = command.getUsage();
             this.description = command.getDescription();
+            this.aliases = command.getAliases();
         }
 
         private void __originFormatting() {
@@ -365,6 +418,10 @@ public class HelpCommand implements TabExecutor, Listener {
 
         private String getPermission() {
             return permission;
+        }
+
+        private String[] getAliases() {
+            return aliases;
         }
 
         private boolean hasPermission(CommandSender sender) {

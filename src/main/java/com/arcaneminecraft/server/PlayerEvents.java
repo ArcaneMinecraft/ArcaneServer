@@ -26,31 +26,6 @@ public class PlayerEvents implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void commandTabEvent(TabCompleteEvent e) {
-        String cmd = e.getBuffer().toLowerCase();
-
-        if (!cmd.startsWith("/") || cmd.contains(" "))
-            return; // TODO: Maybe return online players on the BungeeCord Network?
-
-        CommandSender p = e.getSender();
-        List<String> list = e.getCompletions();
-
-        Iterator<String> iter = list.iterator();
-
-        list.removeAll(plugin.commandsToHide(e.getSender()));
-        if (p.hasPermission("arcane.tabcomplete.hidecolon"))
-            list.removeIf((String s) -> s.contains(":"));
-
-        for (BungeeCommandUsage c : BungeeCommandUsage.values()) {
-            String cmdCandidate = c.getCommand();
-            if ((c.getPermission() == null || p.hasPermission(c.getPermission())) && cmdCandidate.toLowerCase().startsWith(cmd))
-                if (!list.contains(cmdCandidate))
-                    list.add(cmdCandidate);
-        }
-
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
     public void chatEvent(AsyncPlayerChatEvent e) {
         HashSet<Player> recipients = new HashSet<>(e.getRecipients());
         e.getRecipients().clear(); // Destroy default event.

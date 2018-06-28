@@ -3,7 +3,11 @@ package com.arcaneminecraft.server;
 import com.arcaneminecraft.api.ArcaneText;
 import com.arcaneminecraft.api.ColorPalette;
 import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -24,9 +28,9 @@ public final class ArcaneServer extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
 
+        getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
         pluginMessenger = new PluginMessenger(this);
         getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", pluginMessenger);
-        getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 
         // X-Ray notification Logging
         getServer().getMessenger().registerOutgoingPluginChannel(this, "ArcaneAlert");
@@ -73,6 +77,46 @@ public final class ArcaneServer extends JavaPlugin {
             if (sender instanceof Player) ((Player) sender).performCommand("minecraft:kill " + String.join(" ", args));
             if (sender instanceof ConsoleCommandSender)
                 getServer().dispatchCommand(getServer().getConsoleSender(), "minecraft:kill " + String.join(" ", args));
+            return true;
+        }
+
+        if (cmd.getName().equalsIgnoreCase("uuid")) {
+            if (!sender.hasPermission("arcane.command.uuid")) {
+                if (sender instanceof Player)
+                    ((Player) sender).spigot().sendMessage(ChatMessageType.SYSTEM, ArcaneText.noPermissionMsg());
+                else
+                    sender.spigot().sendMessage(ArcaneText.noPermissionMsg());
+                return true;
+            }
+
+            if (args.length == 0) {
+                if (sender instanceof Player)
+                    ((Player) sender).spigot().sendMessage(ChatMessageType.SYSTEM, ArcaneText.usage(getCommand("uuid").getUsage()));
+                else
+                    sender.spigot().sendMessage(ArcaneText.usage(getCommand("uuid").getUsage()));
+                return true;
+            }
+
+            getServer().getScheduler().runTaskAsynchronously(this, () -> {
+                // OfflinePlayer can hold the thread: run as async.
+
+                @SuppressWarnings("deprecation")
+                OfflinePlayer pl = getServer().getOfflinePlayer(args[0]);
+
+                String uuid = pl.getUniqueId().toString();
+
+                BaseComponent send = new TextComponent(pl.getName());
+                send.addExtra("'s UUID: ");
+                send.addExtra(uuid);
+
+                send.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, uuid));
+
+                if (sender instanceof Player)
+                    ((Player) sender).spigot().sendMessage(ChatMessageType.SYSTEM, send);
+                else
+                    sender.spigot().sendMessage(send);
+            });
+
             return true;
         }
 
@@ -126,14 +170,10 @@ public final class ArcaneServer extends JavaPlugin {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        if (command.getName().equalsIgnoreCase("kill") && sender.hasPermission("minecraft.command.kill"))
+        if ((command.getName().equalsIgnoreCase("kill") && sender.hasPermission("minecraft.command.kill"))
+                || command.getName().equalsIgnoreCase("uuid"))
             return null;
 
         return Collections.emptyList();
-    }
-
-    Set<String> commandsToHide(CommandSender sender) {
-        // TODO: Implement this
-        return Collections.emptySet();
     }
 }

@@ -3,17 +3,17 @@ help-override:
     help:
       usage: commands.help.usage
     co:
-      permission: help.coreprotect
+      is-alias: true
     core:
-      permission: help.coreprotect
+      is-alias: true
     coreprotect:
       permission: help.coreprotect
+      aliases: [co, core]
     luckperms:
       permission: help.luckperms
     luckpermsbungee:
       permission: help.luckperms
       description: LuckPerms on Bungee
-  # Make configuration for hiding some commands in /[Tab] list.
 
 
 # Key:
@@ -21,6 +21,8 @@ help-override:
 #   y-max: int
 #   biome: biome name
 spy:
+  sign-alert: true
+  xray-alert: false
   xray-blocks:
     diamond_ore:
       y-max: 15

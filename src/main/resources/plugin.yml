@@ -17,12 +17,16 @@ commands:
     usage: /help [page|command name]
   opme:
     usage: /opme
+    permission: arcane.command.opme
   kill:
     description: End the suffering of your life just to revive you on a click of a button
     usage: /kill
   username:
     description: Display your username!
     usage: /username
+  uuid:
+    description: Get player's UUID
+    usage: /uuid <player>
 
 permissions:
   # @Deprecated
@@ -57,6 +61,9 @@ permissions:
   arcane.command.opme:
     description: Allows /opme
     default: false
+  arcane.command.uuid:
+    description: Allows /uuid
+    default: true
 
   # Arcane anticheat/moderation hook
   arcane.spy.on.xray:

@@ -14,21 +14,34 @@ import java.io.*;
 
 public class PluginMessenger implements PluginMessageListener {
     private final ArcaneServer plugin;
+    private final boolean xRayAlert;
+    private final boolean signAlert;
+    private String serverName = "(unknown)";
 
     PluginMessenger(ArcaneServer plugin) {
         this.plugin = plugin;
+        this.xRayAlert = plugin.getConfig().getBoolean("spy.xray-alert");
+        this.signAlert = plugin.getConfig().getBoolean("spy.sign-alert");
+
+        // Get serverName
+        // TODO: Make this work (requires player to join: Player Join Event?)
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF("GetServer"); // So BungeeCord knows to forward it
+        plugin.getServer().sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
     }
 
     void chat(Player p, String msg) {
-        try {
-            ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeUTF("Forward"); // So BungeeCord knows to forward it
-            out.writeUTF("ONLINE");
-            // ArcaneLog is null: another server is main (server) server. ChatAndLog.
-            out.writeUTF(plugin.getServer().getPluginManager().getPlugin("ArcaneLog") == null ? "ChatAndLog" : "Chat"); // Subchannel Chat
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF("Forward"); // So BungeeCord knows to forward it
+        out.writeUTF("ONLINE");
 
-            ByteArrayOutputStream byteos = new ByteArrayOutputStream();
-            DataOutputStream os = new DataOutputStream(byteos);
+        // If ArcaneLog is null: another server is main (server) server. ChatAndLog.
+        out.writeUTF(plugin.getServer().getPluginManager().getPlugin("ArcaneLog") == null ? "ChatAndLog" : "Chat"); // Subchannel Chat
+
+        ByteArrayOutputStream byteos = new ByteArrayOutputStream();
+        try (DataOutputStream os = new DataOutputStream(byteos)) {
+
+            os.writeUTF(serverName);
             os.writeUTF(msg);
             os.writeUTF(p.getName());
             os.writeUTF(p.getDisplayName());
@@ -37,21 +50,25 @@ public class PluginMessenger implements PluginMessageListener {
             out.writeShort(byteos.toByteArray().length);
             out.write(byteos.toByteArray());
             p.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
-        } catch (IOException e1) {
-            e1.printStackTrace();
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
     void xRayAlert(Player p, Block b) {
-        ArcaneAlertChannel(p, b, "XRay", b.getType().toString());
+        if (xRayAlert)
+            ArcaneAlertChannel(p, "XRay", b, b.getType().toString());
     }
 
     void signAlert(Player p, Block b, String[] l) {
-        ArcaneAlertChannel(p, b, "Sign", l);
+        if (signAlert)
+            ArcaneAlertChannel(p, "Sign", b, l);
     }
 
-    private void ArcaneAlertChannel(Player p, Block b, String type, String... data) {
+    private void ArcaneAlertChannel(Player p, String type, Block b, String... data) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF(serverName);
         out.writeUTF(type);
         out.writeUTF(p.getName());
         out.writeUTF(p.getUniqueId().toString());
@@ -72,31 +89,39 @@ public class PluginMessenger implements PluginMessageListener {
         if (!channel.equals("BungeeCord"))
             return;
 
-        try {
-            ByteArrayDataInput in = ByteStreams.newDataInput(message);
-            String subChannel = in.readUTF();
+        ByteArrayDataInput in = ByteStreams.newDataInput(message);
+        String subChannel = in.readUTF();
 
-            if (subChannel.equals("Chat") || subChannel.equals("ChatAndLog")) {
-                byte[] msgBytes = new byte[in.readShort()];
-                in.readFully(msgBytes);
+        if (subChannel.equals("Chat") || subChannel.equals("ChatAndLog")) {
+            byte[] msgBytes = new byte[in.readShort()];
+            in.readFully(msgBytes);
 
-                DataInputStream is = new DataInputStream(new ByteArrayInputStream(msgBytes));
+            try (DataInputStream is = new DataInputStream(new ByteArrayInputStream(msgBytes))) {
+                String server = is.readUTF();
                 String msg = is.readUTF();
                 String name = is.readUTF();
                 String displayName = is.readUTF();
                 String uuid = is.readUTF();
 
                 // TODO: Prefix stuff (from LuckPerms using uuid)
-                TranslatableComponent chat = new TranslatableComponent("chat.type.text", ArcaneText.playerComponent(name, displayName, uuid), msg);
+                TranslatableComponent chat = new TranslatableComponent("chat.type.text", ArcaneText.playerComponent(name, displayName, uuid, "Server: " + server), msg);
 
                 for (Player p : plugin.getServer().getOnlinePlayers())
                     p.spigot().sendMessage(ChatMessageType.CHAT, chat);
 
                 plugin.getServer().getConsoleSender().sendMessage("*" + chat.toPlainText());
+
+            } catch (IOException e) {
+                e.printStackTrace();
             }
 
-        } catch (IOException e) {
-            e.printStackTrace();
+            return;
         }
+
+        if (subChannel.equals("GetServer")) {
+            this.serverName = in.readUTF();
+            plugin.getLogger().info("Server name set as: " + this.serverName);
+        }
+
     }
 }
