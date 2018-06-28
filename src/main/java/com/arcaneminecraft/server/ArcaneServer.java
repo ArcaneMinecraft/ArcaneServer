@@ -18,7 +18,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 public final class ArcaneServer extends JavaPlugin {
     private ArcAFK afk;
@@ -28,19 +27,27 @@ public final class ArcaneServer extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
 
+        // BungeeCord plugin message stuff
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
         pluginMessenger = new PluginMessenger(this);
         getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", pluginMessenger);
 
-        // X-Ray notification Logging
+        // X-Ray and other notification alert
         getServer().getMessenger().registerOutgoingPluginChannel(this, "ArcaneAlert");
         getServer().getPluginManager().registerEvents(new Alert(this), this);
 
-
+        // General stuff
         getServer().getPluginManager().registerEvents(new PlayerEvents(this), this);
         getServer().getPluginManager().registerEvents(new Greylist(), this);
         // this must come before AFK
         getServer().getPluginManager().registerEvents(new PlayerListRole(this), this);
+
+        // Events tied to command
+        LocalChat lc = new LocalChat(this);
+        getCommand("local").setExecutor(lc);
+        getCommand("localtoggle").setExecutor(lc);
+        getCommand("localradius").setExecutor(lc);
+        //getServer().getPluginManager().registerEvents(lc, this);
 
         HelpCommand hc = new HelpCommand(this);
         getCommand("help").setExecutor(hc);

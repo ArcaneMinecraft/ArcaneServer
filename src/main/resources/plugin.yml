@@ -12,9 +12,21 @@ commands:
   afk:
     description: Mark yourself as afk
     usage: /afk
+  global:
+    aliases: [g]
+    usage: /g <chat message ...>
   help:
     aliases: ["?"]
     usage: /help [page|command name]
+  local:
+    aliases: [l]
+    usage: /local <local message ...>
+  localradius:
+    aliases: [lr]
+    usage: /localradius [radius]
+  localtoggle:
+    aliases: [lt]
+    usage: /localtoggle [on|off]
   opme:
     usage: /opme
     permission: arcane.command.opme
@@ -58,6 +70,9 @@ permissions:
   arcane.command.help.details:
     description: Shows origin of each entry in /help
     default: op
+  arcane.command.local:
+    description: Allows /local, /localchat, and /localradius
+    default: true
   arcane.command.opme:
     description: Allows /opme
     default: false
