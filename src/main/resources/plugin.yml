@@ -44,29 +44,51 @@ permissions:
   # @Deprecated
   # Arcane role permissions
   arcane.admin:
-    description: Arcane Administrator.
     children:
-      arcane.mod: true
-      arcane.chatmod: true
+      arcane.tag.admin: true
   arcane.mod:
-    description: Arcane Moderator.
     children:
-      arcane.chatmod: true
+      arcane.tag.mod: true
   arcane.chatmod:
-    description: Arcane Chatmod.
-  arcane.trusted:
-    description: Arcane greylisted players.
-    default: op
+    children:
+      arcane.tag.chatmod: true
   arcane.donor:
-    description: Arcane donor.
+    children:
+      arcane.tag.donor: true
     default: false
+  arcane.trusted:
+    children:
+      arcane.build: true
+    default: op
+
+  # Show tag
+  arcane.tag.admin:
+    description: Adds "Admin | " to playerlist.
+    children:
+      arcane.tag.mod: true
+      arcane.tag.chatmod: true
+  arcane.tag.mod:
+    description: Adds "Mod | " to playerlist.
+    children:
+      arcane.tag.chatmod: true
+  arcane.tag.chatmod:
+    description: Adds "Chatmod | " to playerlist.
+  arcane.tag.donor:
+    description: Adds "Donor | " to playerlist.
+    default: false
+
+  # Allow features for players
+  arcane.build:
+    description: Allow building and taking items on the server
+    default: op
   arcane.homes:
     description: Arcane extra home donor.
     default: op
-
   arcane.tabcomplete.hidecolon:
     description: Hides commands with colon (e.g. bukkit:version).
     default: not op
+
+  # Command-based permissions
   arcane.command.help.details:
     description: Shows origin of each entry in /help
     default: op
