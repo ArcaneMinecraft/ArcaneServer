@@ -1,0 +1,20 @@
+plugins {
+    id 'java'
+}
+
+group 'com.arcaneminecraft.server'
+version '3.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+    maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
+    compileOnly files('libs/ArcaneAPI-3.0-SNAPSHOT.jar')
+    compileOnly 'me.lucko.luckperms:luckperms-api:4.2'
+}

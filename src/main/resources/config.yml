@@ -1,1 +1,37 @@
-news: "This news is empty."
+help-override:
+  commands:
+    help:
+      usage: commands.help.usage
+    co:
+      is-alias: true
+    core:
+      is-alias: true
+    coreprotect:
+      permission: help.coreprotect
+      aliases: [co, core]
+    luckperms:
+      permission: help.luckperms
+    luckpermsbungee:
+      permission: help.luckperms
+      description: LuckPerms on Bungee
+
+local-chat:
+  default-range: 40
+  max-range: 500
+
+# Key:
+# blockname:
+#   y-max: int
+#   biome: biome name
+spy:
+  sign-alert: true
+  xray-alert: false
+  xray-blocks:
+    diamond_ore:
+      y-max: 15
+    emerald_ore:
+      biome: extreme_hills
+    quartz_ore: # Change to nether_quartz_ore in 1.13
+      biome: hell
+
+
