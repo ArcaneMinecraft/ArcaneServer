@@ -21,9 +21,9 @@ commands:
   local:
     aliases: [l]
     usage: /local <local message ...>
-  localradius:
+  localrange:
     aliases: [lr]
-    usage: /localradius [radius]
+    usage: /localrange [radius]
   localtoggle:
     aliases: [lt]
     usage: /localtoggle [on|off]

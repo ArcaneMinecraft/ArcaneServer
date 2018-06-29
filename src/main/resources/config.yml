@@ -15,6 +15,9 @@ help-override:
       permission: help.luckperms
       description: LuckPerms on Bungee
 
+local-chat:
+  default-range: 40
+  max-range: 500
 
 # Key:
 # blockname:

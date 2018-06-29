@@ -20,33 +20,18 @@ import net.md_5.bungee.api.ChatColor;
 
 final class LocalChat implements CommandExecutor {
     private final ArcaneServer plugin;
-    private static final String TAG = "Local";
     private static final String CHAT_TAG = ChatColor.GREEN + "(local)";
-    private static final int DIST_MAX = 500;
-    private static final int DIST_DEFAULT = 40;
-    private final HashSet<Player> toggled = new HashSet<>();
-    private final HashMap<Player,Integer> radiusMap = new HashMap<>();
+    private final int maxRange;
+    private final int defaultRange;
+    private final HashSet<Player> toggled;
+    private final HashMap<Player,Integer> range;
 
     LocalChat(ArcaneServer plugin) {
         this.plugin = plugin;
-    }
-
-    public boolean isToggled(Player p) {
-        return toggled.contains(p);
-    }
-
-    public void runToggled(Player p, String msg) {
-        broadcastLocal(p, getRadius(p), StringUtils.split(msg));
-    }
-
-    public void removePlayer(Player p) {
-        toggled.remove(p);
-        radiusMap.remove(p);
-    }
-
-    private int getRadius(Player p) {
-        Integer rt = radiusMap.get(p);
-        return (rt == null) ? DIST_DEFAULT : rt;
+        this.maxRange = plugin.getConfig().getInt("local-chat.max-range");
+        this.defaultRange = plugin.getConfig().getInt("local-chat.default-range");
+        this.toggled = new HashSet<>();
+        this.range = new HashMap<>();
     }
 
     @Override
@@ -82,14 +67,14 @@ final class LocalChat implements CommandExecutor {
                 return true;
             }
 
-            if (r > DIST_MAX) {
-                BaseComponent send = new TranslatableComponent("commands.generic.num.tooBig", args[0], DIST_MAX);
+            if (r > maxRange) {
+                BaseComponent send = new TranslatableComponent("commands.generic.num.tooBig", args[0], maxRange);
                 send.setColor(ChatColor.RED);
                 p.spigot().sendMessage(ChatMessageType.SYSTEM, send);
                 return true;
             }
 
-            radiusMap.put(p, r);
+            range.put(p, r);
             sender.sendMessage("Your messaging radius is now set to " + r + ".");
             return true;
         }
@@ -117,6 +102,24 @@ final class LocalChat implements CommandExecutor {
             return true;
         }
         return false;
+    }
+
+    public boolean isToggled(Player p) {
+        return toggled.contains(p);
+    }
+
+    public void runToggled(Player p, String msg) {
+        broadcastLocal(p, getRadius(p), StringUtils.split(msg));
+    }
+
+    public void removePlayer(Player p) {
+        toggled.remove(p);
+        range.remove(p);
+    }
+
+    private int getRadius(Player p) {
+        Integer r = range.get(p);
+        return (r == null) ? defaultRange : r;
     }
 
     private void broadcastLocal (Player p, int r, String[] msg) {
