@@ -105,7 +105,7 @@ final class LocalChat implements CommandExecutor, Listener {
         if (cmd.getName().equalsIgnoreCase("localrange")) {
 
             if (args.length == 0) {
-                p.spigot().sendMessage(ChatMessageType.SYSTEM, new TextComponent("Your chat radius is "
+                p.spigot().sendMessage(ChatMessageType.SYSTEM, new TextComponent("Your local chat radius is "
                         + ColorPalette.FOCUS + getRadius(p) + ColorPalette.CONTENT +". Usage: /localrange <radius>"));
                 return true;
             }
@@ -120,17 +120,10 @@ final class LocalChat implements CommandExecutor, Listener {
                 return true;
             }
 
-            if (r < 1) {
-                BaseComponent send = new TranslatableComponent("commands.generic.num.tooSmall", args[0], "1");
-                send.setColor(ChatColor.RED);
-                p.spigot().sendMessage(ChatMessageType.SYSTEM, send);
-                return true;
-            }
-
-            if (r > maxRange) {
-                BaseComponent send = new TranslatableComponent("commands.generic.num.tooBig", args[0], maxRange);
-                send.setColor(ChatColor.RED);
-                p.spigot().sendMessage(ChatMessageType.SYSTEM, send);
+            // Use null to validate range
+            BaseComponent oob = ArcaneText.numberOutOfRange(r, 1, maxRange);
+            if (oob != null) {
+                p.spigot().sendMessage(oob);
                 return true;
             }
 
@@ -204,7 +197,7 @@ final class LocalChat implements CommandExecutor, Listener {
     }
 
     @EventHandler(priority=EventPriority.LOWEST)
-    public void detectChat (AsyncPlayerChatEvent e) {
+    public void chatToggle (AsyncPlayerChatEvent e) {
         Player p = e.getPlayer();
         // If chatted with /global OR local is not toggled: let the chat through
         if (global.remove(p) || !toggled.contains(p)) {
