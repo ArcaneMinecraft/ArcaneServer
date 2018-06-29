@@ -100,9 +100,9 @@ public final class ArcaneServer extends JavaPlugin {
 
             if (args.length == 0) {
                 if (sender instanceof Player)
-                    ((Player) sender).spigot().sendMessage(ChatMessageType.SYSTEM, ArcaneText.usage(getCommand("uuid").getUsage()));
+                    ((Player) sender).spigot().sendMessage(ChatMessageType.SYSTEM, ArcaneText.usage(cmd.getUsage()));
                 else
-                    sender.spigot().sendMessage(ArcaneText.usage(getCommand("uuid").getUsage()));
+                    sender.spigot().sendMessage(ArcaneText.usage(cmd.getUsage()));
                 return true;
             }
 
