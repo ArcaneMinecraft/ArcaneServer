@@ -19,6 +19,13 @@ local-chat:
   default-range: 40
   max-range: 500
 
+afk:
+  # Ticks to wait until next check
+  interval: 600 # 30 seconds
+  # Intervals passed before marking as afk
+  rounds: 10 # 30 seconds * 10 rounds = 5 minutes
+  tag: &5[AFK]
+
 # Key:
 # blockname:
 #   y-max: int

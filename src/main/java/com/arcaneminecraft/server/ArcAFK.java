@@ -1,6 +1,10 @@
 package com.arcaneminecraft.server;
 
 import com.arcaneminecraft.api.ArcaneText;
+import com.arcaneminecraft.api.ColorPalette;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TranslatableComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -20,18 +24,19 @@ import java.util.List;
 final class ArcAFK implements TabExecutor, Listener {
     private final ArcaneServer plugin;
     private final HashMap<Player, Integer> afkCounter = new HashMap<>();
-    private static final int AFK_COUNTDOWN = 10; // 10 rounds (this * AFK_CHECK = 5 minute) countdown to being afk
-    private static final long AFK_CHECK = 600L; // run every 600 ticks (30 seconds)
-    private static final String FORMAT_AFK = ChatColor.GRAY + "* ";
-    private static final String DISPLAY_TAG_AFK = "[AFK] ";
-    private static final String PL_TAG_AFK = ChatColor.DARK_PURPLE + "[AFK] " + ChatColor.RESET;
+    private final int rounds;
+    private final String tag;
 
     ArcAFK(ArcaneServer plugin) {
         this.plugin = plugin;
+        this.rounds = plugin.getConfig().getInt("afk.rounds", 10);
+        this.tag = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("afk.tag", "[AFK]")) + ChatColor.RESET + " ";
+
         // if players are already online
         for (Player p : plugin.getServer().getOnlinePlayers()) {
-            afkCounter.put(p, AFK_COUNTDOWN);
+            afkCounter.put(p, rounds);
         }
+
 
         new BukkitRunnable() {
             @Override
@@ -48,7 +53,7 @@ final class ArcAFK implements TabExecutor, Listener {
                     }
                 }
             }
-        }.runTaskTimerAsynchronously(plugin, 0L, AFK_CHECK); // run every 1200 ticks (1 minute)
+        }.runTaskTimerAsynchronously(plugin, 0L, plugin.getConfig().getLong("afk.interval", 600L));
 
     }
 
@@ -80,46 +85,43 @@ final class ArcAFK implements TabExecutor, Listener {
         return !afkCounter.containsKey(p);
     }
 
+    private BaseComponent formatAFK(String subject, String msg) {
+        BaseComponent ret = new TranslatableComponent("chat.type.emote", subject, msg);
+        ret.setColor(ColorPalette.CONTENT);
+        return ret;
+    }
+
     private void setAFK(Player p) {
-        // For iterator safety, the `afkCounter.remove()` is not called in here.
+        // For thread safety, the `afkCounter.remove()` is not called in here.
         if (isAFK(p)) return;
 
         // Player is now afk.
         p.setSleepingIgnored(true);
-        if (!p.getDisplayName().startsWith(DISPLAY_TAG_AFK)) p.setDisplayName(DISPLAY_TAG_AFK + p.getDisplayName());
-        p.setPlayerListName(PL_TAG_AFK + p.getPlayerListName());
-        p.sendMessage(FORMAT_AFK + "You are now AFK.");
+        p.setPlayerListName(tag + p.getPlayerListName());
+        p.spigot().sendMessage(ChatMessageType.SYSTEM, formatAFK("You", "are now AFK"));
     }
 
     private void unsetAFK(Player p) {
         // If previous value was not null (if player was not afk)
-        if (afkCounter.put(p, AFK_COUNTDOWN) != null)
+        if (afkCounter.put(p, rounds) != null)
             return;
         // only truly afk players below this comment
 
         // Check tab list string
-        String pdn = p.getDisplayName();
         String pln = p.getPlayerListName();
         p.setSleepingIgnored(false);
-        if (pdn.startsWith(DISPLAY_TAG_AFK)) p.setDisplayName(pdn.substring(6));
         p.setPlayerListName(pln.substring(8)); // this thing seems to do some advanced computation ;-;
-        p.sendMessage(FORMAT_AFK + "You are no longer AFK.");
+        p.spigot().sendMessage(ChatMessageType.SYSTEM, formatAFK("You", "are no longer AFK"));
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void detectJoin(PlayerJoinEvent e) {
-        afkCounter.put(e.getPlayer(), AFK_COUNTDOWN);
+        afkCounter.put(e.getPlayer(), rounds);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void detectQuit(PlayerQuitEvent e) {
         afkCounter.remove(e.getPlayer());
-    }
-
-    // TODO Running command does not reset AFK countdown
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void detectCommand(PlayerCommandPreprocessEvent e) {
-        unsetAFK(e.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
