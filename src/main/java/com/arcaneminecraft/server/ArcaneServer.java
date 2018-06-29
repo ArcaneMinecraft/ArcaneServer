@@ -47,7 +47,7 @@ public final class ArcaneServer extends JavaPlugin {
         getCommand("local").setExecutor(lc);
         getCommand("localtoggle").setExecutor(lc);
         getCommand("localradius").setExecutor(lc);
-        //getServer().getPluginManager().registerEvents(lc, this);
+        getServer().getPluginManager().registerEvents(lc, this);
 
         HelpCommand hc = new HelpCommand(this);
         getCommand("help").setExecutor(hc);

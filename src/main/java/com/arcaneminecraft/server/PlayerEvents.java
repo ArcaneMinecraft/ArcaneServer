@@ -27,6 +27,9 @@ public class PlayerEvents implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void chatEvent(AsyncPlayerChatEvent e) {
+        if (e.isCancelled())
+            return;
+
         HashSet<Player> recipients = new HashSet<>(e.getRecipients());
         e.getRecipients().clear(); // Destroy default event.
 
@@ -40,6 +43,7 @@ public class PlayerEvents implements Listener {
     }
 
 
+    // Join/Leave events are covered on the proxy.
     @EventHandler(priority = EventPriority.HIGHEST)
     public void joinEvent(PlayerJoinEvent e) {
         e.setJoinMessage("");

@@ -31,6 +31,10 @@ public class PluginMessenger implements PluginMessageListener {
     }
 
     void chat(Player p, String msg) {
+        chat(p.getName(), p.getDisplayName(), p.getUniqueId().toString(), msg, p);
+    }
+
+    void chat(String name, String displayName, String uuid, String msg, Player pluginMessageSender) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("Forward"); // So BungeeCord knows to forward it
         out.writeUTF("ONLINE");
@@ -43,13 +47,13 @@ public class PluginMessenger implements PluginMessageListener {
 
             os.writeUTF(serverName);
             os.writeUTF(msg);
-            os.writeUTF(p.getName());
-            os.writeUTF(p.getDisplayName());
-            os.writeUTF(p.getUniqueId().toString());
+            os.writeUTF(name);
+            os.writeUTF(displayName == null ? name : displayName);
+            os.writeUTF(uuid == null ? "" : uuid);
 
             out.writeShort(byteos.toByteArray().length);
             out.write(byteos.toByteArray());
-            p.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
+            pluginMessageSender.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
 
         } catch (IOException e) {
             e.printStackTrace();
