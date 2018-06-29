@@ -8,11 +8,15 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
 import java.io.*;
 
-public class PluginMessenger implements PluginMessageListener {
+public class PluginMessenger implements PluginMessageListener, Listener {
     private final ArcaneServer plugin;
     private final boolean xRayAlert;
     private final boolean signAlert;
@@ -22,12 +26,28 @@ public class PluginMessenger implements PluginMessageListener {
         this.plugin = plugin;
         this.xRayAlert = plugin.getConfig().getBoolean("spy.xray-alert");
         this.signAlert = plugin.getConfig().getBoolean("spy.sign-alert");
+    }
 
-        // Get serverName
-        // TODO: Make this work (requires player to join: Player Join Event?)
-        ByteArrayDataOutput out = ByteStreams.newDataOutput();
-        out.writeUTF("GetServer"); // So BungeeCord knows to forward it
-        plugin.getServer().sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
+    // Event to fetch server name
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void usingPluginMessage(PlayerJoinEvent e) {
+        if (plugin.getServer().getOnlinePlayers().size() == 1) {
+            Player p = e.getPlayer();
+            plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, new Runnable() {
+                @Override
+                public void run() {
+                    if (!p.isOnline()) {
+                        // If player is not yet in game, it's impossible to send a plugin message.
+                        plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, this, 10);
+                        return;
+                    }
+                    ByteArrayDataOutput out = ByteStreams.newDataOutput();
+                    out.writeUTF("GetServer"); // So BungeeCord knows to forward it
+                    p.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
+
+                }
+            }, 1);
+        }
     }
 
     void chat(Player p, String msg) {
@@ -37,10 +57,12 @@ public class PluginMessenger implements PluginMessageListener {
     void chat(String name, String displayName, String uuid, String msg, Player pluginMessageSender) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("Forward"); // So BungeeCord knows to forward it
-        out.writeUTF("ONLINE");
+        out.writeUTF("ONLINE"); // Target server
 
-        // If ArcaneLog is null: another server is main (server) server. ChatAndLog.
-        out.writeUTF(plugin.getServer().getPluginManager().getPlugin("ArcaneLog") == null ? "ChatAndLog" : "Chat"); // Subchannel Chat
+        out.writeUTF(
+                // If ArcaneLog is null: another server is main (server) server. If uuid is not null: able to log.
+                plugin.getServer().getPluginManager().getPlugin("ArcaneLog") == null && uuid != null
+                ? "ChatAndLog" : "Chat"); // Subchannel
 
         ByteArrayOutputStream byteos = new ByteArrayOutputStream();
         try (DataOutputStream os = new DataOutputStream(byteos)) {
@@ -126,6 +148,5 @@ public class PluginMessenger implements PluginMessageListener {
             this.serverName = in.readUTF();
             plugin.getLogger().info("Server name set as: " + this.serverName);
         }
-
     }
 }
