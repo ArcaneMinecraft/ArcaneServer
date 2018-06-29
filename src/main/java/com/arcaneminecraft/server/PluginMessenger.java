@@ -1,10 +1,10 @@
 package com.arcaneminecraft.server;
 
 import com.arcaneminecraft.api.ArcaneText;
+import com.arcaneminecraft.api.ColorPalette;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -58,14 +58,10 @@ public class PluginMessenger implements PluginMessageListener, Listener {
     }
 
     void chat(String name, String displayName, String uuid, String msg, String tag, Player pluginMessageSender) {
-        ByteArrayDataOutput out = ByteStreams.newDataOutput();
-        out.writeUTF("Forward"); // So BungeeCord knows to forward it
-        out.writeUTF("ONLINE"); // Target server
-
-        out.writeUTF(
+        String channel =
                 // If ArcaneLog is null: another server is main (server) server. If uuid is not null: able to log.
                 uuid != null && plugin.getServer().getPluginManager().getPlugin("ArcaneLog") == null
-                ? "ChatAndLog" : "Chat"); // Subchannel
+                        ? "ChatAndLog" : "Chat";
 
         ByteArrayOutputStream byteos = new ByteArrayOutputStream();
         try (DataOutputStream os = new DataOutputStream(byteos)) {
@@ -77,13 +73,38 @@ public class PluginMessenger implements PluginMessageListener, Listener {
             os.writeUTF(uuid == null ? "" : uuid);
             os.writeUTF(tag == null ? "" : tag);
 
-            out.writeShort(byteos.toByteArray().length);
-            out.write(byteos.toByteArray());
-            pluginMessageSender.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
-
+            forwardChannelMessage(channel, byteos, pluginMessageSender); // Subchannel
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    void afk(Player p, boolean isAFK) {
+        String channel = "AFK";
+
+        ByteArrayOutputStream byteos = new ByteArrayOutputStream();
+        try (DataOutputStream os = new DataOutputStream(byteos)) {
+            os.writeUTF(serverName);
+            os.writeUTF(p.getName());
+            os.writeUTF(p.getDisplayName());
+            os.writeUTF(p.getUniqueId().toString());
+            os.writeBoolean(isAFK);
+
+            forwardChannelMessage(channel, byteos, p); // Subchannel
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void forwardChannelMessage(String channel, ByteArrayOutputStream byteArrayOutputStream, Player pluginMessageSender) {
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF("Forward"); // So BungeeCord knows to forward it
+        out.writeUTF("ONLINE"); // Target server
+        out.writeUTF(channel); // Subchannel
+
+        out.writeShort(byteArrayOutputStream.toByteArray().length);
+        out.write(byteArrayOutputStream.toByteArray());
+        pluginMessageSender.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
     }
 
     void xRayAlert(Player p, Block b) {
@@ -147,6 +168,36 @@ public class PluginMessenger implements PluginMessageListener, Listener {
                     send.addExtra(" ");
                     send.addExtra(chat);
                 }
+
+                for (Player p : plugin.getServer().getOnlinePlayers())
+                    p.spigot().sendMessage(ChatMessageType.CHAT, send);
+
+                plugin.getServer().getConsoleSender().sendMessage(server + ": " + send.toPlainText());
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return;
+        }
+
+        if (subChannel.equals("AFK")) {
+            byte[] msgBytes = new byte[in.readShort()];
+            in.readFully(msgBytes);
+
+            try (DataInputStream is = new DataInputStream(new ByteArrayInputStream(msgBytes))) {
+
+                String server = is.readUTF();
+                String name = is.readUTF();
+                String displayName = is.readUTF();
+                String uuid = is.readUTF();
+                boolean isAFK = is.readBoolean();
+
+                BaseComponent send = plugin.getArcAFK().formatAFK(
+                        ArcaneText.playerComponent(name, displayName, uuid, "Server: " + server),
+                        "is " + (isAFK ? "now" : "no longer ") + "AFK"
+                );
+                send.setColor(ColorPalette.CONTENT);
 
                 for (Player p : plugin.getServer().getOnlinePlayers())
                     p.spigot().sendMessage(ChatMessageType.CHAT, send);

@@ -85,7 +85,7 @@ final class ArcAFK implements TabExecutor, Listener {
         return !afkCounter.containsKey(p);
     }
 
-    private BaseComponent formatAFK(String subject, String msg) {
+    BaseComponent formatAFK(Object subject, String msg) {
         BaseComponent ret = new TranslatableComponent("chat.type.emote", subject, msg);
         ret.setColor(ColorPalette.CONTENT);
         return ret;
@@ -96,22 +96,34 @@ final class ArcAFK implements TabExecutor, Listener {
         if (isAFK(p)) return;
 
         // Player is now afk.
+        plugin.getPluginMessenger().afk(p, true);
         p.setSleepingIgnored(true);
         p.setPlayerListName(tag + p.getPlayerListName());
         p.spigot().sendMessage(ChatMessageType.SYSTEM, formatAFK("You", "are now AFK"));
+        BaseComponent send = formatAFK(ArcaneText.playerComponentSpigot(p), "is now AFK");
+        send.setColor(ColorPalette.CONTENT);
+        for (Player pl : plugin.getServer().getOnlinePlayers()) {
+            if (pl == p) continue;
+            pl.spigot().sendMessage(ChatMessageType.SYSTEM, send);
+        }
     }
 
     private void unsetAFK(Player p) {
         // If previous value was not null (if player was not afk)
         if (afkCounter.put(p, rounds) != null)
             return;
-        // only truly afk players below this comment
 
-        // Check tab list string
-        String pln = p.getPlayerListName();
+        // Player was afk
+        plugin.getPluginMessenger().afk(p, false);
         p.setSleepingIgnored(false);
-        p.setPlayerListName(pln.substring(8)); // this thing seems to do some advanced computation ;-;
+        p.setPlayerListName(p.getPlayerListName().substring(tag.length())); // this thing seems to do some advanced computation ;-;
         p.spigot().sendMessage(ChatMessageType.SYSTEM, formatAFK("You", "are no longer AFK"));
+        BaseComponent send = formatAFK(ArcaneText.playerComponentSpigot(p), "is no longer AFK");
+        send.setColor(ColorPalette.CONTENT);
+        for (Player pl : plugin.getServer().getOnlinePlayers()) {
+            if (pl == p) continue;
+            pl.spigot().sendMessage(ChatMessageType.SYSTEM, send);
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

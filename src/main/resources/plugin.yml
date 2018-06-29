@@ -45,19 +45,19 @@ permissions:
   # Arcane role permissions
   arcane.admin:
     children:
-      arcane.tag.admin: true
+      arcane.role.admin: true
       arcane.build: true
   arcane.mod:
     children:
-      arcane.tag.mod: true
+      arcane.role.mod: true
       arcane.build: true
   arcane.chatmod:
     children:
-      arcane.tag.chatmod: true
+      arcane.role.chatmod: true
       arcane.build: true
   arcane.donor:
     children:
-      arcane.tag.donor: true
+      arcane.role.donor: true
       arcane.build: true
     default: false
   arcane.trusted:
@@ -65,19 +65,19 @@ permissions:
       arcane.build: true
     default: op
 
-  # Show tag
-  arcane.tag.admin:
+  # Show role
+  arcane.role.admin:
     description: Adds "Admin | " to playerlist.
     children:
-      arcane.tag.mod: true
-      arcane.tag.chatmod: true
-  arcane.tag.mod:
+      arcane.role.mod: true
+      arcane.role.chatmod: true
+  arcane.role.mod:
     description: Adds "Mod | " to playerlist.
     children:
-      arcane.tag.chatmod: true
-  arcane.tag.chatmod:
+      arcane.role.chatmod: true
+  arcane.role.chatmod:
     description: Adds "Chatmod | " to playerlist.
-  arcane.tag.donor:
+  arcane.role.donor:
     description: Adds "Donor | " to playerlist.
     default: false
 

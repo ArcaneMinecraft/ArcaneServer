@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Random;
 
 public final class ArcaneServer extends JavaPlugin {
-    private ArcAFK afk;
+    private ArcAFK arcAFK;
     private PluginMessenger pluginMessenger;
 
     @Override
@@ -29,7 +29,7 @@ public final class ArcaneServer extends JavaPlugin {
 
         // BungeeCord plugin message stuff
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
-        pluginMessenger = new PluginMessenger(this);
+        this.pluginMessenger = new PluginMessenger(this); // Above must come before this.
         getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", pluginMessenger);
         getServer().getPluginManager().registerEvents(pluginMessenger, this);
 
@@ -55,13 +55,15 @@ public final class ArcaneServer extends JavaPlugin {
         getCommand("help").setExecutor(hc);
         getServer().getPluginManager().registerEvents(hc, this);
 
-        getCommand("afk").setExecutor(afk = new ArcAFK(this));
-        getServer().getPluginManager().registerEvents(afk, this);
+        this.arcAFK = new ArcAFK(this);
+        getCommand("afk").setExecutor(arcAFK);
+        getServer().getPluginManager().registerEvents(arcAFK, this);
     }
 
     @Override
     public void onDisable() {
-        afk.onDisable();
+        arcAFK.onDisable();
+        // List roles
         for (Player p : getServer().getOnlinePlayers()) {
             p.setPlayerListName(p.getName());
         }
@@ -69,6 +71,10 @@ public final class ArcaneServer extends JavaPlugin {
 
     PluginMessenger getPluginMessenger() {
         return pluginMessenger;
+    }
+
+    ArcAFK getArcAFK() {
+        return arcAFK;
     }
 
     // TODO: Implement TabCompleter (or TabExecutor)
