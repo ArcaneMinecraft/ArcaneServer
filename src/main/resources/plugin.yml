@@ -46,15 +46,19 @@ permissions:
   arcane.admin:
     children:
       arcane.tag.admin: true
+      arcane.build: true
   arcane.mod:
     children:
       arcane.tag.mod: true
+      arcane.build: true
   arcane.chatmod:
     children:
       arcane.tag.chatmod: true
+      arcane.build: true
   arcane.donor:
     children:
       arcane.tag.donor: true
+      arcane.build: true
     default: false
   arcane.trusted:
     children:
@@ -111,18 +115,13 @@ permissions:
     default: not op
   arcane.spy.on.command: # ArcaneBungee node
     description: Logs command messages. Critical commands are not ignored.
-    default: not op
 
   # ArcaneBungee uses these nodes; the registeration is for sake of easy autocomplete.
   arcane.spy.receive.xray:
     description: Receive x-ray alerts
-    default: op
   arcane.spy.receive.sign:
     description: Receive sign creation/modification content
-    default: op
   arcane.spy.receive.command:
     description: Receive critical command messages
-    default: op
   arcane.spy.receive.command.all:
     description: Receive all command messages
-    default: op

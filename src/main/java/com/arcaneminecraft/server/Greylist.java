@@ -29,7 +29,7 @@ import org.bukkit.material.Redstone;
 
 // TODO: When Spigot 1.13 API is published, review all the actions that should be further restricted.
 public class Greylist implements Listener {
-    private static final String TRUSTED_PERMISSION = "arcane.trusted";
+    private static final String TRUSTED_PERMISSION = "arcane.build";
 
     // Sends message through Action Bar (bar above item bar)
     private void noPerm(Cancellable e, Player p) {
@@ -40,7 +40,7 @@ public class Greylist implements Listener {
         e.setCancelled(true);
 
         BaseComponent not = new TextComponent("not");
-        BaseComponent apply = new TextComponent("apply");
+        BaseComponent apply = new TextComponent("/apply");
         not.setColor(ColorPalette.NEGATIVE);
         apply.setColor(ColorPalette.POSITIVE);
 
@@ -51,7 +51,6 @@ public class Greylist implements Listener {
         msg.addExtra("!");
 
         p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(msg));
-
     }
 
     // Player and Entity

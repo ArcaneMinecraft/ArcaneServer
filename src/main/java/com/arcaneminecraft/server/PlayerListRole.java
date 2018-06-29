@@ -19,13 +19,13 @@ public class PlayerListRole implements Listener {
     }
 
     private void addRole(Player p) {
-        if (p.hasPermission("arcane.admin"))
+        if (p.hasPermission("arcane.tag.admin"))
             p.setPlayerListName(p.getName() + ChatColor.GRAY + " | " + ColorPalette.ADMIN + "Admin");
-		else if (p.hasPermission("arcane.mod"))
+		else if (p.hasPermission("arcane.tag.mod"))
             p.setPlayerListName(p.getName() + ChatColor.GRAY + " | " + ColorPalette.MOD + "Mod" + ChatColor.DARK_GRAY);
-        else if (p.hasPermission("arcane.chatmod"))
+        else if (p.hasPermission("arcane.tag.chatmod"))
             p.setPlayerListName(p.getName() + ChatColor.GRAY + " | " + ColorPalette.CHAT_MOD + "ChatMod" + ChatColor.DARK_GRAY);
-        else if (p.hasPermission("arcane.donor"))
+        else if (p.hasPermission("arcane.tag.donor"))
             p.setPlayerListName(p.getName() + ChatColor.GRAY + " | " + ColorPalette.DONOR + "Donor" + ChatColor.DARK_GRAY);
     }
 
