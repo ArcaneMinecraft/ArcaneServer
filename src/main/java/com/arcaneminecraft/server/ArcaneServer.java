@@ -46,7 +46,8 @@ public final class ArcaneServer extends JavaPlugin {
         LocalChat lc = new LocalChat(this);
         getCommand("local").setExecutor(lc);
         getCommand("localtoggle").setExecutor(lc);
-        getCommand("localradius").setExecutor(lc);
+        getCommand("localrange").setExecutor(lc);
+        getCommand("global").setExecutor(lc);
         getServer().getPluginManager().registerEvents(lc, this);
 
         HelpCommand hc = new HelpCommand(this);

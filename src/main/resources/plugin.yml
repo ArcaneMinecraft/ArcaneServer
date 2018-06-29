@@ -14,7 +14,7 @@ commands:
     usage: /afk
   global:
     aliases: [g]
-    usage: /g <chat message ...>
+    usage: /global <chat message ...>
   help:
     aliases: ["?"]
     usage: /help [page|command name]
@@ -22,7 +22,7 @@ commands:
     aliases: [l]
     usage: /local <local message ...>
   localrange:
-    aliases: [lr]
+    aliases: [localradius, lr]
     usage: /localrange [radius]
   localtoggle:
     aliases: [lt]

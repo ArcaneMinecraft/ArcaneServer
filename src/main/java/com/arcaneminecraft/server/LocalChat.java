@@ -38,6 +38,15 @@ final class LocalChat implements CommandExecutor, Listener {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (cmd.getName().equalsIgnoreCase("global")) {
+            if (args.length == 0) {
+                if (sender instanceof Player)
+                    ((Player) sender).spigot().sendMessage(ChatMessageType.SYSTEM, ArcaneText.usage(plugin.getCommand("global").getUsage()));
+                else
+                    sender.spigot().sendMessage(ArcaneText.usage(plugin.getCommand("global").getUsage()));
+
+                return true;
+            }
+
             String msg = String.join(" ", args);
 
             if (sender instanceof Player) {
@@ -93,11 +102,11 @@ final class LocalChat implements CommandExecutor, Listener {
             return true;
         }
 
-        if (cmd.getName().equalsIgnoreCase("localradius")) {
+        if (cmd.getName().equalsIgnoreCase("localrange")) {
 
             if (args.length == 0) {
                 p.spigot().sendMessage(ChatMessageType.SYSTEM, new TextComponent("Your chat radius is "
-                        + ColorPalette.FOCUS + getRadius(p) + ColorPalette.CONTENT +". Usage: /localradius <radius>"));
+                        + ColorPalette.FOCUS + getRadius(p) + ColorPalette.CONTENT +". Usage: /localrange <radius>"));
                 return true;
             }
 
@@ -126,7 +135,7 @@ final class LocalChat implements CommandExecutor, Listener {
             }
 
             range.put(p, r);
-            p.sendMessage("Your messaging radius is now set to " + r + ".");
+            p.sendMessage("Your local chat range is now set to " + r + ".");
             return true;
         }
 
