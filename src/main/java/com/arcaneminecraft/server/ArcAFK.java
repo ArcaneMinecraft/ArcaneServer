@@ -114,7 +114,7 @@ final class ArcAFK implements TabExecutor, Listener {
             return;
 
         // Player was afk
-        plugin.getPluginMessenger().afk(p, false);
+        if (plugin.isEnabled()) plugin.getPluginMessenger().afk(p, false);
         p.setSleepingIgnored(false);
         p.setPlayerListName(p.getPlayerListName().substring(tag.length())); // this thing seems to do some advanced computation ;-;
         p.spigot().sendMessage(ChatMessageType.SYSTEM, formatAFK("You", "are no longer AFK"));

@@ -141,13 +141,8 @@ final class LocalChat implements CommandExecutor, Listener {
 
             range.put(p, r);
 
-            BaseComponent send = new TextComponent("Local chat range is set to ");
+            BaseComponent send = new TextComponent("Local chat range is set to " + getRadius(p));
             send.setColor(ColorPalette.CONTENT);
-
-            BaseComponent range = new TextComponent(String.valueOf(getRadius(p)));
-            range.setColor(ColorPalette.FOCUS);
-            send.addExtra(range);
-
             p.spigot().sendMessage(ChatMessageType.SYSTEM, send);
             return true;
         }
@@ -172,15 +167,16 @@ final class LocalChat implements CommandExecutor, Listener {
             // 1. Get all the recipients
             ArrayList<Player> recipients = new ArrayList<>();
 
+
             for (Player recipient : plugin.getServer().getOnlinePlayers()) {
-                if (recipient != p
+                if (p.canSee(recipient)
                         && recipient.getWorld().equals(p.getWorld())
                         && recipient.getLocation().distanceSquared(p.getLocation()) <= r * r)
                     recipients.add(recipient);
             }
 
             // Error: No player to send message to
-            if (recipients.size() == 0) {
+            if (recipients.size() == 1) {
                 BaseComponent send = new TextComponent("There is nobody within your vicinity. Your Local chat range is " + r);
                 send.setColor(ColorPalette.CONTENT);
                 p.spigot().sendMessage(ChatMessageType.SYSTEM, send);
@@ -190,7 +186,7 @@ final class LocalChat implements CommandExecutor, Listener {
             // 2. Create recipients
             // Hover event to show list of players who received the message
             Iterator<Player> i = recipients.iterator();
-            StringBuilder list = new StringBuilder("Recipient" + (recipients.size() == 1 ? "" : "s") + ": ").append(i.next().getDisplayName());
+            StringBuilder list = new StringBuilder("Recipients: ").append(i.next().getDisplayName());
             while (i.hasNext())
                 list.append(", ").append(i.next().getDisplayName());
 
@@ -210,7 +206,6 @@ final class LocalChat implements CommandExecutor, Listener {
             BaseComponent chat = new TranslatableComponent("chat.type.text", player, msgB);
 
             // Send Messages
-            p.spigot().sendMessage(ChatMessageType.CHAT, tag, chat);
             for (Player rp : recipients)
                 rp.spigot().sendMessage(ChatMessageType.CHAT, tag, chat);
         });

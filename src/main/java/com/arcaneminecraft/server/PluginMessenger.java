@@ -195,12 +195,12 @@ public class PluginMessenger implements PluginMessageListener, Listener {
 
                 BaseComponent send = plugin.getArcAFK().formatAFK(
                         ArcaneText.playerComponent(name, displayName, uuid, "Server: " + server),
-                        "is " + (isAFK ? "now" : "no longer ") + "AFK"
+                        "is " + (isAFK ? "now" : "no longer") + " AFK"
                 );
                 send.setColor(ColorPalette.CONTENT);
 
                 for (Player p : plugin.getServer().getOnlinePlayers())
-                    p.spigot().sendMessage(ChatMessageType.CHAT, send);
+                    p.spigot().sendMessage(ChatMessageType.SYSTEM, send);
 
                 plugin.getServer().getConsoleSender().sendMessage(server + ": " + send.toPlainText());
 

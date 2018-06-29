@@ -24,7 +24,7 @@ afk:
   interval: 600 # 30 seconds
   # Intervals passed before marking as afk
   rounds: 10 # 30 seconds * 10 rounds = 5 minutes
-  tag: &5[AFK]
+  tag: "&5[AFK]"
 
 # Key:
 # blockname:
