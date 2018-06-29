@@ -4,7 +4,10 @@ import com.arcaneminecraft.api.ArcaneText;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -50,18 +53,18 @@ public class PluginMessenger implements PluginMessageListener, Listener {
         }
     }
 
-    void chat(Player p, String msg) {
-        chat(p.getName(), p.getDisplayName(), p.getUniqueId().toString(), msg, p);
+    void chat(Player p, String msg, String tag) {
+        chat(p.getName(), p.getDisplayName(), p.getUniqueId().toString(), msg, tag, p);
     }
 
-    void chat(String name, String displayName, String uuid, String msg, Player pluginMessageSender) {
+    void chat(String name, String displayName, String uuid, String msg, String tag, Player pluginMessageSender) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("Forward"); // So BungeeCord knows to forward it
         out.writeUTF("ONLINE"); // Target server
 
         out.writeUTF(
                 // If ArcaneLog is null: another server is main (server) server. If uuid is not null: able to log.
-                plugin.getServer().getPluginManager().getPlugin("ArcaneLog") == null && uuid != null
+                uuid != null && plugin.getServer().getPluginManager().getPlugin("ArcaneLog") == null
                 ? "ChatAndLog" : "Chat"); // Subchannel
 
         ByteArrayOutputStream byteos = new ByteArrayOutputStream();
@@ -72,6 +75,7 @@ public class PluginMessenger implements PluginMessageListener, Listener {
             os.writeUTF(name);
             os.writeUTF(displayName == null ? name : displayName);
             os.writeUTF(uuid == null ? "" : uuid);
+            os.writeUTF(tag == null ? "" : tag);
 
             out.writeShort(byteos.toByteArray().length);
             out.write(byteos.toByteArray());
@@ -128,14 +132,26 @@ public class PluginMessenger implements PluginMessageListener, Listener {
                 String name = is.readUTF();
                 String displayName = is.readUTF();
                 String uuid = is.readUTF();
+                String tag = is.readUTF();
 
-                // TODO: Prefix stuff (from LuckPerms using uuid)
-                TranslatableComponent chat = new TranslatableComponent("chat.type.text", ArcaneText.playerComponent(name, displayName, uuid, "Server: " + server), msg);
+                BaseComponent chat = new TranslatableComponent("chat.type.text",
+                        ArcaneText.playerComponent(name, displayName, uuid, "Server: " + server), ArcaneText.url(msg));
+                BaseComponent send;
+
+                if (tag.isEmpty()) {
+                    send = chat;
+                } else {
+                    BaseComponent t = new TextComponent(tag);
+                    send = new TextComponent();
+                    send.addExtra(t);
+                    send.addExtra(" ");
+                    send.addExtra(chat);
+                }
 
                 for (Player p : plugin.getServer().getOnlinePlayers())
-                    p.spigot().sendMessage(ChatMessageType.CHAT, chat);
+                    p.spigot().sendMessage(ChatMessageType.CHAT, send);
 
-                plugin.getServer().getConsoleSender().sendMessage("*" + chat.toPlainText());
+                plugin.getServer().getConsoleSender().sendMessage(server + ": " + send.toPlainText());
 
             } catch (IOException e) {
                 e.printStackTrace();

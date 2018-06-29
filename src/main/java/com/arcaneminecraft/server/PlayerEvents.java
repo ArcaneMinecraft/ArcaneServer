@@ -29,12 +29,13 @@ public class PlayerEvents implements Listener {
         e.getRecipients().clear(); // Destroy default event.
 
         // TODO: Prefix stuff (from LuckPerms)
-        TranslatableComponent chat = new TranslatableComponent("chat.type.text", ArcaneText.playerComponentSpigot(e.getPlayer()), e.getMessage());
+        TranslatableComponent chat = new TranslatableComponent("chat.type.text", ArcaneText.playerComponentSpigot(e.getPlayer()),
+                ArcaneText.url(e.getMessage()));
 
         for (Player p : recipients)
             p.spigot().sendMessage(ChatMessageType.CHAT, chat);
 
-        plugin.getPluginMessenger().chat(e.getPlayer(), e.getMessage());
+        plugin.getPluginMessenger().chat(e.getPlayer(), e.getMessage(), null);
     }
 
 

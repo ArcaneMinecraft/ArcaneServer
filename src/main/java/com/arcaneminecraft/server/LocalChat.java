@@ -15,12 +15,11 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 
 final class LocalChat implements CommandExecutor, Listener {
     private final ArcaneServer plugin;
-    private static final String CHAT_TAG = ChatColor.GREEN + "(local)";
+    private static final String CHAT_TAG = "(local)";
     private final int maxRange;
     private final int defaultRange;
     private final HashSet<Player> toggled;
@@ -74,7 +73,7 @@ final class LocalChat implements CommandExecutor, Listener {
             }
 
             sender.spigot().sendMessage(chat);
-            plugin.getPluginMessenger().chat("Server",null,null, msg, pms);
+            plugin.getPluginMessenger().chat("Server", null, null, msg, null, pms);
             return true;
         }
 
@@ -92,7 +91,7 @@ final class LocalChat implements CommandExecutor, Listener {
                 return true;
             }
 
-            broadcastLocal(p, String.join(" ", args));
+            broadcastLocal(p, args);
             return true;
         }
 
@@ -116,12 +115,8 @@ final class LocalChat implements CommandExecutor, Listener {
 
         if (cmd.getName().equalsIgnoreCase("localrange")) {
             if (args.length == 0) {
-                BaseComponent send = new TextComponent("Your local chat range is ");
+                BaseComponent send = new TextComponent("Your local chat range is " + getRadius(p));
                 send.setColor(ColorPalette.CONTENT);
-
-                BaseComponent range = new TextComponent(String.valueOf(getRadius(p)));
-                range.setColor(ColorPalette.FOCUS);
-                send.addExtra(range);
 
                 p.spigot().sendMessage(ChatMessageType.SYSTEM, send);
                 return true;
@@ -140,7 +135,7 @@ final class LocalChat implements CommandExecutor, Listener {
             // Use null to validate range
             BaseComponent oob = ArcaneText.numberOutOfRange(r, 1, maxRange);
             if (oob != null) {
-                p.spigot().sendMessage(oob);
+                p.spigot().sendMessage(ChatMessageType.SYSTEM, oob);
                 return true;
             }
 
@@ -165,59 +160,59 @@ final class LocalChat implements CommandExecutor, Listener {
         return (r == null) ? defaultRange : r;
     }
 
-    private void broadcastLocal (Player p, String msg) {
+    private void broadcastLocal(Player p, String msg) {
+        broadcastLocal(p, msg.split(" "));
+    }
+
+    private void broadcastLocal(Player p, String[] msg) {
         int r = getRadius(p);
+
         // Async event
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
             // 1. Get all the recipients
-            HashSet<Player> recipients = new HashSet<>();
+            ArrayList<Player> recipients = new ArrayList<>();
 
             for (Player recipient : plugin.getServer().getOnlinePlayers()) {
-                if (recipient.getWorld().equals(p.getWorld())
+                if (recipient != p
+                        && recipient.getWorld().equals(p.getWorld())
                         && recipient.getLocation().distanceSquared(p.getLocation()) <= r * r)
                     recipients.add(recipient);
             }
 
-            // 2. Create message
-            TextComponent send = new TextComponent();
-            send.setColor(ChatColor.GRAY);
+            // Error: No player to send message to
+            if (recipients.size() == 0) {
+                BaseComponent send = new TextComponent("There is nobody within your vicinity. Your Local chat range is " + r);
+                send.setColor(ColorPalette.CONTENT);
+                p.spigot().sendMessage(ChatMessageType.SYSTEM, send);
+                return;
+            }
 
-            // Beginning: tag
-            BaseComponent a = new TextComponent();
-
-            BaseComponent b = new TextComponent(CHAT_TAG);
-
-            a.addExtra(b);
-
-            // name
-            b = new TextComponent(" <" + p.getDisplayName() + "> ");
-            b.setColor(ChatColor.WHITE);
-            a.addExtra(b);
-
-            // Add a click action only to the beginning
-            a.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/l "));
-
+            // 2. Create recipients
             // Hover event to show list of players who received the message
-            StringBuilder list = new StringBuilder();
-            for (Player rp : recipients)
-                list.append(", ").append(rp.getName());
+            Iterator<Player> i = recipients.iterator();
+            StringBuilder list = new StringBuilder("Recipient" + (recipients.size() == 1 ? "" : "s") + ": ").append(i.next().getDisplayName());
+            while (i.hasNext())
+                list.append(", ").append(i.next().getDisplayName());
 
-            // Get rid of leading comma and space
-            list.delete(0, 2);
+            // 3. Prepare messages
+            BaseComponent tag = new TextComponent(CHAT_TAG);
+            tag.setColor(ChatColor.GREEN);
+            tag.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/l "));
+            tag.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{new TextComponent(list.toString())}));
+            tag.addExtra(" ");
 
-            a.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                    new ComponentBuilder("Recipient" + (recipients.size() == 1 ? "" : "s") + ": " + list).create()));
+            BaseComponent player = ArcaneText.playerComponentSpigot(p, list.toString());
 
-            send.addExtra(a);
+            BaseComponent msgB = ArcaneText.url(msg);
+            msgB.setColor(ColorPalette.CONTENT);
+            msgB.setItalic(true);
 
-            // Later: message
-            a = ArcaneText.url(msg);
-            a.setItalic(true);
-            send.addExtra(a);
+            BaseComponent chat = new TranslatableComponent("chat.type.text", player, msgB);
 
             // Send Messages
+            p.spigot().sendMessage(ChatMessageType.CHAT, tag, chat);
             for (Player rp : recipients)
-                rp.spigot().sendMessage(send);
+                rp.spigot().sendMessage(ChatMessageType.CHAT, tag, chat);
         });
     }
 
