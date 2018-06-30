@@ -57,7 +57,10 @@ public class HelpCommand implements TabExecutor, Listener {
 
             // First: BungeeCord Commands
             for (BungeeCommandUsage c : BungeeCommandUsage.values()) {
-                CommandWrapper cw = new CommandWrapper(c);
+                if (cf.getBoolean(c.getName() + ".is-alias"))
+                    continue;
+
+                CommandWrapper cw = new CommandWrapper(c, cf.getConfigurationSection(c.getName()));
                 commands.add(cw);
                 commandList.put(c.getName(), cw);
                 for (String ca : cw.getAliases())
@@ -355,15 +358,25 @@ public class HelpCommand implements TabExecutor, Listener {
             this.aliases = list.toArray(new String[0]);
         }
 
-        private CommandWrapper(BungeeCommandUsage command) {
+        private CommandWrapper(BungeeCommandUsage command, ConfigurationSection cs) {
             this.name = command.getName();
-            this.origin = new TextComponent("(BungeeCord)");
+            this.origin = new TextComponent("(BungeeCord" + (cs == null ? ")" : "  +Config)"));
             __originFormatting();
             this.clickEvent = new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/" + name + " ");
-            this.permission = command.getPermission();
-            this.usage = command.getUsage();
-            this.description = command.getDescription();
-            this.aliases = command.getAliases();
+            if (cs == null) {
+                this.permission = command.getPermission();
+                this.usage = command.getUsage();
+                this.description = command.getDescription();
+                this.aliases = command.getAliases();
+                return;
+            }
+            this.permission = cs.getString("permission", command.getPermission());
+            this.usage = cs.getString("usage",
+                    command.getUsage().equals("") ? "/" + name : command.getUsage());
+            this.description = cs.getString("description", command.getDescription());
+            List<String> list = new ArrayList<>(Arrays.asList(command.getAliases()));
+            list.addAll(cs.getStringList("aliases")); // Merge aliases
+            this.aliases = list.toArray(new String[0]);
         }
 
         private void __originFormatting() {
