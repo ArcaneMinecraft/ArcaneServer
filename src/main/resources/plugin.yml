@@ -84,10 +84,10 @@ permissions:
   # Allow features for players
   arcane.build:
     description: Allow building and giving/taking items on the server
-    default: op
+    default: true
   arcane.homes:
     description: Arcane extra home donor.
-    default: op
+    default: false
   arcane.tabcomplete.hidecolon:
     description: Hides commands with colon (e.g. bukkit:version).
     default: not op
