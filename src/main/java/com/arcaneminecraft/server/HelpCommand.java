@@ -203,6 +203,19 @@ public class HelpCommand implements TabExecutor, Listener {
             }
         }
 
+        // Send Aliases if exists
+        if (cw.getAliases().length != 0) {
+            BaseComponent desc = new TextComponent(cw.getAliases().length > 1 ? " Aliases: " : " Alias: ");
+            desc.addExtra(String.join(", ", cw.getAliases()));
+            desc.setColor(ChatColor.RED);
+
+            if (sender instanceof Player) {
+                ((Player) sender).spigot().sendMessage(ChatMessageType.SYSTEM, desc);
+            } else {
+                sender.spigot().sendMessage(desc);
+            }
+        }
+
         // Has permission to see extra details
         if (showDetails) {
             if (cw.getPermission() != null) {
@@ -273,11 +286,9 @@ public class HelpCommand implements TabExecutor, Listener {
         CommandSender p = e.getSender();
 
         if (p.isOp() || !cmd.startsWith("/") || cmd.contains(" "))
-            return; // TODO: Maybe return online players on the BungeeCord Network?
+            return;
 
         List<String> list = e.getCompletions();
-
-        Iterator<String> iter = list.iterator();
 
         // Check hide colon for this player
         if (p.hasPermission("arcane.tabcomplete.hidecolon"))
@@ -309,7 +320,6 @@ public class HelpCommand implements TabExecutor, Listener {
         }
     }
 
-    // TODO: Separate out this into 'commands' subpackage
     private final class CommandWrapper {
         private final String name;
         private final String usage;
@@ -330,6 +340,7 @@ public class HelpCommand implements TabExecutor, Listener {
                     "/" + name);
             this.description = cs.getString("description", "");
             this.aliases = cs.getStringList("aliases").toArray(new String[0]);
+            Arrays.sort(this.aliases);
         }
 
         private CommandWrapper(Command command, ConfigurationSection cs) {
@@ -357,6 +368,7 @@ public class HelpCommand implements TabExecutor, Listener {
             List<String> list = new ArrayList<>(command.getAliases());
             list.addAll(cs.getStringList("aliases")); // Merge aliases
             this.aliases = list.toArray(new String[0]);
+            Arrays.sort(this.aliases);
         }
 
         private CommandWrapper(BungeeCommandUsage command, ConfigurationSection cs) {
@@ -380,6 +392,7 @@ public class HelpCommand implements TabExecutor, Listener {
             List<String> list = new ArrayList<>(Arrays.asList(command.getAliases()));
             list.addAll(cs.getStringList("aliases")); // Merge aliases
             this.aliases = list.toArray(new String[0]);
+            Arrays.sort(this.aliases);
         }
 
         private void __originFormatting() {
