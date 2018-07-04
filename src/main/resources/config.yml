@@ -2,18 +2,27 @@ help-override:
   commands:
     help:
       usage: commands.help.usage
+    coreprotect:
+      permission: help.coreprotect
+      aliases: [co, core]
     co:
       is-alias: true
     core:
       is-alias: true
-    coreprotect:
-      permission: help.coreprotect
-      aliases: [co, core]
-    luckperms:
-      permission: help.luckperms
     luckpermsbungee:
       permission: help.luckperms
       description: LuckPerms on Bungee
+    luckperms:
+      permission: help.luckperms
+    links:
+      aliases: [website, forum, discord]
+    website:
+      is-alias: true
+    forum:
+      is-alias: true
+    discord:
+      is-alias: true
+
 
 local-chat:
   default-range: 40
