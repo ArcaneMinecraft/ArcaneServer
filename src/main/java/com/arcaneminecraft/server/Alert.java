@@ -59,6 +59,12 @@ public class Alert implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onSign(SignChangeEvent e) {
-        plugin.getPluginMessenger().signAlert(e.getPlayer(), e.getBlock(), e.getLines());
+        // Check if sign is empty. If at least one line has something: send alert.
+        for (String s : e.getLines()) {
+            if (!s.isEmpty()) {
+                plugin.getPluginMessenger().signAlert(e.getPlayer(), e.getBlock(), e.getLines());
+                return;
+            }
+        }
     }
 }
