@@ -1,7 +1,7 @@
 package com.arcaneminecraft.server;
 
 import com.arcaneminecraft.api.ArcaneText;
-import com.arcaneminecraft.api.ColorPalette;
+import com.arcaneminecraft.api.ArcaneColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -169,15 +169,15 @@ public final class ArcaneServer extends JavaPlugin {
                     "Your username is " + name + ".",
                     "Your username is not Agentred100.",
                     "Username: " + name + ".",
-                    ColorPalette.NEGATIVE + "[Username] " + ColorPalette.CONTENT + name + ".",
-                    ColorPalette.HEADING + "[Username]" + ColorPalette.CONTENT + " At the moment, your username is " + name + ".",
-                    ColorPalette.HEADING + "YOUR USERNAME IS " + ColorPalette.NEGATIVE + name + ".",
+                    ArcaneColor.NEGATIVE + "[Username] " + ArcaneColor.CONTENT + name + ".",
+                    ArcaneColor.HEADING + "[Username]" + ArcaneColor.CONTENT + " At the moment, your username is " + name + ".",
+                    ArcaneColor.HEADING + "YOUR USERNAME IS " + ArcaneColor.NEGATIVE + name + ".",
                     name
             };
 
             String r = list[randy.nextInt(list.length)];
 
-            sender.sendMessage(ColorPalette.CONTENT + r);
+            sender.sendMessage(ArcaneColor.CONTENT + r);
             return true;
         }
         return false;

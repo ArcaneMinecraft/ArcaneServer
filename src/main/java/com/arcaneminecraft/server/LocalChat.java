@@ -1,7 +1,7 @@
 package com.arcaneminecraft.server;
 
 import com.arcaneminecraft.api.ArcaneText;
-import com.arcaneminecraft.api.ColorPalette;
+import com.arcaneminecraft.api.ArcaneColor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.*;
@@ -97,15 +97,15 @@ final class LocalChat implements CommandExecutor, Listener {
 
         if (cmd.getName().equalsIgnoreCase("localtoggle")) {
             BaseComponent send = new TextComponent("Local chat toggle is ");
-            send.setColor(ColorPalette.CONTENT);
+            send.setColor(ArcaneColor.CONTENT);
             if (toggled.add(p)){
                 BaseComponent on = new TranslatableComponent("options.on");
-                on.setColor(ColorPalette.POSITIVE);
+                on.setColor(ArcaneColor.POSITIVE);
                 send.addExtra(on);
             } else {
                 toggled.remove(p);
                 BaseComponent off = new TranslatableComponent("options.off");
-                off.setColor(ColorPalette.NEGATIVE);
+                off.setColor(ArcaneColor.NEGATIVE);
                 send.addExtra(off);
             }
 
@@ -116,7 +116,7 @@ final class LocalChat implements CommandExecutor, Listener {
         if (cmd.getName().equalsIgnoreCase("localrange")) {
             if (args.length == 0) {
                 BaseComponent send = new TextComponent("Your local chat range is " + getRadius(p));
-                send.setColor(ColorPalette.CONTENT);
+                send.setColor(ArcaneColor.CONTENT);
 
                 p.spigot().sendMessage(ChatMessageType.SYSTEM, send);
                 return true;
@@ -142,7 +142,7 @@ final class LocalChat implements CommandExecutor, Listener {
             range.put(p, r);
 
             BaseComponent send = new TextComponent("Local chat range is set to " + getRadius(p));
-            send.setColor(ColorPalette.CONTENT);
+            send.setColor(ArcaneColor.CONTENT);
             p.spigot().sendMessage(ChatMessageType.SYSTEM, send);
             return true;
         }
@@ -178,7 +178,7 @@ final class LocalChat implements CommandExecutor, Listener {
             // Error: No player to send message to
             if (recipients.size() == 1) {
                 BaseComponent send = new TextComponent("There is nobody within your vicinity. Your Local chat range is " + r);
-                send.setColor(ColorPalette.CONTENT);
+                send.setColor(ArcaneColor.CONTENT);
                 p.spigot().sendMessage(ChatMessageType.SYSTEM, send);
                 return;
             }
@@ -200,7 +200,7 @@ final class LocalChat implements CommandExecutor, Listener {
             BaseComponent player = ArcaneText.playerComponentSpigot(p, list.toString());
 
             BaseComponent msgB = ArcaneText.url(msg);
-            msgB.setColor(ColorPalette.CONTENT);
+            msgB.setColor(ArcaneColor.CONTENT);
             msgB.setItalic(true);
 
             BaseComponent chat = new TranslatableComponent("chat.type.text", player, msgB);

@@ -1,6 +1,6 @@
 package com.arcaneminecraft.server;
 
-import com.arcaneminecraft.api.ColorPalette;
+import com.arcaneminecraft.api.ArcaneColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -41,8 +41,8 @@ public class Greylist implements Listener {
 
         BaseComponent not = new TextComponent("not");
         BaseComponent apply = new TextComponent("/apply");
-        not.setColor(ColorPalette.NEGATIVE);
-        apply.setColor(ColorPalette.POSITIVE);
+        not.setColor(ArcaneColor.NEGATIVE);
+        apply.setColor(ArcaneColor.POSITIVE);
 
         BaseComponent msg = new TextComponent("You do ");
         msg.addExtra(not);

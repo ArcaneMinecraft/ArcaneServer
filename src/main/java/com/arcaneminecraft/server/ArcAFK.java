@@ -1,7 +1,7 @@
 package com.arcaneminecraft.server;
 
 import com.arcaneminecraft.api.ArcaneText;
-import com.arcaneminecraft.api.ColorPalette;
+import com.arcaneminecraft.api.ArcaneColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
@@ -87,7 +87,7 @@ final class ArcAFK implements TabExecutor, Listener {
 
     BaseComponent formatAFK(Object subject, String msg) {
         BaseComponent ret = new TranslatableComponent("chat.type.emote", subject, msg);
-        ret.setColor(ColorPalette.CONTENT);
+        ret.setColor(ArcaneColor.CONTENT);
         return ret;
     }
 
@@ -101,7 +101,7 @@ final class ArcAFK implements TabExecutor, Listener {
         p.setPlayerListName(tag + p.getPlayerListName());
         p.spigot().sendMessage(ChatMessageType.SYSTEM, formatAFK("You", "are now AFK"));
         BaseComponent send = formatAFK(ArcaneText.playerComponentSpigot(p), "is now AFK");
-        send.setColor(ColorPalette.CONTENT);
+        send.setColor(ArcaneColor.CONTENT);
         for (Player pl : plugin.getServer().getOnlinePlayers()) {
             if (pl == p) continue;
             pl.spigot().sendMessage(ChatMessageType.SYSTEM, send);
@@ -119,7 +119,7 @@ final class ArcAFK implements TabExecutor, Listener {
         p.setPlayerListName(p.getPlayerListName().substring(tag.length())); // this thing seems to do some advanced computation ;-;
         p.spigot().sendMessage(ChatMessageType.SYSTEM, formatAFK("You", "are no longer AFK"));
         BaseComponent send = formatAFK(ArcaneText.playerComponentSpigot(p), "is no longer AFK");
-        send.setColor(ColorPalette.CONTENT);
+        send.setColor(ArcaneColor.CONTENT);
         for (Player pl : plugin.getServer().getOnlinePlayers()) {
             if (pl == p) continue;
             pl.spigot().sendMessage(ChatMessageType.SYSTEM, send);

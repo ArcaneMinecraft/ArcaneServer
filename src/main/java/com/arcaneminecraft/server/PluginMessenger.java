@@ -1,7 +1,7 @@
 package com.arcaneminecraft.server;
 
 import com.arcaneminecraft.api.ArcaneText;
-import com.arcaneminecraft.api.ColorPalette;
+import com.arcaneminecraft.api.ArcaneColor;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
@@ -197,7 +197,7 @@ public class PluginMessenger implements PluginMessageListener, Listener {
                         ArcaneText.playerComponent(name, displayName, uuid, "Server: " + server),
                         "is " + (isAFK ? "now" : "no longer") + " AFK"
                 );
-                send.setColor(ColorPalette.CONTENT);
+                send.setColor(ArcaneColor.CONTENT);
 
                 for (Player p : plugin.getServer().getOnlinePlayers())
                     p.spigot().sendMessage(ChatMessageType.SYSTEM, send);
