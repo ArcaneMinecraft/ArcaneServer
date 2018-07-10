@@ -18,12 +18,10 @@ import java.util.List;
 
 public class SpawnCommand implements TabExecutor, Listener {
     private final ArcaneServer plugin;
-    private final boolean spawnEnabled;
     private Location spawnPoint;
 
     SpawnCommand(ArcaneServer plugin) {
         this.plugin = plugin;
-        this.spawnEnabled = plugin.getConfig().getBoolean("spawn.command-enabled", false);
         updateSpawnPoint();
     }
 
@@ -43,11 +41,6 @@ public class SpawnCommand implements TabExecutor, Listener {
         if (command.getName().equalsIgnoreCase("setworldspawn")) {
             plugin.getServer().dispatchCommand(sender, "minecraft:setworldspawn" + ((args.length == 0) ? "" : " " + String.join(" ", args)));
             updateSpawnPoint();
-            return true;
-        }
-
-        if (!spawnEnabled) {
-            sender.sendMessage(ArcaneColor.CONTENT + "Spawn is disabled in this world");
             return true;
         }
 

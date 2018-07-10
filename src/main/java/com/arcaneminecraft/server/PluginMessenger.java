@@ -23,12 +23,17 @@ public class PluginMessenger implements PluginMessageListener, Listener {
     private final ArcaneServer plugin;
     private final boolean xRayAlert;
     private final boolean signAlert;
+    private final boolean networkChat;
     private String serverName = "(unknown)";
 
     PluginMessenger(ArcaneServer plugin) {
         this.plugin = plugin;
-        this.xRayAlert = plugin.getConfig().getBoolean("spy.xray-alert");
-        this.signAlert = plugin.getConfig().getBoolean("spy.sign-alert");
+        this.xRayAlert =   plugin.getConfig().getBoolean("spy.xray-alert");
+        this.signAlert =   plugin.getConfig().getBoolean("spy.sign-alert");
+        this.networkChat = plugin.getConfig().getBoolean("network-chat.enabled");
+        plugin.getLogger().info("Enabled PluginMessenger: spy.xray-alert: " + xRayAlert
+                + "; spy.sign-alert: " + signAlert
+                + "; network-chat.enabled: " + networkChat);
     }
 
     // Event to fetch server name
@@ -58,6 +63,9 @@ public class PluginMessenger implements PluginMessageListener, Listener {
     }
 
     void chat(String name, String displayName, String uuid, String msg, String tag, Player pluginMessageSender) {
+        if (!networkChat)
+            return;
+
         String channel =
                 // If ArcaneLog is null: another server is main (server) server. If uuid is not null: able to log.
                 uuid != null && plugin.getServer().getPluginManager().getPlugin("ArcaneLog") == null
@@ -144,6 +152,9 @@ public class PluginMessenger implements PluginMessageListener, Listener {
         String subChannel = in.readUTF();
 
         if (subChannel.equals("Chat") || subChannel.equals("ChatAndLog")) {
+            if (!networkChat)
+                return;
+
             byte[] msgBytes = new byte[in.readShort()];
             in.readFully(msgBytes);
 
@@ -162,9 +173,10 @@ public class PluginMessenger implements PluginMessageListener, Listener {
                 if (tag.isEmpty()) {
                     send = chat;
                 } else {
-                    BaseComponent t = new TextComponent(tag);
+                    BaseComponent[] t = TextComponent.fromLegacyText(tag);
                     send = new TextComponent();
-                    send.addExtra(t);
+                    for (BaseComponent tp : t)
+                        send.addExtra(tp);
                     send.addExtra(" ");
                     send.addExtra(chat);
                 }

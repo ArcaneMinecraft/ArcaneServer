@@ -45,46 +45,6 @@ commands:
     usage: /uuid <player>
 
 permissions:
-  # @Deprecated
-  # Arcane role permissions
-  arcane.admin:
-    children:
-      arcane.role.admin: true
-      arcane.build: true
-  arcane.mod:
-    children:
-      arcane.role.mod: true
-      arcane.build: true
-  arcane.chatmod:
-    children:
-      arcane.role.chatmod: true
-      arcane.build: true
-  arcane.donor:
-    children:
-      arcane.role.donor: true
-      arcane.build: true
-    default: false
-  arcane.trusted:
-    children:
-      arcane.build: true
-    default: op
-
-  # Show role
-  arcane.role.admin:
-    description: Adds "Admin | " to playerlist.
-    children:
-      arcane.role.mod: true
-      arcane.role.chatmod: true
-  arcane.role.mod:
-    description: Adds "Mod | " to playerlist.
-    children:
-      arcane.role.chatmod: true
-  arcane.role.chatmod:
-    description: Adds "Chatmod | " to playerlist.
-  arcane.role.donor:
-    description: Adds "Donor | " to playerlist.
-    default: false
-
   # Allow features for players
   arcane.build:
     description: Allow building and giving/taking items on the server

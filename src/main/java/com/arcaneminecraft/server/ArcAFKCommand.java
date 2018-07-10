@@ -26,11 +26,13 @@ final class ArcAFKCommand implements TabExecutor, Listener {
     private final HashMap<Player, Integer> afkCounter = new HashMap<>();
     private final int rounds;
     private final String tag;
+    private final boolean modifyTabList;
 
     ArcAFKCommand(ArcaneServer plugin) {
         this.plugin = plugin;
         this.rounds = plugin.getConfig().getInt("afk.rounds", 10);
         this.tag = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("afk.tag", "[AFK]")) + ChatColor.RESET + " ";
+        this.modifyTabList = plugin.getConfig().getBoolean("modify-tablist", false);
 
         // if players are already online
         for (Player p : plugin.getServer().getOnlinePlayers()) {
@@ -98,7 +100,8 @@ final class ArcAFKCommand implements TabExecutor, Listener {
         // Player is now afk.
         plugin.getPluginMessenger().afk(p, true);
         p.setSleepingIgnored(true);
-        p.setPlayerListName(tag + p.getPlayerListName());
+        if (modifyTabList)
+            p.setPlayerListName(tag + p.getPlayerListName());
         p.spigot().sendMessage(ChatMessageType.SYSTEM, formatAFK("You", "are now AFK"));
         BaseComponent send = formatAFK(ArcaneText.playerComponentSpigot(p), "is now AFK");
         send.setColor(ArcaneColor.CONTENT);
@@ -116,7 +119,8 @@ final class ArcAFKCommand implements TabExecutor, Listener {
         // Player was afk
         if (plugin.isEnabled()) plugin.getPluginMessenger().afk(p, false);
         p.setSleepingIgnored(false);
-        p.setPlayerListName(p.getPlayerListName().substring(tag.length())); // this thing seems to do some advanced computation ;-;
+        if (modifyTabList)
+            p.setPlayerListName(p.getPlayerListName().substring(tag.length())); // this thing seems to do some advanced computation ;-;
         p.spigot().sendMessage(ChatMessageType.SYSTEM, formatAFK("You", "are no longer AFK"));
         BaseComponent send = formatAFK(ArcaneText.playerComponentSpigot(p), "is no longer AFK");
         send.setColor(ArcaneColor.CONTENT);

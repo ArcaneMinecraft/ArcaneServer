@@ -9,7 +9,9 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -39,23 +41,32 @@ public final class ArcaneServer extends JavaPlugin {
         // General stuff
         getServer().getPluginManager().registerEvents(new PlayerEvents(this), this);
         getServer().getPluginManager().registerEvents(new Greylist(), this);
-        // this must come before AFK
-        getServer().getPluginManager().registerEvents(new PlayerListRole(this), this);
+
+        getLogger().info("Enabling PlayerList Modifying classes: modify-tablist: " + getConfig().getBoolean("modify-tablist", false));
+        if (getConfig().getBoolean("modify-tablist", false))
+            getServer().getPluginManager().registerEvents(new TabListRole(this), this); // this must come before AFK
 
         // Events tied to command
+        DisabledCommand dc = new DisabledCommand();
+
+        getLogger().info("Enabling commands: local chat commands: " + getConfig().getBoolean("localchat.enabled", true)
+                + "; spawn command: " + getConfig().getBoolean("spawn.command-enabled", false));
         LocalChatCommands lc = new LocalChatCommands(this);
-        getCommand("local").setExecutor(lc);
-        getCommand("localtoggle").setExecutor(lc);
-        getCommand("localrange").setExecutor(lc);
+        CommandExecutor lcToggled = getConfig().getBoolean("localchat.enabled", true) ? lc : dc;
+        getCommand("local").setExecutor(lcToggled);
+        getCommand("localtoggle").setExecutor(lcToggled);
+        getCommand("localrange").setExecutor(lcToggled);
         getCommand("global").setExecutor(lc);
-        getServer().getPluginManager().registerEvents(lc, this);
+        if (getConfig().getBoolean("localchat.enabled", true))
+            getServer().getPluginManager().registerEvents(lc, this);
 
         HelpCommand hc = new HelpCommand(this);
         getCommand("help").setExecutor(hc);
         getServer().getPluginManager().registerEvents(hc, this);
 
         SpawnCommand sc = new SpawnCommand(this);
-        getCommand("spawn").setExecutor(sc);
+        CommandExecutor scToggled = getConfig().getBoolean("spawn.command-enabled", false) ? sc : dc;
+        getCommand("spawn").setExecutor(scToggled);
         getCommand("setworldspawn").setExecutor(sc);
         if (getConfig().getBoolean("spawn.listener-enabled", false))
             getServer().getPluginManager().registerEvents(sc, this);
@@ -193,5 +204,19 @@ public final class ArcaneServer extends JavaPlugin {
             return null;
 
         return Collections.emptyList();
+    }
+
+    private class DisabledCommand implements TabExecutor {
+
+        @Override
+        public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+            sender.sendMessage(ArcaneColor.CONTENT + "Command '/" + label + "' is disabled in this world");
+            return true;
+        }
+
+        @Override
+        public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+            return Collections.emptyList();
+        }
     }
 }

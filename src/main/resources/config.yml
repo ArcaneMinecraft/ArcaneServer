@@ -1,3 +1,8 @@
+modify-tablist: false
+
+network-chat:
+  enabled: true
+
 spawn:
   # Allows going to spawn using command
   command-enabled: false
@@ -36,6 +41,7 @@ help-override:
 
 # Local chat radius in (circular) radius of blocks
 local-chat:
+  enabled: true
   default-range: 40
   max-range: 500
 

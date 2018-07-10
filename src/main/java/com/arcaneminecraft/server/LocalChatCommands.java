@@ -177,7 +177,7 @@ final class LocalChatCommands implements CommandExecutor, Listener {
 
             // Error: No player to send message to
             if (recipients.size() == 1) {
-                BaseComponent send = new TextComponent("There is nobody within your vicinity. Your Local chat range is " + r);
+                BaseComponent send = new TextComponent("Nobody is within your vicinity. Your Local chat range is " + r);
                 send.setColor(ArcaneColor.CONTENT);
                 p.spigot().sendMessage(ChatMessageType.SYSTEM, send);
                 return;
