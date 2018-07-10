@@ -22,11 +22,14 @@ help-override:
       is-alias: true
     discord:
       is-alias: true
+    uuid:
+      permission: arcane.command.uuid
 
 
 local-chat:
   default-range: 40
   max-range: 500
+
 
 afk:
   # Ticks to wait until next check
@@ -34,6 +37,7 @@ afk:
   # Intervals passed before marking as afk
   rounds: 10 # 30 seconds * 10 rounds = 5 minutes
   tag: "&5[AFK]"
+
 
 # Key:
 # blockname:

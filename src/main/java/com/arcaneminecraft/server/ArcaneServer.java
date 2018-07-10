@@ -95,6 +95,11 @@ public final class ArcaneServer extends JavaPlugin {
             return true;
         }
 
+        if (cmd.getName().equalsIgnoreCase("spawn")) {
+            // TODO: Send player to spawn
+            return true;
+        }
+
         if (cmd.getName().equalsIgnoreCase("uuid")) {
             if (!sender.hasPermission("arcane.command.uuid")) {
                 if (sender instanceof Player)

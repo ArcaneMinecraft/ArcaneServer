@@ -285,34 +285,36 @@ public class HelpCommand implements TabExecutor, Listener {
         String cmd = e.getBuffer().toLowerCase();
         CommandSender p = e.getSender();
 
-        if (p.isOp() || !cmd.startsWith("/") || cmd.contains(" "))
+        if (!cmd.startsWith("/") || cmd.contains(" "))
             return;
 
         List<String> list = e.getCompletions();
 
-        // Check hide colon for this player
-        if (p.hasPermission("arcane.tabcomplete.hidecolon"))
-            list.removeIf(s -> s.contains(":"));
+        if (!p.isOp()) {
+            // Check hide colon for this player
+            if (p.hasPermission("arcane.tabcomplete.hidecolon"))
+                list.removeIf(s -> s.contains(":"));
 
-        // Remove commands player has no permission for
-        for (Map.Entry<String, CommandWrapper> c : commandMap.entrySet()) {
-            if (c.getValue().getPermission() != null && !p.hasPermission(c.getValue().getPermission())) {
-                list.remove("/" + c.getKey());
+            // Remove commands player has no permission for
+            for (Map.Entry<String, CommandWrapper> c : commandMap.entrySet()) {
+                if (c.getValue().getPermission() != null && !p.hasPermission(c.getValue().getPermission())) {
+                    list.remove("/" + c.getKey());
+                }
             }
         }
 
         // Add BungeeCord commands
         for (BungeeCommandUsage cw : BungeeCommandUsage.values()) {
             String c = cw.getCommand();
-            if (!list.contains(c) && (cw.getPermission() == null || p.hasPermission(cw.getPermission()))) {
+            if (cw.getPermission() == null || p.hasPermission(cw.getPermission())) {
                 // Add main command
-                if (c.startsWith(cmd))
+                if (!list.contains(c) && c.startsWith(cmd))
                     list.add(c);
                 // Add aliases
                 if (cw.getAliases() != null) {
                     for (String a : cw.getAliases()) {
                         String ca = "/" + a;
-                        if (ca.startsWith(cmd))
+                        if (!list.contains(ca) && ca.startsWith(cmd))
                             list.add(ca);
                     }
                 }
