@@ -358,7 +358,7 @@ public class HelpCommand implements TabExecutor, Listener {
             if (cs == null) {
                 this.permission = command.getPermission();
                 this.usage = command.getUsage().equals("") ? "/" + command.getName() : command.getUsage();
-                this.description = command.getDescription();
+                this.description = (command instanceof BukkitCommand) ? null : command.getDescription();
                 this.aliases = command.getAliases().toArray(new String[0]);
                 return;
             }
@@ -366,7 +366,7 @@ public class HelpCommand implements TabExecutor, Listener {
             this.permission = cs.getString("permission", command.getPermission());
             this.usage = cs.getString("usage",
                     command.getUsage().equals("") ? "/" + name : command.getUsage());
-            this.description = cs.getString("description", command.getDescription());
+            this.description = cs.getString("description", (command instanceof BukkitCommand) ? null : command.getDescription());
             List<String> list = new ArrayList<>(command.getAliases());
             list.addAll(cs.getStringList("aliases")); // Merge aliases
             this.aliases = list.toArray(new String[0]);
