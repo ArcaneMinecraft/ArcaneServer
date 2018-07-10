@@ -10,7 +10,6 @@ import net.md_5.bungee.api.chat.TranslatableComponent;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -20,7 +19,7 @@ import java.util.List;
 import java.util.Random;
 
 public final class ArcaneServer extends JavaPlugin {
-    private ArcAFK arcAFK;
+    private ArcAFKCommand arcAFK;
     private PluginMessenger pluginMessenger;
 
     @Override
@@ -44,7 +43,7 @@ public final class ArcaneServer extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerListRole(this), this);
 
         // Events tied to command
-        LocalChat lc = new LocalChat(this);
+        LocalChatCommands lc = new LocalChatCommands(this);
         getCommand("local").setExecutor(lc);
         getCommand("localtoggle").setExecutor(lc);
         getCommand("localrange").setExecutor(lc);
@@ -55,7 +54,13 @@ public final class ArcaneServer extends JavaPlugin {
         getCommand("help").setExecutor(hc);
         getServer().getPluginManager().registerEvents(hc, this);
 
-        this.arcAFK = new ArcAFK(this);
+        SpawnCommand sc = new SpawnCommand(this);
+        getCommand("spawn").setExecutor(sc);
+        getCommand("setworldspawn").setExecutor(sc);
+        if (getConfig().getBoolean("spawn.listener-enabled", false))
+            getServer().getPluginManager().registerEvents(sc, this);
+
+        this.arcAFK = new ArcAFKCommand(this);
         getCommand("afk").setExecutor(arcAFK);
         getServer().getPluginManager().registerEvents(arcAFK, this);
     }
@@ -73,30 +78,23 @@ public final class ArcaneServer extends JavaPlugin {
         return pluginMessenger;
     }
 
-    ArcAFK getArcAFK() {
+    ArcAFKCommand getArcAFK() {
         return arcAFK;
     }
 
-    // TODO: Implement TabCompleter (or TabExecutor)
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (cmd.getName().equalsIgnoreCase("kill")) {
             if (args.length == 0) {
-                if (sender instanceof Damageable)
+                if (sender instanceof Damageable) {
                     ((Damageable) sender).setHealth(0);
-                else
+                } else {
                     sender.sendMessage("You must be a damageable entity");
+                }
                 return true;
             }
             // For selected kill to go through, players will need Minecraft's kill permission in the end.
-            if (sender instanceof Player) ((Player) sender).performCommand("minecraft:kill " + String.join(" ", args));
-            if (sender instanceof ConsoleCommandSender)
-                getServer().dispatchCommand(getServer().getConsoleSender(), "minecraft:kill " + String.join(" ", args));
-            return true;
-        }
-
-        if (cmd.getName().equalsIgnoreCase("spawn")) {
-            // TODO: Send player to spawn
+            getServer().dispatchCommand(sender, "minecraft:kill " + String.join(" ", args));
             return true;
         }
 

@@ -18,6 +18,9 @@ commands:
   help:
     aliases: ["?"]
     usage: /help [page|command name]
+  kill:
+    description: End the suffering of your life just to revive you on a click of a button
+    usage: /kill
   local:
     aliases: [l]
     usage: /local <local message ...>
@@ -30,9 +33,10 @@ commands:
   opme:
     usage: /opme
     permission: arcane.command.opme
-  kill:
-    description: End the suffering of your life just to revive you on a click of a button
-    usage: /kill
+  setworldspawn:
+    permission: minecraft.command.setworldspawn
+  spawn:
+    usage: /spawn
   username:
     description: Display your username!
     usage: /username
@@ -98,6 +102,9 @@ permissions:
     default: op
   arcane.command.local:
     description: Allows /local, /localchat, and /localradius
+    default: true
+  arcane.command.spawn:
+    description: Allows /spawn
     default: true
   arcane.command.opme:
     description: Allows /opme

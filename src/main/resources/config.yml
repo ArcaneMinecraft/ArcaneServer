@@ -1,4 +1,13 @@
+spawn:
+  # Allows going to spawn using command
+  command-enabled: false
+  # Allows respawn right on the world spawn point
+  listener-enabled: false
+  # Makes spawn point centered
+  center-on-block: false
+
 help-override:
+# Command information to override for /help menu
   commands:
     help:
       usage: commands.help.usage
@@ -25,7 +34,7 @@ help-override:
     uuid:
       permission: arcane.command.uuid
 
-
+# Local chat radius in (circular) radius of blocks
 local-chat:
   default-range: 40
   max-range: 500
@@ -39,14 +48,14 @@ afk:
   tag: "&5[AFK]"
 
 
-# Key:
-# blockname:
-#   y-max: int
-#   biome: biome name
 spy:
   sign-alert: true
   xray-alert: false
   xray-blocks:
+    # Key:
+    # blockname:
+    #   y-max: int
+    #   biome: biome name
     diamond_ore:
       y-max: 15
     emerald_ore:

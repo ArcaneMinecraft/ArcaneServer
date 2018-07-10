@@ -17,7 +17,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import java.util.*;
 
-final class LocalChat implements CommandExecutor, Listener {
+final class LocalChatCommands implements CommandExecutor, Listener {
     private final ArcaneServer plugin;
     private static final String CHAT_TAG = "(local)";
     private final int maxRange;
@@ -26,7 +26,7 @@ final class LocalChat implements CommandExecutor, Listener {
     private final HashSet<Player> global;
     private final HashMap<Player,Integer> range;
 
-    LocalChat(ArcaneServer plugin) {
+    LocalChatCommands(ArcaneServer plugin) {
         this.plugin = plugin;
         this.maxRange = plugin.getConfig().getInt("local-chat.max-range", 500);
         this.defaultRange = plugin.getConfig().getInt("local-chat.default-range", 40);

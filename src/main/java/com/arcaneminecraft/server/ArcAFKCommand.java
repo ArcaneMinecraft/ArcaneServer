@@ -21,13 +21,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-final class ArcAFK implements TabExecutor, Listener {
+final class ArcAFKCommand implements TabExecutor, Listener {
     private final ArcaneServer plugin;
     private final HashMap<Player, Integer> afkCounter = new HashMap<>();
     private final int rounds;
     private final String tag;
 
-    ArcAFK(ArcaneServer plugin) {
+    ArcAFKCommand(ArcaneServer plugin) {
         this.plugin = plugin;
         this.rounds = plugin.getConfig().getInt("afk.rounds", 10);
         this.tag = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("afk.tag", "[AFK]")) + ChatColor.RESET + " ";
