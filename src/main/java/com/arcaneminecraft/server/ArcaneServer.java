@@ -34,6 +34,12 @@ public final class ArcaneServer extends JavaPlugin {
         getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", pluginMessenger);
         getServer().getPluginManager().registerEvents(pluginMessenger, this);
 
+        if (getServer().getOnlinePlayers().size() > 0) {
+            getServer().getScheduler().runTaskLaterAsynchronously(this,
+                    this.pluginMessenger.new getServerName(getServer().getOnlinePlayers().iterator().next()),
+                    1);
+        }
+
         // X-Ray and other notification alert
         getServer().getMessenger().registerOutgoingPluginChannel(this, "ArcaneAlert");
         getServer().getPluginManager().registerEvents(new Alert(this), this);

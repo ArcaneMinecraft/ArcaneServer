@@ -40,21 +40,28 @@ public class PluginMessenger implements PluginMessageListener, Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void usingPluginMessage(PlayerJoinEvent e) {
         if (plugin.getServer().getOnlinePlayers().size() == 1) {
-            Player p = e.getPlayer();
-            plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, new Runnable() {
-                @Override
-                public void run() {
-                    if (!p.isOnline()) {
-                        // If player is not yet in game, it's impossible to send a plugin message.
-                        plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, this, 10);
-                        return;
-                    }
-                    ByteArrayDataOutput out = ByteStreams.newDataOutput();
-                    out.writeUTF("GetServer"); // So BungeeCord knows to forward it
-                    p.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
+            plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, new getServerName(e.getPlayer()), 1);
+        }
+    }
 
-                }
-            }, 1);
+    public class getServerName implements Runnable {
+        private final Player p;
+
+        getServerName(Player p) {
+            this.p = p;
+        }
+
+        @Override
+        public void run() {
+            if (!p.isOnline()) {
+                // If player is not yet in game, it's impossible to send a plugin message.
+                plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, this, 10);
+                return;
+            }
+            ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            out.writeUTF("GetServer"); // So BungeeCord knows to forward it
+            p.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
+
         }
     }
 

@@ -19,8 +19,6 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.util.HashSet;
-
 public class PlayerEvents implements Listener {
     private final ArcaneServer plugin;
 
@@ -42,9 +40,13 @@ public class PlayerEvents implements Listener {
 
         if (u != null) {
             MetaData metaData = u.getCachedData().getMetaData(Contexts.global());
-            int index = Integer.getInteger(metaData.getMeta().get("PrefixIndex"), 0);
-            if (index != -1)
-                tag = metaData.getPrefixes().get(index);
+            try {
+                int index = Integer.valueOf(metaData.getMeta().get("PrefixPriority"));
+                if (index != -1)
+                    tag = metaData.getPrefixes().get(index);
+            } catch (NumberFormatException ignored) {
+                tag = metaData.getPrefix();
+            }
 
             if (tag != null) {
                 tag = ChatColor.translateAlternateColorCodes('&',tag);
