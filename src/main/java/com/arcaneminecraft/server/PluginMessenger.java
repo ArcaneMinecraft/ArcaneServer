@@ -5,6 +5,8 @@ import com.arcaneminecraft.api.ArcaneColor;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import me.lucko.luckperms.LuckPerms;
+import me.lucko.luckperms.api.LuckPermsApi;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -18,6 +20,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
 import java.io.*;
+import java.util.UUID;
+import java.util.logging.Level;
 
 public class PluginMessenger implements PluginMessageListener, Listener {
     private final ArcaneServer plugin;
@@ -158,79 +162,94 @@ public class PluginMessenger implements PluginMessageListener, Listener {
         ByteArrayDataInput in = ByteStreams.newDataInput(message);
         String subChannel = in.readUTF();
 
-        if (subChannel.equals("Chat") || subChannel.equals("ChatAndLog")) {
-            if (!networkChat)
-                return;
+        try {
+            if (subChannel.equals("Chat") || subChannel.equals("ChatAndLog")) {
+                if (!networkChat)
+                    return;
 
-            byte[] msgBytes = new byte[in.readShort()];
-            in.readFully(msgBytes);
+                byte[] msgBytes = new byte[in.readShort()];
+                in.readFully(msgBytes);
 
-            try (DataInputStream is = new DataInputStream(new ByteArrayInputStream(msgBytes))) {
-                String server = is.readUTF();
-                String msg = is.readUTF();
-                String name = is.readUTF();
-                String displayName = is.readUTF();
-                String uuid = is.readUTF();
-                String tag = is.readUTF();
+                try (DataInputStream is = new DataInputStream(new ByteArrayInputStream(msgBytes))) {
+                    String server = is.readUTF();
+                    String msg = is.readUTF();
+                    String name = is.readUTF();
+                    String displayName = is.readUTF();
+                    String uuid = is.readUTF();
+                    String tag = is.readUTF();
 
-                BaseComponent chat = new TranslatableComponent("chat.type.text",
-                        ArcaneText.playerComponent(name, displayName, uuid, "Server: " + server), ArcaneText.url(msg));
-                BaseComponent send;
+                    BaseComponent chat = new TranslatableComponent("chat.type.text",
+                            ArcaneText.playerComponent(name, displayName, uuid, "Server: " + server), ArcaneText.url(msg));
+                    BaseComponent send;
 
-                if (tag.isEmpty()) {
-                    send = chat;
-                } else {
-                    BaseComponent[] t = TextComponent.fromLegacyText(tag);
-                    send = new TextComponent();
-                    for (BaseComponent tp : t)
-                        send.addExtra(tp);
-                    send.addExtra(" ");
-                    send.addExtra(chat);
+                    if (tag.isEmpty()) {
+                        send = chat;
+                    } else {
+                        BaseComponent[] t = TextComponent.fromLegacyText(tag);
+                        send = new TextComponent();
+                        for (BaseComponent tp : t)
+                            send.addExtra(tp);
+                        send.addExtra(" ");
+                        send.addExtra(chat);
+                    }
+
+                    for (Player p : plugin.getServer().getOnlinePlayers())
+                        p.spigot().sendMessage(ChatMessageType.CHAT, send);
+
+                    plugin.getServer().getConsoleSender().sendMessage(server + ": " + send.toPlainText());
+
                 }
 
-                for (Player p : plugin.getServer().getOnlinePlayers())
-                    p.spigot().sendMessage(ChatMessageType.CHAT, send);
-
-                plugin.getServer().getConsoleSender().sendMessage(server + ": " + send.toPlainText());
-
-            } catch (IOException e) {
-                e.printStackTrace();
+                return;
             }
 
-            return;
-        }
+            if (subChannel.equals("AFK")) {
+                byte[] msgBytes = new byte[in.readShort()];
+                in.readFully(msgBytes);
 
-        if (subChannel.equals("AFK")) {
-            byte[] msgBytes = new byte[in.readShort()];
-            in.readFully(msgBytes);
+                try (DataInputStream is = new DataInputStream(new ByteArrayInputStream(msgBytes))) {
 
-            try (DataInputStream is = new DataInputStream(new ByteArrayInputStream(msgBytes))) {
+                    String server = is.readUTF();
+                    String name = is.readUTF();
+                    String displayName = is.readUTF();
+                    String uuid = is.readUTF();
+                    boolean isAFK = is.readBoolean();
 
-                String server = is.readUTF();
-                String name = is.readUTF();
-                String displayName = is.readUTF();
-                String uuid = is.readUTF();
-                boolean isAFK = is.readBoolean();
+                    BaseComponent send = plugin.getArcAFK().formatAFK(
+                            ArcaneText.playerComponent(name, displayName, uuid, "Server: " + server),
+                            "is " + (isAFK ? "now" : "no longer") + " AFK"
+                    );
+                    send.setColor(ArcaneColor.CONTENT);
 
-                BaseComponent send = plugin.getArcAFK().formatAFK(
-                        ArcaneText.playerComponent(name, displayName, uuid, "Server: " + server),
-                        "is " + (isAFK ? "now" : "no longer") + " AFK"
-                );
-                send.setColor(ArcaneColor.CONTENT);
+                    for (Player p : plugin.getServer().getOnlinePlayers())
+                        p.spigot().sendMessage(ChatMessageType.SYSTEM, send);
 
-                for (Player p : plugin.getServer().getOnlinePlayers())
-                    p.spigot().sendMessage(ChatMessageType.SYSTEM, send);
+                }
 
-            } catch (IOException e) {
-                e.printStackTrace();
+                return;
             }
 
-            return;
-        }
+            if (subChannel.equals("UpdateLuckPermsMetaCache")) {
+                byte[] msgBytes = new byte[in.readShort()];
+                in.readFully(msgBytes);
 
-        if (subChannel.equals("GetServer")) {
-            this.serverName = in.readUTF();
-            plugin.getLogger().info("Server name set as: " + this.serverName);
+                try (DataInputStream is = new DataInputStream(new ByteArrayInputStream(msgBytes))) {
+                    String uuid = is.readUTF();
+
+                    LuckPermsApi api = LuckPerms.getApi();
+                    api.getUser(UUID.fromString(uuid)).getCachedData().reloadMeta().thenAcceptAsync(a -> {
+                        plugin.getLogger().info("Meta reloaded");
+                    });
+                }
+                return;
+            }
+
+            if (subChannel.equals("GetServer")) {
+                this.serverName = in.readUTF();
+                plugin.getLogger().info("Server name set as: " + this.serverName);
+            }
+        } catch (IOException e) {
+            plugin.getLogger().log(Level.WARNING, "PluginMessage did not receive properly", e);
         }
     }
 }
