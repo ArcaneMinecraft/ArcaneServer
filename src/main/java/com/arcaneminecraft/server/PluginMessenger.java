@@ -1,12 +1,10 @@
 package com.arcaneminecraft.server;
 
-import com.arcaneminecraft.api.ArcaneText;
 import com.arcaneminecraft.api.ArcaneColor;
+import com.arcaneminecraft.api.ArcaneText;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import me.lucko.luckperms.LuckPerms;
-import me.lucko.luckperms.api.LuckPermsApi;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -20,7 +18,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
 import java.io.*;
-import java.util.UUID;
 import java.util.logging.Level;
 
 public class PluginMessenger implements PluginMessageListener, Listener {
@@ -226,21 +223,6 @@ public class PluginMessenger implements PluginMessageListener, Listener {
 
                 }
 
-                return;
-            }
-
-            if (subChannel.equals("UpdateLuckPermsMetaCache")) {
-                byte[] msgBytes = new byte[in.readShort()];
-                in.readFully(msgBytes);
-
-                try (DataInputStream is = new DataInputStream(new ByteArrayInputStream(msgBytes))) {
-                    String uuid = is.readUTF();
-
-                    LuckPermsApi api = LuckPerms.getApi();
-                    api.getUser(UUID.fromString(uuid)).getCachedData().reloadMeta().thenAcceptAsync(a -> {
-                        plugin.getLogger().info("Meta reloaded");
-                    });
-                }
                 return;
             }
 
