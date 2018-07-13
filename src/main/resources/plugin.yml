@@ -76,19 +76,28 @@ permissions:
   # Arcane anticheat/moderation hook
   arcane.spy.on.xray:
     description: Logs x-ray alert when mining an ore
-    default: not op
+    default: false
   arcane.spy.on.sign:
     description: Logs sign creation/modification message
-    default: not op
+    default: false
   arcane.spy.on.command: # ArcaneBungee node
-    description: Logs command messages. Critical commands are not ignored.
+    description: Logs commands
+    default: false
+  arcane.spy.on.command.all: # ArcaneBungee node
+    description: Logs commands regardless of if it's ignored
+    default: false
+
 
   # ArcaneBungee uses these nodes; the registeration is for sake of easy autocomplete.
   arcane.spy.receive.xray:
     description: Receive x-ray alerts
+    default: false
   arcane.spy.receive.sign:
     description: Receive sign creation/modification content
+    default: false
   arcane.spy.receive.command:
-    description: Receive critical command messages
+    description: Receive only critical command messages
+    default: false
   arcane.spy.receive.command.all:
     description: Receive all command messages
+    default: false
