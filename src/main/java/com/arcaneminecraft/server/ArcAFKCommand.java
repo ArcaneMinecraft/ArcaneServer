@@ -4,6 +4,8 @@ import com.arcaneminecraft.api.ArcaneColor;
 import com.arcaneminecraft.api.ArcaneText;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -29,6 +31,7 @@ final class ArcAFKCommand implements TabExecutor, Listener {
     private final ArcaneServer plugin;
     private final HashMap<Player, Integer> afkCounter = new HashMap<>();
     private final HashMap<Player, BukkitRunnable> unsetAFKCondition = new HashMap<>();
+    private final HashSet<Player> kicked = new HashSet<>();
     private final ArrayList<Player> afkOrder = new ArrayList<>();
     private final int rounds;
     private final String tag;
@@ -157,6 +160,22 @@ final class ArcAFKCommand implements TabExecutor, Listener {
                     if (p.hasPermission("arcane.afk.stayonfullserver"))
                         continue;
                     p.kickPlayer("Sorry, but the server needs room for another player to join and you were AFK"); // TODO: Message
+                    kicked.add(p);
+
+                    BaseComponent send = null;
+                    for (Player alert : plugin.getServer().getOnlinePlayers()) {
+                        if (alert.hasPermission("arcane.afk.getkickmessage")) {
+                            if (send == null) {
+                                send = new TextComponent("Kicked AFK player ");
+                                send.addExtra(ArcaneText.playerComponentSpigot(p));
+                                send.addExtra(" to make room for ");
+                                send.addExtra(ArcaneText.playerComponentSpigot(e.getPlayer()));
+                                send.setColor(ArcaneColor.CONTENT);
+                            }
+                            alert.spigot().sendMessage(send);
+                        }
+                    }
+
                     e.allow();
                     return;
                 }
@@ -187,6 +206,8 @@ final class ArcAFKCommand implements TabExecutor, Listener {
         if (task != null)
             task.cancel();
         afkOrder.remove(p);
+        // this may be called twice if kicked.remove(p) is called right away
+        plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, () -> kicked.remove(p), 10L);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -218,9 +239,27 @@ final class ArcAFKCommand implements TabExecutor, Listener {
 
         Player p = (Player) e.getEntity();
 
-        if (!(unsetAFKCondition.get(p) instanceof JustSetCondition) && p.getHealth() - e.getDamage() <= 0) {
-            p.kickPlayer("You are about to die while you are AFK"); // TODO: Message
+        if (p.isOnline() && !(unsetAFKCondition.get(p) instanceof JustSetCondition) && p.getHealth() - e.getFinalDamage() <= 0) {
             e.setCancelled(true);
+            if (!kicked.add(p))
+                return;
+
+            p.kickPlayer("You were about to die by " + e.getCause().name().toLowerCase() + " while you were AFK"); // TODO: Message
+
+            BaseComponent send = null;
+            for (Player alert : plugin.getServer().getOnlinePlayers()) {
+                if (alert.hasPermission("arcane.afk.getkickmessage")) {
+                    if (send == null) {
+                        send = new TextComponent("Kicked AFK player ");
+                        send.addExtra(ArcaneText.playerComponentSpigot(p));
+                        send.addExtra(" - imminent death from '" + e.getCause().name().toLowerCase() + "'");
+                        send.setColor(ArcaneColor.CONTENT);
+                        Location l = p.getLocation();
+                        send.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/tp " + l.getBlockX() + " " + l.getBlockY() + " " + l.getBlockZ()));
+                    }
+                    alert.spigot().sendMessage(send);
+                }
+            }
             return;
         }
 
@@ -241,7 +280,8 @@ final class ArcAFKCommand implements TabExecutor, Listener {
                 || (e.getFrom().getBlockX() == e.getTo().getBlockX() && e.getFrom().getBlockY() == e.getTo().getBlockY() && e.getFrom().getBlockZ() == e.getTo().getBlockZ()))
             return;
 
-        task.cancel();
+        if (task != null)
+            task.cancel();
 
         task = new MotionCondition(e.getPlayer(), e.getFrom());
         task.runTaskLaterAsynchronously(plugin, 10L);

@@ -56,8 +56,11 @@ permissions:
     description: Hides commands with colon (e.g. bukkit:version).
     default: not op
   arcane.afk.stayonfullserver:
-    description: doesn't kick this player when the server is full and the player is afk
+    description: Doesn't kick this player when the server is full and the player is afk
     default: false
+  arcane.afk.getkickmessage:
+    description: Gets message and clickable coordinates about a player's imminent death while they were afk
+    default: op
 
   # Command-based permissions
   arcane.command.help.details:
