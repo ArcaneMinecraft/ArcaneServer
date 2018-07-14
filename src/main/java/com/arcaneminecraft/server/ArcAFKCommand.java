@@ -158,6 +158,16 @@ final class ArcAFKCommand implements TabExecutor, Listener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
+    public void detectChat(AsyncPlayerChatEvent e) {
+        unsetAFK(e.getPlayer());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void detectSneak(PlayerToggleSneakEvent e) {
+        unsetAFK(e.getPlayer());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
     public void detectQuit(PlayerQuitEvent e) {
         Player p = e.getPlayer();
         afkCounter.remove(p);
@@ -165,11 +175,6 @@ final class ArcAFKCommand implements TabExecutor, Listener {
         if (task != null)
             task.cancel();
         afkOrder.remove(p);
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void detectChat(AsyncPlayerChatEvent e) {
-        unsetAFK(e.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
