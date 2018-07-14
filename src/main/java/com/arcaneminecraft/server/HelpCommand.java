@@ -280,13 +280,13 @@ public class HelpCommand implements TabExecutor, Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void commandTabEvent(TabCompleteEvent e) {
-        loadCommands();
-
         String cmd = e.getBuffer().toLowerCase();
         CommandSender p = e.getSender();
 
         if (!cmd.startsWith("/") || cmd.contains(" "))
             return;
+
+        loadCommands();
 
         List<String> list = e.getCompletions();
 
