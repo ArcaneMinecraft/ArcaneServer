@@ -18,23 +18,18 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.NumberConversions;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 final class ArcAFKCommand implements TabExecutor, Listener {
     private final ArcaneServer plugin;
     private final HashMap<Player, Integer> afkCounter = new HashMap<>();
     private final HashMap<Player, BukkitRunnable> unsetAFKCondition = new HashMap<>();
+    private final ArrayList<Player> afkOrder = new ArrayList<>();
     private final int rounds;
     private final String tag;
     private final boolean modifyTabList;
@@ -110,6 +105,7 @@ final class ArcAFKCommand implements TabExecutor, Listener {
 
         // Player is now afk.
         plugin.getPluginMessenger().afk(p, true);
+        afkOrder.add(p);
         p.setSleepingIgnored(true);
         if (modifyTabList)
             p.setPlayerListName(tag + p.getPlayerListName());
@@ -129,6 +125,7 @@ final class ArcAFKCommand implements TabExecutor, Listener {
 
         // Player was afk
         if (plugin.isEnabled()) plugin.getPluginMessenger().afk(p, false);
+        afkOrder.remove(p);
         p.setSleepingIgnored(false);
         if (modifyTabList)
             p.setPlayerListName(p.getPlayerListName().substring(tag.length())); // this thing seems to do some advanced computation ;-;
@@ -141,6 +138,20 @@ final class ArcAFKCommand implements TabExecutor, Listener {
         }
     }
 
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onFullServerAndAfkPlayer(PlayerLoginEvent e) {
+        if (e.getResult() == PlayerLoginEvent.Result.KICK_FULL) {
+            Collection<? extends Player> online = plugin.getServer().getOnlinePlayers();
+            if (online.size() == plugin.getServer().getMaxPlayers()) {
+                Iterator<Player> i = afkOrder.iterator();
+                if (i.hasNext()) {
+                    i.next().kickPlayer("Sorry, but you were AFK and the server needs more room for another player to join"); // TODO: Message
+                    e.allow();
+                }
+            }
+        }
+    }
+
     @EventHandler(priority = EventPriority.MONITOR)
     public void detectJoin(PlayerJoinEvent e) {
         afkCounter.put(e.getPlayer(), rounds);
@@ -148,10 +159,12 @@ final class ArcAFKCommand implements TabExecutor, Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void detectQuit(PlayerQuitEvent e) {
-        afkCounter.remove(e.getPlayer());
-        BukkitRunnable task = unsetAFKCondition.remove(e.getPlayer());
+        Player p = e.getPlayer();
+        afkCounter.remove(p);
+        BukkitRunnable task = unsetAFKCondition.remove(p);
         if (task != null)
             task.cancel();
+        afkOrder.remove(p);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
