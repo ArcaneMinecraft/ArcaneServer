@@ -109,6 +109,11 @@ final class ArcAFKCommand implements TabExecutor, Listener {
         p.setSleepingIgnored(true);
         if (modifyTabList)
             p.setPlayerListName(tag + p.getPlayerListName());
+
+        BukkitRunnable task = new JustSetCondition(p);
+        task.runTaskLaterAsynchronously(plugin, 200L);
+        unsetAFKCondition.put(p, task);
+
         p.spigot().sendMessage(ChatMessageType.SYSTEM, formatAFK("You", "are now AFK"));
         BaseComponent send = formatAFK(ArcaneText.playerComponentSpigot(p), "is now AFK");
         send.setColor(ArcaneColor.CONTENT);
@@ -129,6 +134,11 @@ final class ArcAFKCommand implements TabExecutor, Listener {
         p.setSleepingIgnored(false);
         if (modifyTabList)
             p.setPlayerListName(p.getPlayerListName().substring(tag.length())); // this thing seems to do some advanced computation ;-;
+
+        BukkitRunnable task = unsetAFKCondition.get(p);
+        if (task != null)
+            task.cancel();
+
         p.spigot().sendMessage(ChatMessageType.SYSTEM, formatAFK("You", "are no longer AFK"));
         BaseComponent send = formatAFK(ArcaneText.playerComponentSpigot(p), "is no longer AFK");
         send.setColor(ArcaneColor.CONTENT);
@@ -143,10 +153,12 @@ final class ArcAFKCommand implements TabExecutor, Listener {
         if (e.getResult() == PlayerLoginEvent.Result.KICK_FULL) {
             Collection<? extends Player> online = plugin.getServer().getOnlinePlayers();
             if (online.size() == plugin.getServer().getMaxPlayers()) {
-                Iterator<Player> i = afkOrder.iterator();
-                if (i.hasNext()) {
-                    i.next().kickPlayer("Sorry, but you were AFK and the server needs more room for another player to join"); // TODO: Message
+                for (Player p : afkOrder) {
+                    if (p.hasPermission("arcane.afk.stayonfullserver"))
+                        continue;
+                    p.kickPlayer("Sorry, but the server needs room for another player to join and you were AFK"); // TODO: Message
                     e.allow();
+                    return;
                 }
             }
         }
@@ -196,7 +208,7 @@ final class ArcAFKCommand implements TabExecutor, Listener {
                 e.setCancelled(true);
         }
 
-        // Damage aspect handled by detectDamage() and detectDeath()
+        // Damage aspect handled by detectDamage()
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -206,7 +218,7 @@ final class ArcAFKCommand implements TabExecutor, Listener {
 
         Player p = (Player) e.getEntity();
 
-        if (p.getHealth() - e.getDamage() <= 0) {
+        if (!(unsetAFKCondition.get(p) instanceof JustSetCondition) && p.getHealth() - e.getDamage() <= 0) {
             p.kickPlayer("You are about to die while you are AFK"); // TODO: Message
             e.setCancelled(true);
             return;
@@ -216,12 +228,7 @@ final class ArcAFKCommand implements TabExecutor, Listener {
         if (task != null)
             task.cancel();
 
-        task = new BukkitRunnable() {
-            @Override
-            public void run() {
-                unsetAFKCondition.remove(p);
-            }
-        };
+        task = new DamagedCondition(p);
         task.runTaskLaterAsynchronously(plugin, 40L);
 
         unsetAFKCondition.put(p, task);
@@ -229,26 +236,61 @@ final class ArcAFKCommand implements TabExecutor, Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void detectMotion(PlayerMoveEvent e) {
-        if (!isAFK(e.getPlayer()) || unsetAFKCondition.containsKey(e.getPlayer())
+        BukkitRunnable task = unsetAFKCondition.get(e.getPlayer());
+        if (!isAFK(e.getPlayer()) || task instanceof MotionCondition || task instanceof DamagedCondition
                 || (e.getFrom().getBlockX() == e.getTo().getBlockX() && e.getFrom().getBlockY() == e.getTo().getBlockY() && e.getFrom().getBlockZ() == e.getTo().getBlockZ()))
             return;
 
-        BukkitRunnable task = new BukkitRunnable() {
-            private final Player p = e.getPlayer();
-            private final Location in = e.getFrom();
+        task.cancel();
 
-            @Override
-            public void run() {
-                // Calculate only by X and Z
-                if (in.getWorld() != p.getWorld()
-                        || NumberConversions.square(in.getX() - p.getLocation().getX())
-                            + NumberConversions.square(in.getZ() - p.getLocation().getZ()) >= 0.6)
-                    unsetAFK(p);
-                unsetAFKCondition.remove(p);
-            }
-        };
+        task = new MotionCondition(e.getPlayer(), e.getFrom());
         task.runTaskLaterAsynchronously(plugin, 10L);
 
         unsetAFKCondition.put(e.getPlayer(), task);
+    }
+
+    private class JustSetCondition extends BukkitRunnable {
+        private final Player p;
+        private JustSetCondition(Player p) {
+            this.p = p;
+        }
+
+        @Override
+        public void run() {
+            unsetAFKCondition.remove(p);
+        }
+    }
+
+    private class DamagedCondition extends BukkitRunnable {
+        private final Player p;
+
+        private DamagedCondition(Player p) {
+            this.p = p;
+        }
+
+        @Override
+        public void run() {
+            unsetAFKCondition.remove(p);
+        }
+    }
+
+    private class MotionCondition extends BukkitRunnable {
+        private final Player p;
+        private final Location in;
+
+        private MotionCondition(Player p, Location in) {
+            this.p = p;
+            this.in = in;
+        }
+
+        @Override
+        public void run() {
+            // Calculate only by X and Z
+            if (in.getWorld() != p.getWorld()
+                    || NumberConversions.square(in.getX() - p.getLocation().getX())
+                    + NumberConversions.square(in.getZ() - p.getLocation().getZ()) >= 0.6)
+                unsetAFK(p);
+            unsetAFKCondition.remove(p);
+        }
     }
 }
