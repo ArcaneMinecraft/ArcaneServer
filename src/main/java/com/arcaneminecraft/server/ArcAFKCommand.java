@@ -1,20 +1,30 @@
 package com.arcaneminecraft.server;
 
-import com.arcaneminecraft.api.ArcaneText;
 import com.arcaneminecraft.api.ArcaneColor;
+import com.arcaneminecraft.api.ArcaneText;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.*;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.NumberConversions;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,6 +34,7 @@ import java.util.List;
 final class ArcAFKCommand implements TabExecutor, Listener {
     private final ArcaneServer plugin;
     private final HashMap<Player, Integer> afkCounter = new HashMap<>();
+    private final HashMap<Player, BukkitRunnable> unsetAFKCondition = new HashMap<>();
     private final int rounds;
     private final String tag;
     private final boolean modifyTabList;
@@ -94,7 +105,7 @@ final class ArcAFKCommand implements TabExecutor, Listener {
     }
 
     private void setAFK(Player p) {
-        // For thread safety, the `afkCounter.remove()` is not called in here.
+        // For thread safety with repeating event, the `afkCounter.remove()` is not called in here.
         if (isAFK(p)) return;
 
         // Player is now afk.
@@ -138,6 +149,9 @@ final class ArcAFKCommand implements TabExecutor, Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void detectQuit(PlayerQuitEvent e) {
         afkCounter.remove(e.getPlayer());
+        BukkitRunnable task = unsetAFKCondition.remove(e.getPlayer());
+        if (task != null)
+            task.cancel();
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -145,8 +159,78 @@ final class ArcAFKCommand implements TabExecutor, Listener {
         unsetAFK(e.getPlayer());
     }
 
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void detectAttack(EntityDamageByEntityEvent e) {
+        Entity damager = e.getDamager();
+
+        // if hit by an arrow or other projectile
+        if (damager instanceof Projectile) {
+            ProjectileSource shooter = ((Projectile) damager).getShooter();
+            if (shooter instanceof Entity)
+                damager = (Entity) shooter;
+        }
+
+        // e.g. if a player hit another player
+        if (damager instanceof Player) {
+            unsetAFK((Player) damager);
+            // pvp on an afk player
+            if (e.getEntity() instanceof Player && isAFK((Player) e.getEntity()))
+                e.setCancelled(true);
+        }
+
+        // Damage aspect handled by detectDamage() and detectDeath()
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void detectDamage(EntityDamageEvent e) {
+        if (e.isCancelled() || !(e.getEntity() instanceof Player) || !isAFK((Player) e.getEntity()))
+            return;
+
+        Player p = (Player) e.getEntity();
+
+        if (p.getHealth() - e.getDamage() <= 0) {
+            p.kickPlayer("You are about to die while you are AFK"); // TODO: Message
+            e.setCancelled(true);
+            return;
+        }
+
+        BukkitRunnable task = unsetAFKCondition.remove(p);
+        if (task != null)
+            task.cancel();
+
+        task = new BukkitRunnable() {
+            @Override
+            public void run() {
+                unsetAFKCondition.remove(p);
+            }
+        };
+        task.runTaskLaterAsynchronously(plugin, 40L);
+
+        unsetAFKCondition.put(p, task);
+    }
+
     @EventHandler(priority = EventPriority.MONITOR)
     public void detectMotion(PlayerMoveEvent e) {
-        unsetAFK(e.getPlayer());
+        if (!isAFK(e.getPlayer()) || unsetAFKCondition.containsKey(e.getPlayer())
+                || (e.getFrom().getBlockX() == e.getTo().getBlockX() && e.getFrom().getBlockY() == e.getTo().getBlockY() && e.getFrom().getBlockZ() == e.getTo().getBlockZ()))
+            return;
+
+        BukkitRunnable task = new BukkitRunnable() {
+            private final Player p = e.getPlayer();
+            private final Location in = e.getFrom();
+
+            @Override
+            public void run() {
+                // Calculate only by X and Z
+                if (in.getWorld() != p.getWorld()
+                        || NumberConversions.square(in.getX() - p.getLocation().getX())
+                            + NumberConversions.square(in.getZ() - p.getLocation().getZ()) >= 0.6)
+                    unsetAFK(p);
+                unsetAFKCondition.remove(p);
+            }
+        };
+        task.runTaskLaterAsynchronously(plugin, 10L);
+
+        unsetAFKCondition.put(e.getPlayer(), task);
     }
 }
