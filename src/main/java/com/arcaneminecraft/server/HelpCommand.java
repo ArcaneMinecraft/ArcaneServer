@@ -267,6 +267,10 @@ public class HelpCommand implements TabExecutor, Listener {
         reload = true;
     }
 
+    /**
+     * TODO: This does not work anymore: need a new event or feature
+     * @param e Event
+     */
     @EventHandler(priority = EventPriority.HIGHEST)
     public void commandTabEvent(TabCompleteEvent e) {
         String cmd = e.getBuffer().toLowerCase();

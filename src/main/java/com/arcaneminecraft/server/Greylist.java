@@ -107,7 +107,7 @@ public class Greylist implements Listener {
         Entity d = e.getEntity();
 
         // They can always hit Monsters + Slimes
-        if (d instanceof Monster || d instanceof Slime)
+        if ((d instanceof Monster || d instanceof Slime) && ((LivingEntity) d).getRemoveWhenFarAway())
             return;
 
         // They cannot hit important items
@@ -131,6 +131,7 @@ public class Greylist implements Listener {
     }
 
     // Advanced Block
+    // TODO: Go with whitelist way (e.g. default deny-all)
     @EventHandler(priority = EventPriority.HIGHEST)
     public void interact(PlayerInteractEvent e) {
         Player p = e.getPlayer();
@@ -151,6 +152,7 @@ public class Greylist implements Listener {
                         (a == Action.RIGHT_CLICK_BLOCK && (
                                 s.getData() instanceof Redstone || // No Redstone device clicks
                                         // TODO: FLOWER POT IS NOW UNSAFE!!!
+                                        // Works for cactus in flower pot, but not for flowers in flower pot
                                         s instanceof org.bukkit.block.FlowerPot || // because Flower Pot // TODO: Replace
                                         s.getData() instanceof org.bukkit.material.FlowerPot || // TODO: Also deprecated, wtf
                                         (m != null && ( // Prevent placement of entities below
@@ -191,6 +193,7 @@ public class Greylist implements Listener {
         if (
                 e.getClickedInventory() == i ||
                         a == InventoryAction.MOVE_TO_OTHER_INVENTORY ||
-                        a == InventoryAction.COLLECT_TO_CURSOR) noPerm(e, p);
+                        a == InventoryAction.COLLECT_TO_CURSOR)
+            noPerm(e, p);
     }
 }
