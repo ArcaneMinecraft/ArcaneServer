@@ -4,6 +4,7 @@ authors: [Agentred100, jugglingman456, Morios, SimonOrJ]
 description: Arcane Survival Network Essentials
 main: com.arcaneminecraft.server.ArcaneServer
 website: https://arcaneminecraft.com/
+api-version: 1.13
 
 depend: [ArcaneAPI]
 softdepend: [LuckPerms]

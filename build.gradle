@@ -14,7 +14,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
+    compileOnly 'org.spigotmc:spigot-api:1.13-pre7-R0.1-SNAPSHOT'
     compileOnly fileTree(dir: 'libs', include: '*.jar')
     compileOnly 'me.lucko.luckperms:luckperms-api:4.2'
 }

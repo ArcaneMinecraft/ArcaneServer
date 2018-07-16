@@ -8,9 +8,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.event.block.SignChangeEvent;
 
 import java.util.HashMap;
+import java.util.logging.Level;
 
 public class Alert implements Listener {
     private final ArcaneServer plugin;
@@ -24,8 +26,9 @@ public class Alert implements Listener {
 
         // TODO: Check for null cs
 
-        for (String key : cs.getKeys(false))
+        for (String key : cs.getKeys(false)) {
             new XRayCheck(cs.getConfigurationSection(key));
+        }
     }
 
     private final class XRayCheck {
@@ -37,7 +40,13 @@ public class Alert implements Listener {
             this.yMax = cs.getInt("y-max", 256);
             this.yMin = cs.getInt("y-min", 0);
             String csBiome = cs.getString("biome"); // TODO: Define many biomes?
-            this.biome = csBiome == null ? null : Biome.valueOf(csBiome.toUpperCase());
+            Biome b = null;
+            try {
+                b = csBiome == null ? null : Biome.valueOf(csBiome.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                plugin.getLogger().log(Level.WARNING, "Configuration error detected", e);
+            }
+            this.biome = b;
 
             // cs.getName() (item name) must be all uppercase for some reason
             xrayList.put(Material.getMaterial(cs.getName().toUpperCase()), this);

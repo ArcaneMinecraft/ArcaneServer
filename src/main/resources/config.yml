@@ -65,8 +65,6 @@ spy:
     diamond_ore:
       y-max: 15
     emerald_ore:
-      biome: extreme_hills
-    quartz_ore: # Change to nether_quartz_ore in 1.13
-      biome: hell
-
-
+      biome: mountains
+    nether_quartz_ore:
+      biome: nether

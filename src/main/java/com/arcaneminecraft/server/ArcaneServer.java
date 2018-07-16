@@ -41,7 +41,7 @@ public final class ArcaneServer extends JavaPlugin {
         }
 
         // X-Ray and other notification alert
-        getServer().getMessenger().registerOutgoingPluginChannel(this, "ArcaneAlert");
+        getServer().getMessenger().registerOutgoingPluginChannel(this, "arcaneserver:alert");
         getServer().getPluginManager().registerEvents(new Alert(this), this);
 
         // General stuff

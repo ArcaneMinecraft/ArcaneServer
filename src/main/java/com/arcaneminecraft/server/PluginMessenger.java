@@ -148,7 +148,7 @@ public class PluginMessenger implements PluginMessageListener, Listener {
             out.writeUTF(s);
         }
 
-        p.sendPluginMessage(plugin, "ArcaneAlert", out.toByteArray());
+        p.sendPluginMessage(plugin, "arcaneserver:alert", out.toByteArray());
     }
 
     @Override

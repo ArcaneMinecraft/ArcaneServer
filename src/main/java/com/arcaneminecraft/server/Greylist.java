@@ -7,7 +7,6 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.block.FlowerPot;
 import org.bukkit.entity.*;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
@@ -27,7 +26,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.material.Redstone;
 
 
-// TODO: When Spigot 1.13 API is published, review all the actions that should be further restricted.
+// TODO: Review all the actions that should be further restricted.
 public class Greylist implements Listener {
     private static final String TRUSTED_PERMISSION = "arcane.build";
 
@@ -151,11 +150,14 @@ public class Greylist implements Listener {
                 a == Action.PHYSICAL || // No Automatic Redstone Triggers
                         (a == Action.RIGHT_CLICK_BLOCK && (
                                 s.getData() instanceof Redstone || // No Redstone device clicks
-                                        s instanceof FlowerPot || // because Flower Pot
+                                        // TODO: FLOWER POT IS NOW UNSAFE!!!
+                                        s instanceof org.bukkit.block.FlowerPot || // because Flower Pot // TODO: Replace
+                                        s.getData() instanceof org.bukkit.material.FlowerPot || // TODO: Also deprecated, wtf
                                         (m != null && ( // Prevent placement of entities below
                                                 m == Material.ITEM_FRAME ||
                                                         m == Material.ARMOR_STAND ||
-                                                        m == Material.PAINTING
+                                                        m == Material.PAINTING ||
+                                                        m == Material.FLOWER_POT // TODO: This also doesn't work...
                                         ))
                         ))
                 )
