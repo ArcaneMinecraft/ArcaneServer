@@ -126,7 +126,7 @@ final class LocalChatCommands implements CommandExecutor, Listener {
             try {
                 r = Integer.parseInt(args[0]);
             } catch (NumberFormatException e) {
-                BaseComponent send = new TranslatableComponent("commands.generic.num.invalid", args[0]);
+                BaseComponent send = new TranslatableComponent("'%s' is not a valid number", args[0]); // TODO: Update Translatable node
                 send.setColor(ChatColor.RED);
                 p.spigot().sendMessage(ChatMessageType.SYSTEM, send);
                 return true;

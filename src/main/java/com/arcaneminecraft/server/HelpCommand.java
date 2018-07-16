@@ -30,7 +30,7 @@ public class HelpCommand implements TabExecutor, Listener {
 
     HelpCommand(ArcaneServer plugin) {
         this.plugin = plugin;
-        this.notFoundMsg = new TranslatableComponent("commands.generic.notFound");
+        this.notFoundMsg = new TranslatableComponent("Unknown command. Try /help for a list of commands"); // TODO: Update Translatable node
         this.notFoundMsg.setColor(ChatColor.RED);
     }
 
@@ -112,28 +112,17 @@ public class HelpCommand implements TabExecutor, Listener {
             // Help menu
             int page = args.length == 0 ? 1 : Integer.parseInt(args[0]);
 
-            if (page < 1) {
-                BaseComponent ret = new TranslatableComponent("commands.generic.num.tooSmall", String.valueOf(page), "1");
-                ret.setColor(ChatColor.RED);
-                if (sender instanceof Player)
-                    ((Player) sender).spigot().sendMessage(ChatMessageType.SYSTEM, ret);
-                else
-                    sender.spigot().sendMessage(ret);
-                return true;
-            }
-
             // Get commands
             List<CommandWrapper> cmdList = getCommands(sender);
+            // 7 entries per page
             int totalPages = (cmdList.size() - 1) / 7 + 1;
 
-            // 7 entries per page
-            if (page > totalPages) {
-                BaseComponent ret = new TranslatableComponent("commands.generic.num.tooBig", String.valueOf(page), String.valueOf(totalPages));
-                ret.setColor(ChatColor.RED);
+            BaseComponent oor = ArcaneText.numberOutOfRange(page, 0, totalPages);
+            if (oor != null) {
                 if (sender instanceof Player)
-                    ((Player) sender).spigot().sendMessage(ChatMessageType.SYSTEM, ret);
+                    ((Player) sender).spigot().sendMessage(ChatMessageType.SYSTEM, oor);
                 else
-                    sender.spigot().sendMessage(ret);
+                    sender.spigot().sendMessage(oor);
                 return true;
             }
 
@@ -141,7 +130,7 @@ public class HelpCommand implements TabExecutor, Listener {
 
 
             // First line
-            BaseComponent header = new TranslatableComponent("commands.help.header", String.valueOf(page), String.valueOf(totalPages));
+            BaseComponent header = new TranslatableComponent("--- Showing help page %s of %s (/help <page>) ---", String.valueOf(page), String.valueOf(totalPages));
             header.setColor(ChatColor.DARK_GREEN);
             if (sender instanceof Player)
                 ((Player) sender).spigot().sendMessage(ChatMessageType.SYSTEM, header);
@@ -158,7 +147,7 @@ public class HelpCommand implements TabExecutor, Listener {
 
             // Last Line
             if (page == 1) {
-                BaseComponent footer = new TranslatableComponent("commands.help.footer");
+                BaseComponent footer = new TranslatableComponent("Tip: Use the <tab> key while typing a command to auto-complete the command or its arguments");
                 footer.setColor(ChatColor.GREEN);
                 if (sender instanceof Player)
                     ((Player) sender).spigot().sendMessage(ChatMessageType.SYSTEM, footer);
