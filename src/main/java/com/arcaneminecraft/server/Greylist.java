@@ -7,6 +7,8 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.Container;
+import org.bukkit.block.EnderChest;
 import org.bukkit.entity.*;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
@@ -17,20 +19,17 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
-import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.material.Redstone;
+import org.bukkit.material.Bed;
+import org.bukkit.material.Openable;
 
 
-// TODO: Review all the actions that should be further restricted.
 public class Greylist implements Listener {
     private static final String TRUSTED_PERMISSION = "arcane.build";
 
-    // Sends message through Action Bar (bar above item bar)
+    // Sends message through Action Bar (area above item bar for e.g. bed message or dismount message)
     private void noPerm(Cancellable e, Player p) {
         if (p.hasPermission(TRUSTED_PERMISSION)) {
             return;
@@ -80,43 +79,23 @@ public class Greylist implements Listener {
 
     // Advanced Player and Entity
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void interactEntity(PlayerInteractEntityEvent e) {
-        Player p = e.getPlayer();
-        if (p.hasPermission(TRUSTED_PERMISSION))
-            return;
-
-        if (e.getRightClicked() instanceof Hanging) // Item Frame and paintings
-            noPerm(e, e.getPlayer());
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
     public void hangingBreakByEntity(HangingBreakByEntityEvent e) {
-        Player p;
-        if (!(e.getRemover() instanceof Player && !(p = (Player) e.getRemover()).hasPermission(TRUSTED_PERMISSION)))
-            return;
-
-        noPerm(e, p);
+        if (e.getRemover() instanceof Player)
+            noPerm(e, (Player) e.getRemover());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void damageByEntity(EntityDamageByEntityEvent e) {
-        Player p;
-        if (!(e.getDamager() instanceof Player && !(p = (Player) e.getDamager()).hasPermission(TRUSTED_PERMISSION)))
+        if (!(e.getDamager() instanceof Player) || e.getDamager().hasPermission(TRUSTED_PERMISSION))
             return;
 
-        Entity d = e.getEntity();
+        Entity damaged = e.getEntity();
 
-        // They can always hit Monsters + Slimes
-        if ((d instanceof Monster || d instanceof Slime) && ((LivingEntity) d).getRemoveWhenFarAway())
+        // Allow killing monsters... if they're not owned by someone (e.g. not named)
+        if ((damaged instanceof Monster || damaged instanceof Slime) && ((LivingEntity) damaged).getRemoveWhenFarAway())
             return;
 
-        // They cannot hit important items
-        if (
-                d instanceof InventoryHolder || // Horses, other players
-                        d instanceof Hanging || // Item Frame and paintings
-                        d instanceof ArmorStand // Armor Stands
-                )
-            noPerm(e, p);
+        noPerm(e, (Player) e.getDamager());
     }
 
     // Block
@@ -131,69 +110,46 @@ public class Greylist implements Listener {
     }
 
     // Advanced Block
-    // TODO: Go with whitelist way (e.g. default deny-all)
     @EventHandler(priority = EventPriority.HIGHEST)
     public void interact(PlayerInteractEvent e) {
         Player p = e.getPlayer();
-        if (p.hasPermission(TRUSTED_PERMISSION))
+        if (e.isCancelled() || p.hasPermission(TRUSTED_PERMISSION))
             return;
 
         Action a = e.getAction();
-        Block b = e.getClickedBlock();
-
-        if (b == null)
+        if (a == Action.RIGHT_CLICK_AIR || a == Action.LEFT_CLICK_AIR || a == Action.LEFT_CLICK_BLOCK)
             return;
 
-        BlockState s = b.getState();
-        Material m = e.getMaterial();
+        Block b = e.getClickedBlock();
+        BlockState bs = b.getState();
 
-        if (
-                a == Action.PHYSICAL || // No Automatic Redstone Triggers
-                        (a == Action.RIGHT_CLICK_BLOCK && (
-                                s.getData() instanceof Redstone || // No Redstone device clicks
-                                        // TODO: FLOWER POT IS NOW UNSAFE!!!
-                                        // Works for cactus in flower pot, but not for flowers in flower pot
-                                        s instanceof org.bukkit.block.FlowerPot || // because Flower Pot // TODO: Replace
-                                        s.getData() instanceof org.bukkit.material.FlowerPot || // TODO: Also deprecated, wtf
-                                        (m != null && ( // Prevent placement of entities below
-                                                m == Material.ITEM_FRAME ||
-                                                        m == Material.ARMOR_STAND ||
-                                                        m == Material.PAINTING ||
-                                                        m == Material.FLOWER_POT // TODO: This also doesn't work...
-                                        ))
-                        ))
-                )
-            noPerm(e, e.getPlayer());
+        // Container: inventories; Openable: doors/gates
+        if (b.getType() == Material.CRAFTING_TABLE || bs instanceof Container || bs instanceof Openable || bs instanceof EnderChest || bs instanceof Bed)
+            return;
+
+        noPerm(e, e.getPlayer());
+
     }
 
     // Inventory
     @EventHandler(priority = EventPriority.HIGHEST)
     public void inventoryClick(InventoryClickEvent e) {
-        Player p;
-        if (!(e.getWhoClicked() instanceof Player && !(p = (Player) e.getWhoClicked()).hasPermission(TRUSTED_PERMISSION)))
+        if (!(e.getWhoClicked() instanceof Player) || e.getWhoClicked().hasPermission(TRUSTED_PERMISSION))
             return;
 
-        Inventory i = e.getInventory();
-        InventoryType it = i.getType();
+        InventoryType it = e.getInventory().getType();
 
-        // TODO: Allow crafting table, enchantment table, Ender Chest, and anything else that doesn't affect other players.
-        if (
-                it == InventoryType.PLAYER ||
-                        it == InventoryType.CRAFTING ||
-                        it == InventoryType.WORKBENCH ||
-                        it == InventoryType.ENDER_CHEST ||
-                        it == InventoryType.ENCHANTING ||
-                        it == InventoryType.MERCHANT)
-            return;
+        // Allow crafting table, enchantment table, Ender Chest, and anything else that doesn't affect other players.
+        switch (it) {
+            case PLAYER:
+            case CRAFTING:
+            case WORKBENCH:
+            case ENDER_CHEST:
+            case ENCHANTING:
+            case CREATIVE:
+                return;
+        }
 
-        InventoryAction a = e.getAction();
-
-        // If item ends up in different inventory, block it.
-        // Caveat: If holding item on cursor, spamming it enough will make it pass through.
-        if (
-                e.getClickedInventory() == i ||
-                        a == InventoryAction.MOVE_TO_OTHER_INVENTORY ||
-                        a == InventoryAction.COLLECT_TO_CURSOR)
-            noPerm(e, p);
+        noPerm(e, (Player) e.getWhoClicked());
     }
 }
