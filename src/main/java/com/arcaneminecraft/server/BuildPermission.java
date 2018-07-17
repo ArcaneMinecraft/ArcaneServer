@@ -26,12 +26,12 @@ import org.bukkit.material.Bed;
 import org.bukkit.material.Openable;
 
 
-public class Greylist implements Listener {
-    private static final String TRUSTED_PERMISSION = "arcane.build";
+public class BuildPermission implements Listener {
+    private static final String BUILD_PERMISSION = "arcane.build";
 
     // Sends message through Action Bar (area above item bar for e.g. bed message or dismount message)
     private void noPerm(Cancellable e, Player p) {
-        if (p.hasPermission(TRUSTED_PERMISSION)) {
+        if (p.hasPermission(BUILD_PERMISSION)) {
             return;
         }
 
@@ -86,7 +86,7 @@ public class Greylist implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void damageByEntity(EntityDamageByEntityEvent e) {
-        if (!(e.getDamager() instanceof Player) || e.getDamager().hasPermission(TRUSTED_PERMISSION))
+        if (!(e.getDamager() instanceof Player) || e.getDamager().hasPermission(BUILD_PERMISSION))
             return;
 
         Entity damaged = e.getEntity();
@@ -113,7 +113,7 @@ public class Greylist implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void interact(PlayerInteractEvent e) {
         Player p = e.getPlayer();
-        if (e.isCancelled() || p.hasPermission(TRUSTED_PERMISSION))
+        if (e.isCancelled() || p.hasPermission(BUILD_PERMISSION))
             return;
 
         Action a = e.getAction();
@@ -134,7 +134,7 @@ public class Greylist implements Listener {
     // Inventory
     @EventHandler(priority = EventPriority.HIGHEST)
     public void inventoryClick(InventoryClickEvent e) {
-        if (!(e.getWhoClicked() instanceof Player) || e.getWhoClicked().hasPermission(TRUSTED_PERMISSION))
+        if (!(e.getWhoClicked() instanceof Player) || e.getWhoClicked().hasPermission(BUILD_PERMISSION))
             return;
 
         InventoryType it = e.getInventory().getType();

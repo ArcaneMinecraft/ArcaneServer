@@ -46,7 +46,7 @@ public final class ArcaneServer extends JavaPlugin {
 
         // General stuff
         getServer().getPluginManager().registerEvents(new PlayerEvents(this), this);
-        getServer().getPluginManager().registerEvents(new Greylist(), this);
+        getServer().getPluginManager().registerEvents(new BuildPermission(), this);
 
         getLogger().info("Enabling PlayerList Modifying classes: modify-tablist: " + getConfig().getBoolean("modify-tablist", false));
         if (getConfig().getBoolean("modify-tablist", false))
