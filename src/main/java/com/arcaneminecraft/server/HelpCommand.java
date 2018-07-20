@@ -12,94 +12,130 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.PluginEnableEvent;
-import org.bukkit.event.server.TabCompleteEvent;
+//import org.bukkit.event.server.TabCompleteEvent;
 import org.bukkit.plugin.SimplePluginManager;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.logging.Level;
 
 public class HelpCommand implements TabExecutor, Listener {
     private final ArcaneServer plugin;
-    private List<CommandWrapper> commandList;
-    private Map<String, CommandWrapper> commandMap;
     private final BaseComponent notFoundMsg;
-    private boolean reload = true;
+    private final SimpleCommandMap commandMap;
+    private List<CommandWrapper> commandList;
+    private Map<String, CommandWrapper> nameToCommandMap;
+    private boolean reload;
 
 
     HelpCommand(ArcaneServer plugin) {
         this.plugin = plugin;
-        this.notFoundMsg = new TranslatableComponent("Unknown command. Try /help for a list of commands"); // TODO: Update Translatable node
+        this.notFoundMsg = new TranslatableComponent("commands.help.failed"); // TODO: Update Translatable node
         this.notFoundMsg.setColor(ChatColor.RED);
-    }
 
-    private void loadCommands() {
-        if (!reload)
-            return;
-
-        commandList = new ArrayList<>();
-        commandMap = new HashMap<>();
-
+        SimpleCommandMap commandMap = null;
         try {
-
-            ConfigurationSection cf = plugin.getConfig().getConfigurationSection("help-override.commands");
-            if (cf == null) {
-                plugin.getLogger().warning("'help-override.commands' does not exist in config.yml. /help menu will not work.");
-                return;
-            }
-
-            // Next thing you know Spigot 1.13 breaks this
             Field f = SimplePluginManager.class.getDeclaredField("commandMap");
             f.setAccessible(true);
 
-            SimpleCommandMap commMap = (SimpleCommandMap) f.get(plugin.getServer().getPluginManager());
+            commandMap = (SimpleCommandMap) f.get(plugin.getServer().getPluginManager());
 
-            // First: BungeeCord Commands
-            for (BungeeCommandUsage c : BungeeCommandUsage.values()) {
-                if (cf.getBoolean(c.getName() + ".is-alias"))
-                    continue;
+            // Add BungeeCord commands so tab-complete recognizes it
+            for (BungeeCommandUsage c : BungeeCommandUsage.values())
+                commandMap.register("ArcaneBungee", new BungeeCommand(c));
 
-                CommandWrapper cw = new CommandWrapper(c, cf.getConfigurationSection(c.getName()));
-                commandList.add(cw);
-                commandMap.put(c.getName(), cw);
-                for (String ca : cw.getAliases())
-                    commandMap.put(ca, cw);
-            }
-
-            // Second: Registered commands
-            for (Command c : commMap.getCommands()) {
-                if (commandMap.containsKey(c.getName()) || cf.getBoolean(c.getName() + ".is-alias"))
-                    continue;
-
-                CommandWrapper cw = new CommandWrapper(c, cf.getConfigurationSection(c.getName()));
-                commandList.add(cw);
-                commandMap.put(c.getName(), cw);
-
-                for (String ca : cw.getAliases())
-                    commandMap.put(ca, cw);
-            }
-
-            // Third: Remaining config.yml Commands
-            for (String c : cf.getKeys(false)) {
-                if (commandMap.containsKey(c) || cf.getBoolean(c + ".is-alias"))
-                    continue;
-
-                CommandWrapper cw = new CommandWrapper(cf.getConfigurationSection(c));
-                commandList.add(cw);
-                commandMap.put(c, cw);
-                for (String ca : cw.getAliases())
-                    commandMap.put(ca, cw);
-            }
-
-            commandList.sort(Comparator.comparing(CommandWrapper::getName));
-
-            this.reload = false;
-            plugin.getLogger().info("Reloaded help menu commands");
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            plugin.getLogger().warning("Help menu will not work properly. Update plugin.");
-            e.printStackTrace();
+            plugin.getLogger().log(Level.WARNING, "Help menu will not work properly. Update plugin.", e);
         }
+        this.commandMap = commandMap;
+
+        // Load commands after server finishes loading plugins
+        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+            this.reload = true;
+            this.loadCommands();
+        }, 1L);
+    }
+
+    private void loadCommands() {
+        if (!reload || commandMap == null)
+            return;
+
+        commandList = new ArrayList<>();
+        nameToCommandMap = new HashMap<>();
+
+        ConfigurationSection cf = plugin.getConfig().getConfigurationSection("help-override.commands");
+        if (cf == null) {
+            plugin.getLogger().warning("'help-override.commands' does not exist in config.yml. /help menu will not work.");
+            return;
+        }
+
+        // First: BungeeCord Commands
+        for (BungeeCommandUsage c : BungeeCommandUsage.values()) {
+            if (cf.getBoolean(c.getName() + ".is-alias"))
+                continue;
+
+            CommandWrapper cw = new CommandWrapper(c, cf.getConfigurationSection(c.getName()));
+            commandList.add(cw);
+            nameToCommandMap.put(c.getName(), cw);
+            for (String ca : cw.getAliases())
+                nameToCommandMap.put(ca, cw);
+        }
+
+        // Second: Registered commands
+        for (Command c : commandMap.getCommands()) {
+
+            // No Permission Message Hack
+            c.setPermissionMessage(ChatColor.RED + "Unknown command or insufficient permissions");
+
+            if (nameToCommandMap.containsKey(c.getName()) || cf.getBoolean(c.getName() + ".is-alias"))
+                continue;
+
+            // Forced Permission Hack
+            ConfigurationSection cs = cf.getConfigurationSection(c.getName());
+            String perm = null;
+            if (cs != null) {
+                perm = cs.getString("permission");
+                if (perm != null) {
+                    c.setPermission(perm);
+                    plugin.getLogger().info("Set permission " + c.getPermission() + " to " + c.getName());
+                }
+            }
+
+            CommandWrapper cw = new CommandWrapper(c, cs);
+            commandList.add(cw);
+            nameToCommandMap.put(c.getName(), cw);
+
+            for (String ca : cw.getAliases()) {
+                if (perm != null) {
+                    Command cmda = commandMap.getCommand(ca);
+                    if (cmda != null && cmda.getPermission() == null) {
+                        cmda.setPermission(perm);
+                        plugin.getLogger().info("Added permission " + cmda.getPermission() + " to " + cmda.getName());
+                    }
+                }
+                nameToCommandMap.put(ca, cw);
+            }
+        }
+
+        // Third: Remaining config.yml Commands
+        for (String c : cf.getKeys(false)) {
+            if (nameToCommandMap.containsKey(c) || cf.getBoolean(c + ".is-alias"))
+                continue;
+
+            CommandWrapper cw = new CommandWrapper(cf.getConfigurationSection(c));
+            commandList.add(cw);
+            nameToCommandMap.put(c, cw);
+            for (String ca : cw.getAliases())
+                nameToCommandMap.put(ca, cw);
+        }
+
+        commandList.sort(Comparator.comparing(CommandWrapper::getName));
+
+        reload = false;
+        plugin.getLogger().info("Reloaded help menu commands");
     }
 
     @Override
@@ -161,7 +197,7 @@ public class HelpCommand implements TabExecutor, Listener {
 
         // Has argument and not a number
 
-        CommandWrapper cw = commandMap.get(args[0]);
+        CommandWrapper cw = nameToCommandMap.get(args[0]);
 
         // Command DNE
         if (cw == null) {
@@ -230,12 +266,12 @@ public class HelpCommand implements TabExecutor, Listener {
         loadCommands();
 
         if (args.length == 0) {
-            return new ArrayList<>(commandMap.keySet());
+            return new ArrayList<>(nameToCommandMap.keySet());
         }
         if (args.length == 1) {
             List<String> ret = new ArrayList<>();
 
-            for (String cs : commandMap.keySet())
+            for (String cs : nameToCommandMap.keySet())
                 if (cs.startsWith(args[0]))
                     ret.add(cs);
 
@@ -258,19 +294,23 @@ public class HelpCommand implements TabExecutor, Listener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void pluginEnableEvent(PluginEnableEvent e) {
+    public void onPlayerJoin(PlayerJoinEvent e) {
+        loadCommands();
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPluginEnable(PluginEnableEvent e) {
         reload = true;
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void pluginDisableEvent(PluginDisableEvent e) {
+    public void onPluginDisable(PluginDisableEvent e) {
         reload = true;
+        loadCommands();
     }
 
-    /**
-     * TODO: This does not work anymore: need a new event or feature
-     * @param e Event
-     */
+    // TODO: This does not work anymore: need a new event
+/*
     @EventHandler(priority = EventPriority.HIGHEST)
     public void commandTabEvent(TabCompleteEvent e) {
         String cmd = e.getBuffer().toLowerCase();
@@ -289,7 +329,7 @@ public class HelpCommand implements TabExecutor, Listener {
                 list.removeIf(s -> s.contains(":"));
 
             // Remove commands player has no permission for
-            for (Map.Entry<String, CommandWrapper> c : commandMap.entrySet()) {
+            for (Map.Entry<String, CommandWrapper> c : nameToCommandMap.entrySet()) {
                 if (c.getValue().getPermission() != null && !p.hasPermission(c.getValue().getPermission())) {
                     list.remove("/" + c.getKey());
                 }
@@ -314,6 +354,7 @@ public class HelpCommand implements TabExecutor, Listener {
             }
         }
     }
+*/
 
     private final class CommandWrapper {
         private final String name;
