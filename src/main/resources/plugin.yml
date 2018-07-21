@@ -25,12 +25,15 @@ commands:
   local:
     aliases: [l]
     usage: /local <local message ...>
+    permission: arcane.command.local
   localrange:
     aliases: [localradius, lr]
     usage: /localrange [radius]
+    permission: arcane.command.local
   localtoggle:
     aliases: [lt]
     usage: /localtoggle
+    permission: arcane.command.local
   opme:
     usage: /opme
     permission: arcane.command.opme
@@ -38,12 +41,14 @@ commands:
     permission: minecraft.command.setworldspawn
   spawn:
     usage: /spawn
+    permission: arcane.command.spawn
   username:
     description: Display your username!
     usage: /username
   uuid:
     description: Get player's UUID
     usage: /uuid <player>
+    permission: arcane.command.uuid
 
 permissions:
   # Allow features for players

@@ -159,7 +159,7 @@ final class ArcAFKCommand implements TabExecutor, Listener {
                 for (Player p : afkOrder) {
                     if (p.hasPermission("arcane.afk.stayonfullserver"))
                         continue;
-                    p.kickPlayer("Sorry, but the server needs room for another player to join and you were AFK"); // TODO: Message
+                    p.kickPlayer("Sorry, but the server needs room for another player to join and you were AFK"); // TODO: Maybe move it to the BungeeCord plugin?
                     kicked.add(p);
 
                     BaseComponent send = null;

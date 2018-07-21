@@ -33,7 +33,7 @@ public class HelpCommand implements TabExecutor, Listener {
 
     HelpCommand(ArcaneServer plugin) {
         this.plugin = plugin;
-        this.notFoundMsg = new TranslatableComponent("commands.help.failed"); // TODO: Update Translatable node
+        this.notFoundMsg = new TranslatableComponent("commands.help.failed");
         this.notFoundMsg.setColor(ChatColor.RED);
 
         SimpleCommandMap commandMap = null;
@@ -308,53 +308,6 @@ public class HelpCommand implements TabExecutor, Listener {
         reload = true;
         loadCommands();
     }
-
-    // TODO: This does not work anymore: need a new event
-/*
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void commandTabEvent(TabCompleteEvent e) {
-        String cmd = e.getBuffer().toLowerCase();
-        CommandSender p = e.getSender();
-
-        if (!cmd.startsWith("/") || cmd.contains(" "))
-            return;
-
-        loadCommands();
-
-        List<String> list = e.getCompletions();
-
-        if (!p.isOp()) {
-            // Check hide colon for this player
-            if (p.hasPermission("arcane.tabcomplete.hidecolon"))
-                list.removeIf(s -> s.contains(":"));
-
-            // Remove commands player has no permission for
-            for (Map.Entry<String, CommandWrapper> c : nameToCommandMap.entrySet()) {
-                if (c.getValue().getPermission() != null && !p.hasPermission(c.getValue().getPermission())) {
-                    list.remove("/" + c.getKey());
-                }
-            }
-        }
-
-        // Add BungeeCord commands
-        for (BungeeCommandUsage cw : BungeeCommandUsage.values()) {
-            String c = cw.getCommand();
-            if (cw.getPermission() == null || p.hasPermission(cw.getPermission())) {
-                // Add main command
-                if (!list.contains(c) && c.startsWith(cmd))
-                    list.add(c);
-                // Add aliases
-                if (cw.getAliases() != null) {
-                    for (String a : cw.getAliases()) {
-                        String ca = "/" + a;
-                        if (!list.contains(ca) && ca.startsWith(cmd))
-                            list.add(ca);
-                    }
-                }
-            }
-        }
-    }
-*/
 
     private final class CommandWrapper {
         private final String name;

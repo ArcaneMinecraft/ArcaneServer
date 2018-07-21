@@ -24,7 +24,10 @@ public class Alert implements Listener {
         this.xrayList = new HashMap<>();
         ConfigurationSection cs = plugin.getConfig().getConfigurationSection("spy.xray-blocks");
 
-        // TODO: Check for null cs
+        if (cs == null) {
+            plugin.getServer().getLogger().warning("Configuraiton spy.xray-blocks is missing from config.yml!");
+            return;
+        }
 
         for (String key : cs.getKeys(false)) {
             new XRayCheck(cs.getConfigurationSection(key));
@@ -39,7 +42,7 @@ public class Alert implements Listener {
         private XRayCheck(ConfigurationSection cs) {
             this.yMax = cs.getInt("y-max", 256);
             this.yMin = cs.getInt("y-min", 0);
-            String csBiome = cs.getString("biome"); // TODO: Define many biomes?
+            String csBiome = cs.getString("biome");
             Biome b = null;
             try {
                 b = csBiome == null ? null : Biome.valueOf(csBiome.toUpperCase());
