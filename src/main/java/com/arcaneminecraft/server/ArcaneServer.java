@@ -1,7 +1,7 @@
 package com.arcaneminecraft.server;
 
-import com.arcaneminecraft.api.ArcaneText;
 import com.arcaneminecraft.api.ArcaneColor;
+import com.arcaneminecraft.api.ArcaneText;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;

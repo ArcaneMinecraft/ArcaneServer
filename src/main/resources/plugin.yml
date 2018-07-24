@@ -1,5 +1,5 @@
 name: ArcaneServer
-version: ${project.version}
+version: @version@
 authors: [Agentred100, jugglingman456, Morios, SimonOrJ]
 description: Arcane Survival Network Essentials
 main: com.arcaneminecraft.server.ArcaneServer
