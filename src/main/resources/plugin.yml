@@ -20,8 +20,9 @@ commands:
     aliases: ["?"]
     usage: /help [page|command name]
   kill:
-    description: End the suffering of your life just to revive you on a click of a button
+    description: End the suffering of your life just to revive you with a click of a button
     usage: /kill
+    permission: arcane.command.kill
   local:
     aliases: [l]
     usage: /local <local message ...>
@@ -71,6 +72,9 @@ permissions:
   # Command-based permissions
   arcane.command.help.details:
     description: Shows origin of each entry in /help
+    default: op
+  arcane.command.kill:
+    description: Allows /kill only to kill themselves
     default: op
   arcane.command.local:
     description: Allows /local, /localchat, and /localradius
