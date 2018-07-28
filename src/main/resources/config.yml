@@ -14,8 +14,6 @@ spawn:
 help-override:
 # Command information to override for /help menu
   commands:
-    help:
-      usage: commands.help.usage
     coreprotect:
       permission: help.coreprotect
       aliases: [co, core]

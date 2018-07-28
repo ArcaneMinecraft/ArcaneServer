@@ -60,9 +60,6 @@ permissions:
   arcane.homes:
     description: Arcane extra home donor.
     default: false
-  arcane.tabcomplete.hidecolon:
-    description: Hides commands with colon (e.g. bukkit:version).
-    default: not op
   arcane.afk.stayonfullserver:
     description: Doesn't kick this player when the server is full and the player is afk
     default: false
