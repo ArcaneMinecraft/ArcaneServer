@@ -34,10 +34,6 @@ help-override:
       is-alias: true
     forum:
       is-alias: true
-    discord:
-      is-alias: true
-    uuid:
-      permission: arcane.command.uuid
 
 # Local chat radius in (circular) radius of blocks
 local-chat:

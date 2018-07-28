@@ -34,6 +34,7 @@ public class PlayerEvents implements Listener {
         BaseComponent send = new TranslatableComponent("chat.type.text", ArcaneText.playerComponentSpigot(e.getPlayer()),
                 ArcaneText.url(e.getMessage()));
 
+        // TODO: Make it not require LuckPerms
         LuckPermsApi lpApi = LuckPerms.getApi();
         User u = lpApi.getUser(e.getPlayer().getUniqueId());
         String tag = null;
