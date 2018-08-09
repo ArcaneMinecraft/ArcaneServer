@@ -44,8 +44,10 @@ public class HelpCommand implements TabExecutor, Listener {
             commandMap = (SimpleCommandMap) f.get(plugin.getServer().getPluginManager());
 
             // Add BungeeCord commands so tab-complete recognizes it
-            for (BungeeCommandUsage c : BungeeCommandUsage.values())
-                commandMap.register("ArcaneBungee", new BungeeCommand(c));
+            for (BungeeCommandUsage c : BungeeCommandUsage.values()) {
+                if (commandMap.getCommand(c.getName()) == null)
+                    commandMap.register("ArcaneBungee", new BungeeCommand(c));
+            }
 
         } catch (NoSuchFieldException | IllegalAccessException e) {
             plugin.getLogger().log(Level.WARNING, "Help menu will not work properly. Update plugin.", e);

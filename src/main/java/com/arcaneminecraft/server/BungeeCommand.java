@@ -2,6 +2,7 @@ package com.arcaneminecraft.server;
 
 import com.arcaneminecraft.api.BungeeCommandUsage;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -36,10 +37,5 @@ public class BungeeCommand extends Command {
         }
 
         return true;
-    }
-
-    @Override
-    public List<String> tabComplete(CommandSender sender, String label, String[] args) {
-        return ImmutableList.of();
     }
 }

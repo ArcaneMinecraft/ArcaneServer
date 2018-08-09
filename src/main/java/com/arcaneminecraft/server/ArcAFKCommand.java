@@ -276,7 +276,14 @@ final class ArcAFKCommand implements TabExecutor, Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void detectMotion(PlayerMoveEvent e) {
         BukkitRunnable task = unsetAFKCondition.get(e.getPlayer());
-        if (!isAFK(e.getPlayer()) || task instanceof MotionCondition || task instanceof DamagedCondition
+
+        // If player is not afk, reset their timer
+        if (!isAFK(e.getPlayer())) {
+            unsetAFK(e.getPlayer());
+            return;
+        }
+
+        if (task instanceof MotionCondition || task instanceof DamagedCondition
                 || (e.getFrom().getBlockX() == e.getTo().getBlockX() && e.getFrom().getBlockY() == e.getTo().getBlockY() && e.getFrom().getBlockZ() == e.getTo().getBlockZ()))
             return;
 
