@@ -188,9 +188,10 @@ final class ArcAFKCommand implements TabExecutor, Listener {
         afkCounter.put(e.getPlayer(), rounds);
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.HIGH) // Chat broadcast is HIGHEST
     public void detectChat(AsyncPlayerChatEvent e) {
-        unsetAFK(e.getPlayer());
+        if (!e.isCancelled())
+            unsetAFK(e.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
