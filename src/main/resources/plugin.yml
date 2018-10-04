@@ -41,7 +41,7 @@ commands:
   setworldspawn:
     permission: minecraft.command.setworldspawn
   spawn:
-    aliases: [s]
+    aliases: [s, splawn]
     usage: /spawn
     permission: arcane.command.spawn
   username:

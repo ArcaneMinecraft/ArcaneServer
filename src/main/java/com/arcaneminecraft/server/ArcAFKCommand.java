@@ -188,7 +188,7 @@ final class ArcAFKCommand implements TabExecutor, Listener {
         afkCounter.put(e.getPlayer(), rounds);
     }
 
-    @EventHandler(priority = EventPriority.HIGH) // Chat broadcast is HIGHEST
+    @EventHandler(priority = EventPriority.LOWEST) // Chat broadcast is HIGHEST
     public void detectChat(AsyncPlayerChatEvent e) {
         if (!e.isCancelled())
             unsetAFK(e.getPlayer());
@@ -240,7 +240,7 @@ final class ArcAFKCommand implements TabExecutor, Listener {
 
         Player p = (Player) e.getEntity();
 
-        if (p.isOnline() && !(unsetAFKCondition.get(p) instanceof JustSetCondition) && p.getHealth() - e.getFinalDamage() <= 0) {
+        if (p.isOnline() && p.getHealth() - e.getFinalDamage() <= 0) {
             e.setCancelled(true);
             if (!kicked.add(p))
                 return;
