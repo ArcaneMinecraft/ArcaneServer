@@ -1,74 +1,117 @@
-name: ArcaneSurvival
-version: ${project.version}
+name: ArcaneServer
+version: @version@
 authors: [Agentred100, jugglingman456, Morios, SimonOrJ]
-description: Arcane Survival Essentials
-main: com.arcaneminecraft.survival.ArcaneSurvival
+description: Arcane Survival Network Essentials
+main: com.arcaneminecraft.server.ArcaneServer
 website: https://arcaneminecraft.com/
+api-version: 1.13
 
 depend: [ArcaneAPI]
 softdepend: [LuckPerms]
 
 commands:
   afk:
-    description: Sets you to [AFK] in the player list. Motion or chat will end it.
+    description: Mark yourself as afk
     usage: /afk
-  apply:
-    description: Display the greylist application link.
-  greylist:
-    aliases: [graylist]
-    description: Greylist command
-  findplayer:
-    aliases: [fplayer, fp, find]
-    description: Find players based on part of their name.
+  global:
+    aliases: [g]
+    usage: /global <chat message ...>
   help:
     aliases: ["?"]
-    description: Arcane help
-    usage: /help [help topic]
+    usage: /help [page|command name]
   kill:
-    description: Lets players self-destruct
+    description: End the suffering of your life just to revive you with a click of a button
     usage: /kill
-  links:
-    aliases: [link,discord,donate,forum,forums,map,mumble,rule,rules,website]
-    description: Command that displays Arcane links
-  list:
-    description: Display a list of online users.
-  news:
-    aliases: [motd]
-    description: Display the news. Edit the news with arcane.command.news.set permission.
-  ping:
-    description: Pings a player and shows their ping in milliseconds
-    usage: /ping [player]
-  seen:
-    description: Check a player's last join date and time.
-    usage: /seen <player>
-  seenf:
-    aliases: [fseen]
-    description: Check a player's first join date and time.
-    usage: /seenf [player]
+    permission: arcane.command.kill
+  local:
+    aliases: [l]
+    usage: /local <local message ...>
+    permission: arcane.command.local
+  localrange:
+    aliases: [localradius, lr]
+    usage: /localrange [radius]
+    permission: arcane.command.local
+  localtoggle:
+    aliases: [lt]
+    usage: /localtoggle
+    permission: arcane.command.local
+  opme:
+    usage: /opme
+    permission: arcane.command.opme
+  setworldspawn:
+    permission: minecraft.command.setworldspawn
+  spawn:
+    aliases: [s, splawn]
+    usage: /spawn
+    permission: arcane.command.spawn
   username:
     description: Display your username!
+    usage: /username
+  uuid:
+    description: Get player's UUID
+    usage: /uuid <player>
+    permission: arcane.command.uuid
 
 permissions:
-  arcane.admin:
-    description: Arcane Administrator.
-    children:
-      arcane.mod: true
-      arcane.chatmod: true
-  arcane.mod:
-    description: Arcane Moderator.
-    children:
-      arcane.chatmod: true
-  arcane.chatmod:
-    description: Arcane Chatmod.
-  arcane.trusted:
-    description: Arcane greylisted players.
-    default: op
+  # Allow features for players
+  arcane.build:
+    description: Allow building and giving/taking items on the server
+    default: true
   arcane.homes:
     description: Arcane extra home donor.
-    default: op
-  arcane.donor:
-    description: Arcane donor.
     default: false
-  arcane.command.news.set:
-    description: Permission to set/clear Arcane News
+  arcane.afk.stayonfullserver:
+    description: Doesn't kick this player when the server is full and the player is afk
+    default: false
+  arcane.afk.getkickmessage:
+    description: Gets message and clickable coordinates about a player's imminent death while they were afk
     default: op
+
+  # Command-based permissions
+  arcane.command.help.details:
+    description: Shows origin of each entry in /help
+    default: op
+  arcane.command.kill:
+    description: Allows /kill only to kill themselves
+    default: op
+  arcane.command.local:
+    description: Allows /local, /localchat, and /localradius
+    default: true
+  arcane.command.spawn:
+    description: Allows /spawn
+    default: true
+  arcane.command.opme:
+    description: Allows /opme
+    default: false
+  arcane.command.uuid:
+    description: Allows /uuid
+    default: true
+
+  # Arcane anticheat/moderation hook
+  arcane.spy.on.xray:
+    description: Logs x-ray alert when mining an ore
+    default: false
+  arcane.spy.on.sign:
+    description: Logs sign creation/modification message
+    default: false
+  arcane.spy.on.command: # ArcaneBungee node
+    description: Logs commands
+    default: false
+  arcane.spy.on.command.all: # ArcaneBungee node
+    description: Logs commands regardless of if it's ignored
+    default: false
+
+
+  # ArcaneBungee uses these nodes; the registeration is for sake of easy autocomplete.
+  arcane.spy.receive.xray:
+    description: Receive x-ray alerts
+    default: false
+  arcane.spy.receive.sign:
+    description: Receive sign creation/modification content
+    default: false
+  arcane.spy.receive.command:
+    description: Receive only critical command messages
+    default: false
+  arcane.spy.receive.command.all:
+    description: Receive all command messages
+    default: false

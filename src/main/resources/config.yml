@@ -1,1 +1,64 @@
-news: "This news is empty."
+modify-tablist: false
+
+network-chat:
+  enabled: true
+
+spawn:
+  # Allows going to spawn using command
+  command-enabled: false
+  # Allows respawn right on the world spawn point
+  listener-enabled: false
+  # Makes spawn point centered
+  center-on-block: false
+
+help-override:
+# Command information to override for /help menu
+  commands:
+    coreprotect:
+      permission: help.coreprotect
+      aliases: [co, core]
+    co:
+      is-alias: true
+    core:
+      is-alias: true
+    luckpermsbungee:
+      permission: help.luckperms
+      description: LuckPerms on Bungee
+    luckperms:
+      permission: help.luckperms
+    links:
+      aliases: [website, forum, discord]
+    website:
+      is-alias: true
+    forum:
+      is-alias: true
+
+# Local chat radius in (circular) radius of blocks
+local-chat:
+  enabled: true
+  default-range: 40
+  max-range: 500
+
+
+afk:
+  # Ticks to wait until next check
+  interval: 600 # 30 seconds
+  # Intervals passed before marking as afk
+  rounds: 10 # 30 seconds * 10 rounds = 5 minutes
+  tag: "&5[AFK]"
+
+
+spy:
+  sign-alert: true
+  xray-alert: false
+  xray-blocks:
+    # Key:
+    # blockname:
+    #   y-max: int
+    #   biome: biome name
+    diamond_ore:
+      y-max: 15
+    emerald_ore:
+      biome: mountains
+    nether_quartz_ore:
+      biome: nether
