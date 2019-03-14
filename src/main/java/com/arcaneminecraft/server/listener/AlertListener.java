@@ -18,7 +18,7 @@ public class AlertListener implements Listener {
     private final ArcaneServer plugin;
     private final HashMap<Material, XRayCheck> xrayList;
 
-    AlertListener(ArcaneServer plugin) {
+    public AlertListener(ArcaneServer plugin) {
         this.plugin = plugin;
 
         this.xrayList = new HashMap<>();

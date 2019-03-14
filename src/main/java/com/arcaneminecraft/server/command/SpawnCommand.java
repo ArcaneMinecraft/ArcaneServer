@@ -21,7 +21,7 @@ public class SpawnCommand implements TabExecutor, Listener {
     private final ArcaneServer plugin;
     private Location spawnPoint;
 
-    SpawnCommand(ArcaneServer plugin) {
+    public SpawnCommand(ArcaneServer plugin) {
         this.plugin = plugin;
         updateSpawnPoint();
     }
