@@ -18,6 +18,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
 import java.io.*;
+import java.util.Locale;
 import java.util.logging.Level;
 
 public class PluginMessenger implements PluginMessageListener, Listener {
@@ -70,7 +71,7 @@ public class PluginMessenger implements PluginMessageListener, Listener {
         chat(p.getName(), p.getDisplayName(), p.getUniqueId().toString(), msg, tag, p);
     }
 
-    void chat(String name, String displayName, String uuid, String msg, String tag, Player pluginMessageSender) {
+    public void chat(String name, String displayName, String uuid, String msg, String tag, Player pluginMessageSender) {
         if (!networkChat)
             return;
 
@@ -95,7 +96,7 @@ public class PluginMessenger implements PluginMessageListener, Listener {
         }
     }
 
-    void afk(Player p, boolean isAFK) {
+    public void afk(Player p, boolean isAFK) {
         String channel = "AFK";
 
         ByteArrayOutputStream byteos = new ByteArrayOutputStream();
@@ -123,12 +124,12 @@ public class PluginMessenger implements PluginMessageListener, Listener {
         pluginMessageSender.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
     }
 
-    void xRayAlert(Player p, Block b) {
+    public void xRayAlert(Player p, Block b) {
         if (xRayAlert && p.hasPermission("arcane.spy.on.xray"))
             ArcaneAlertChannel(p, "XRay", b, b.getType().toString());
     }
 
-    void signAlert(Player p, Block b, String[] l) {
+    public void signAlert(Player p, Block b, String[] l) {
         if (signAlert && p.hasPermission("arcane.spy.on.sign"))
             ArcaneAlertChannel(p, "Sign", b, l);
     }
@@ -175,8 +176,14 @@ public class PluginMessenger implements PluginMessageListener, Listener {
                     String uuid = is.readUTF();
                     String tag = is.readUTF();
 
+                    BaseComponent pc;
+                    if (server.equals("Discord"))
+                        pc = ArcaneText.entityComponent(name, displayName, "discord:user", uuid, "Server: " + server, false);
+                    else
+                        pc = ArcaneText.playerComponent(name, displayName, uuid, "Server: " + server);
+
                     BaseComponent chat = new TranslatableComponent("chat.type.text",
-                            ArcaneText.playerComponent(name, displayName, uuid, "Server: " + server), ArcaneText.url(msg));
+                            pc, ArcaneText.url(msg));
                     BaseComponent send;
 
                     if (tag.isEmpty()) {
@@ -212,17 +219,22 @@ public class PluginMessenger implements PluginMessageListener, Listener {
                     String uuid = is.readUTF();
                     boolean isAFK = is.readBoolean();
 
-                    BaseComponent send = plugin.getArcAFK().formatAFK(
-                            ArcaneText.playerComponent(name, displayName, uuid, "Server: " + server),
-                            "is " + (isAFK ? "now" : "no longer") + " AFK"
+                    String translatable = isAFK ? "commands.afk.other" : "commands.afk.unset.other";
+
+                    TranslatableComponent send = new TranslatableComponent(
+                            ArcaneText.translatableString(null, translatable),
+                            ArcaneText.playerComponent(name, displayName, uuid, "Server: " + server)
                     );
                     send.setColor(ArcaneColor.CONTENT);
 
-                    for (Player p : plugin.getServer().getOnlinePlayers())
+                    for (Player p : plugin.getServer().getOnlinePlayers()) {
+                        String[] l = p.getLocale().split("_");
+                        Locale locale = new Locale(l[0], l[1]);
+                        send.setTranslate(ArcaneText.translatableString(locale, translatable));
                         p.spigot().sendMessage(ChatMessageType.SYSTEM, send);
+                    }
 
                 }
-
                 return;
             }
 

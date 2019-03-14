@@ -1,12 +1,14 @@
-package com.arcaneminecraft.server;
+package com.arcaneminecraft.server.command;
 
 import com.arcaneminecraft.api.ArcaneColor;
 import com.arcaneminecraft.api.ArcaneText;
+import com.arcaneminecraft.server.ArcaneServer;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -27,7 +29,10 @@ import org.bukkit.util.NumberConversions;
 
 import java.util.*;
 
-final class ArcAFKCommand implements TabExecutor, Listener {
+// TODO: Split this up into AFK listener
+public class ArcAFKCommand implements TabExecutor, Listener {
+    private static final String AFK_OTHER_PERMISSION = "arcane.command.afk.other";
+
     private final ArcaneServer plugin;
     private final HashMap<Player, Integer> afkCounter = new HashMap<>();
     private final HashMap<Player, BukkitRunnable> unsetAFKCondition = new HashMap<>();
@@ -37,7 +42,7 @@ final class ArcAFKCommand implements TabExecutor, Listener {
     private final String tag;
     private final boolean modifyTabList;
 
-    ArcAFKCommand(ArcaneServer plugin) {
+    public ArcAFKCommand(ArcaneServer plugin) {
         this.plugin = plugin;
         this.rounds = plugin.getConfig().getInt("afk.rounds", 10);
         this.tag = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("afk.tag", "[AFK]")) + ChatColor.RESET + " ";
@@ -68,38 +73,51 @@ final class ArcAFKCommand implements TabExecutor, Listener {
 
     }
 
-    void onDisable() {
-        for (Player p : plugin.getServer().getOnlinePlayers()) {
+    public void onDisable() {
+        for (Player p : Bukkit.getOnlinePlayers()) {
             unsetAFK(p);
         }
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.spigot().sendMessage(ArcaneText.noConsoleMsg());
+        if (args.length > 0 && sender.hasPermission(AFK_OTHER_PERMISSION)) {
+            Player p = Bukkit.getPlayer(args[0]);
+            if (p == null) {
+                if (sender instanceof Player)
+                    ((Player) sender).spigot().sendMessage(ChatMessageType.SYSTEM, ArcaneText.playerNotFound());
+                else
+                    sender.spigot().sendMessage(ArcaneText.playerNotFound());
+            }
+
+            if (!isAFK(p)) setAFK(p);
+            afkCounter.remove(p); // Cannot include with setAFK() because timer also uses it.
+            // can create an exception if put into setAFK().
+
             return true;
         }
+
+        if (!(sender instanceof Player)) {
+            sender.spigot().sendMessage(ArcaneText.usage("/afk <player>"));
+            return true;
+        }
+
         Player p = (Player) sender;
         if (!isAFK(p)) setAFK(p);
-        afkCounter.remove(p);
+        afkCounter.remove(p); // see above
 
         return true;
     }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        if (sender.hasPermission(AFK_OTHER_PERMISSION))
+            return null;
         return Collections.emptyList();
     }
 
     private boolean isAFK(Player p) {
         return !afkCounter.containsKey(p);
-    }
-
-    BaseComponent formatAFK(Object subject, String msg) {
-        BaseComponent ret = new TranslatableComponent("chat.type.emote", subject, msg);
-        ret.setColor(ArcaneColor.CONTENT);
-        return ret;
     }
 
     private void setAFK(Player p) {
@@ -117,12 +135,25 @@ final class ArcAFKCommand implements TabExecutor, Listener {
         task.runTaskLaterAsynchronously(plugin, 200L);
         unsetAFKCondition.put(p, task);
 
-        p.spigot().sendMessage(ChatMessageType.SYSTEM, formatAFK("You", "are now AFK"));
-        BaseComponent send = formatAFK(ArcaneText.playerComponentSpigot(p), "is now AFK");
+        String[] l = p.getLocale().split("_");
+        Locale locale = new Locale(l[0], l[1]);
+
+        BaseComponent send = ArcaneText.translatable(locale, "commands.afk.self");
         send.setColor(ArcaneColor.CONTENT);
+        p.spigot().sendMessage(ChatMessageType.SYSTEM, send);
+
+        TranslatableComponent broadcast = new TranslatableComponent(
+                ArcaneText.translatableString(null, "commands.afk.other"),
+                ArcaneText.playerComponentSpigot(p)
+        );
+        broadcast.setColor(ArcaneColor.CONTENT);
+
+        Bukkit.getConsoleSender().spigot().sendMessage(broadcast);
         for (Player pl : plugin.getServer().getOnlinePlayers()) {
             if (pl == p) continue;
-            pl.spigot().sendMessage(ChatMessageType.SYSTEM, send);
+            l = pl.getLocale().split("_");
+            broadcast.setTranslate(ArcaneText.translatableString(new Locale(l[0], l[1]), "commands.afk.other"));
+            pl.spigot().sendMessage(ChatMessageType.SYSTEM, broadcast);
         }
     }
 
@@ -142,12 +173,25 @@ final class ArcAFKCommand implements TabExecutor, Listener {
         if (task != null)
             task.cancel();
 
-        p.spigot().sendMessage(ChatMessageType.SYSTEM, formatAFK("You", "are no longer AFK"));
-        BaseComponent send = formatAFK(ArcaneText.playerComponentSpigot(p), "is no longer AFK");
+        String[] l = p.getLocale().split("_");
+        Locale locale = new Locale(l[0], l[1]);
+
+        BaseComponent send = ArcaneText.translatable(locale, "commands.afk.unset.self");
         send.setColor(ArcaneColor.CONTENT);
+        p.spigot().sendMessage(ChatMessageType.SYSTEM, send);
+
+        TranslatableComponent broadcast = new TranslatableComponent(
+                ArcaneText.translatableString(null, "commands.afk.unset.other"),
+                ArcaneText.playerComponentSpigot(p)
+        );
+        broadcast.setColor(ArcaneColor.CONTENT);
+
+        Bukkit.getConsoleSender().spigot().sendMessage(broadcast);
         for (Player pl : plugin.getServer().getOnlinePlayers()) {
             if (pl == p) continue;
-            pl.spigot().sendMessage(ChatMessageType.SYSTEM, send);
+            l = pl.getLocale().split("_");
+            broadcast.setTranslate(ArcaneText.translatableString(new Locale(l[0], l[1]), "commands.afk.unset.other"));
+            pl.spigot().sendMessage(ChatMessageType.SYSTEM, broadcast);
         }
     }
 
@@ -159,7 +203,11 @@ final class ArcAFKCommand implements TabExecutor, Listener {
                 for (Player p : afkOrder) {
                     if (p.hasPermission("arcane.afk.stayonfullserver"))
                         continue;
-                    p.kickPlayer("Sorry, but the server needs room for another player to join and you were AFK"); // TODO: Maybe move it to the BungeeCord plugin?
+
+                    String[] l = p.getLocale().split("_");
+                    Locale locale = new Locale(l[0], l[1]);
+
+                    p.kickPlayer(ArcaneText.translatableString(locale, "messages.kick.afk.full")); // TODO: Maybe move it to the BungeeCord plugin?
                     kicked.add(p);
 
                     BaseComponent send = null;
@@ -245,7 +293,10 @@ final class ArcAFKCommand implements TabExecutor, Listener {
             if (!kicked.add(p))
                 return;
 
-            p.kickPlayer("You were about to die by " + e.getCause().name().toLowerCase() + " while you were AFK"); // TODO: Message
+            String[] la = p.getLocale().split("_");
+            Locale locale = new Locale(la[0],la[1]);
+
+            p.kickPlayer(ArcaneText.translatableString(locale, e.getCause().name().toLowerCase()));
 
             BaseComponent send = null;
             for (Player alert : plugin.getServer().getOnlinePlayers()) {

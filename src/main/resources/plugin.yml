@@ -68,6 +68,9 @@ permissions:
     default: op
 
   # Command-based permissions
+  arcane.command.afk.other:
+    description: Allows player to set others to afk
+    default: op
   arcane.command.help.details:
     description: Shows origin of each entry in /help
     default: op

@@ -1,7 +1,8 @@
-package com.arcaneminecraft.server;
+package com.arcaneminecraft.server.command;
 
 import com.arcaneminecraft.api.ArcaneColor;
 import com.arcaneminecraft.api.ArcaneText;
+import com.arcaneminecraft.server.ArcaneServer;
 import com.google.common.collect.ImmutableList;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -20,7 +21,7 @@ public class SpawnCommand implements TabExecutor, Listener {
     private final ArcaneServer plugin;
     private Location spawnPoint;
 
-    SpawnCommand(ArcaneServer plugin) {
+    public SpawnCommand(ArcaneServer plugin) {
         this.plugin = plugin;
         updateSpawnPoint();
     }

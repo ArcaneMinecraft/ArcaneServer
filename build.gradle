@@ -10,13 +10,13 @@ version '3.0-SNAPSHOT'
 sourceCompatibility = 1.8
 
 repositories {
-    maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
-    maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
     mavenCentral()
+    maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots' }
+    maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
 }
 
 dependencies {
-    compile 'org.spigotmc:spigot-api:1.13.1-R0.1-SNAPSHOT'
+    compile 'org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT'
     compileOnly fileTree(dir: 'libs', include: '*.jar')
     compileOnly 'me.lucko.luckperms:luckperms-api:4.3'
 }

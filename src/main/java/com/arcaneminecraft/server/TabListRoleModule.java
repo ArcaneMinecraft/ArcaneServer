@@ -1,5 +1,6 @@
 package com.arcaneminecraft.server;
 
+import com.arcaneminecraft.server.ArcaneServer;
 import me.lucko.luckperms.LuckPerms;
 import me.lucko.luckperms.api.Contexts;
 import me.lucko.luckperms.api.LuckPermsApi;
@@ -11,9 +12,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-public class TabListRole implements Listener {
+public class TabListRoleModule implements Listener {
 
-    TabListRole(ArcaneServer plugin) {
+    TabListRoleModule(ArcaneServer plugin) {
         for (Player p : plugin.getServer().getOnlinePlayers()) {
             addRole(p);
         }

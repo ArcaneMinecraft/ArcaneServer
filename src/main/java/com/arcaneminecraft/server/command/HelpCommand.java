@@ -1,7 +1,8 @@
-package com.arcaneminecraft.server;
+package com.arcaneminecraft.server.command;
 
 import com.arcaneminecraft.api.ArcaneText;
 import com.arcaneminecraft.api.BungeeCommandUsage;
+import com.arcaneminecraft.server.ArcaneServer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.*;
@@ -15,7 +16,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.PluginEnableEvent;
-//import org.bukkit.event.server.TabCompleteEvent;
 import org.bukkit.plugin.SimplePluginManager;
 
 import java.lang.reflect.Field;
@@ -31,7 +31,7 @@ public class HelpCommand implements TabExecutor, Listener {
     private boolean reload;
 
 
-    HelpCommand(ArcaneServer plugin) {
+    public HelpCommand(ArcaneServer plugin) {
         this.plugin = plugin;
         this.notFoundMsg = new TranslatableComponent("commands.help.failed");
         this.notFoundMsg.setColor(ChatColor.RED);
@@ -42,12 +42,6 @@ public class HelpCommand implements TabExecutor, Listener {
             f.setAccessible(true);
 
             commandMap = (SimpleCommandMap) f.get(plugin.getServer().getPluginManager());
-
-            // Add BungeeCord commands so tab-complete recognizes it
-            for (BungeeCommandUsage c : BungeeCommandUsage.values()) {
-                if (commandMap.getCommand(c.getName()) == null)
-                    commandMap.register("ArcaneBungee", new BungeeCommand(c));
-            }
 
         } catch (NoSuchFieldException | IllegalAccessException e) {
             plugin.getLogger().log(Level.WARNING, "Help menu will not work properly. Update plugin.", e);
@@ -146,6 +140,14 @@ public class HelpCommand implements TabExecutor, Listener {
 
         boolean showDetails = sender.hasPermission("arcane.command.help.details");
 
+        Locale locale;
+        if (sender instanceof Player) {
+            String[] l = ((Player) sender).getLocale().split("_");
+            locale = new Locale(l[0],l[1]);
+        } else {
+            locale = null;
+        }
+
         try {
             // Help menu
             int page = args.length == 0 ? 1 : Integer.parseInt(args[0]);
@@ -166,9 +168,8 @@ public class HelpCommand implements TabExecutor, Listener {
 
             int pg = Math.min(cmdList.size(), page * 7);
 
-
             // First line
-            BaseComponent header = new TranslatableComponent("--- Showing help page %s of %s (/help <page>) ---", String.valueOf(page), String.valueOf(totalPages));
+            BaseComponent header = ArcaneText.translatable(locale, "commands.help.header", page, totalPages);
             header.setColor(ChatColor.DARK_GREEN);
             if (sender instanceof Player)
                 ((Player) sender).spigot().sendMessage(ChatMessageType.SYSTEM, header);
@@ -185,7 +186,7 @@ public class HelpCommand implements TabExecutor, Listener {
 
             // Last Line
             if (page == 1) {
-                BaseComponent footer = new TranslatableComponent("Tip: Use the <tab> key while typing a command to auto-complete the command or its arguments");
+                BaseComponent footer = ArcaneText.translatable(locale, "commands.help.tip");
                 footer.setColor(ChatColor.GREEN);
                 if (sender instanceof Player)
                     ((Player) sender).spigot().sendMessage(ChatMessageType.SYSTEM, footer);
@@ -219,8 +220,8 @@ public class HelpCommand implements TabExecutor, Listener {
 
         // Send Description if exists
         if (!cw.getDescription().isEmpty()) {
-            BaseComponent desc = new TextComponent(" Description: ");
-            desc.addExtra(cw.getDescription());
+            BaseComponent desc = new TextComponent(" ");
+            desc.addExtra(ArcaneText.translatable(locale, "commands.help.description", cw.getDescription()));
             desc.setColor(ChatColor.RED);
 
             if (sender instanceof Player) {
@@ -346,7 +347,7 @@ public class HelpCommand implements TabExecutor, Listener {
 
             if (cs == null) {
                 this.permission = command.getPermission();
-                this.usage = command.getUsage().equals("") ? "/" + command.getName() : command.getUsage();
+                this.usage = command.getUsage().equals("") ? "/" + name : command.getUsage().replace("<command>", name);
                 this.description = (command instanceof BukkitCommand) ? "" : command.getDescription();
                 this.aliases = command.getAliases().toArray(new String[0]);
                 return;

@@ -1,14 +1,12 @@
-package com.arcaneminecraft.server;
+package com.arcaneminecraft.server.command;
 
 import com.arcaneminecraft.api.ArcaneText;
 import com.arcaneminecraft.api.ArcaneColor;
+import com.arcaneminecraft.server.ArcaneServer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.*;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -17,7 +15,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import java.util.*;
 
-final class LocalChatCommands implements CommandExecutor, Listener {
+public class LocalChatCommands implements TabExecutor, Listener {
     private final ArcaneServer plugin;
     private static final String CHAT_TAG = "(local)";
     private final int maxRange;
@@ -26,7 +24,7 @@ final class LocalChatCommands implements CommandExecutor, Listener {
     private final HashSet<Player> global;
     private final HashMap<Player,Integer> range;
 
-    LocalChatCommands(ArcaneServer plugin) {
+    public LocalChatCommands(ArcaneServer plugin) {
         this.plugin = plugin;
         this.maxRange = plugin.getConfig().getInt("local-chat.max-range", 500);
         this.defaultRange = plugin.getConfig().getInt("local-chat.default-range", 40);
@@ -221,5 +219,10 @@ final class LocalChatCommands implements CommandExecutor, Listener {
 
         e.setCancelled(true);
         broadcastLocal(p, e.getMessage());
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        return Collections.emptyList();
     }
 }

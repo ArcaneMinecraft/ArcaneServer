@@ -1,5 +1,6 @@
-package com.arcaneminecraft.server;
+package com.arcaneminecraft.server.listener;
 
+import com.arcaneminecraft.server.ArcaneServer;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
@@ -8,17 +9,16 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.event.block.SignChangeEvent;
 
 import java.util.HashMap;
 import java.util.logging.Level;
 
-public class Alert implements Listener {
+public class AlertListener implements Listener {
     private final ArcaneServer plugin;
     private final HashMap<Material, XRayCheck> xrayList;
 
-    Alert(ArcaneServer plugin) {
+    public AlertListener(ArcaneServer plugin) {
         this.plugin = plugin;
 
         this.xrayList = new HashMap<>();
