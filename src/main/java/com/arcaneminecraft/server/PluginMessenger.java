@@ -176,8 +176,14 @@ public class PluginMessenger implements PluginMessageListener, Listener {
                     String uuid = is.readUTF();
                     String tag = is.readUTF();
 
+                    BaseComponent pc;
+                    if (server.equals("Discord"))
+                        pc = ArcaneText.entityComponent(name, displayName, "discord:user", uuid, "Server: " + server, false);
+                    else
+                        pc = ArcaneText.playerComponent(name, displayName, uuid, "Server: " + server);
+
                     BaseComponent chat = new TranslatableComponent("chat.type.text",
-                            ArcaneText.playerComponent(name, displayName, uuid, "Server: " + server), ArcaneText.url(msg));
+                            pc, ArcaneText.url(msg));
                     BaseComponent send;
 
                     if (tag.isEmpty()) {
