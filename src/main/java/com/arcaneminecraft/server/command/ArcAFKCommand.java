@@ -29,7 +29,7 @@ import org.bukkit.util.NumberConversions;
 
 import java.util.*;
 
-// TODO: Split this up into AFK module
+// TODO: Split this up into AFK listener
 public class ArcAFKCommand implements TabExecutor, Listener {
     private final ArcaneServer plugin;
     private final HashMap<Player, Integer> afkCounter = new HashMap<>();
@@ -273,7 +273,10 @@ public class ArcAFKCommand implements TabExecutor, Listener {
             if (!kicked.add(p))
                 return;
 
-            p.kickPlayer("You were about to die by " + e.getCause().name().toLowerCase() + " while you were AFK"); // TODO: Message
+            String[] la = p.getLocale().split("_");
+            Locale locale = new Locale(la[0],la[1]);
+
+            p.kickPlayer(ArcaneText.translatableString(locale, e.getCause().name().toLowerCase()));
 
             BaseComponent send = null;
             for (Player alert : plugin.getServer().getOnlinePlayers()) {

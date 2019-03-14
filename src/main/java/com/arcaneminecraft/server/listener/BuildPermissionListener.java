@@ -1,6 +1,7 @@
-package com.arcaneminecraft.server;
+package com.arcaneminecraft.server.listener;
 
 import com.arcaneminecraft.api.ArcaneColor;
+import com.arcaneminecraft.api.ArcaneText;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -25,15 +26,16 @@ import org.bukkit.event.player.*;
 import org.bukkit.material.Bed;
 import org.bukkit.material.Openable;
 
+import java.util.Locale;
 
-public class BuildPermission implements Listener {
+
+public class BuildPermissionListener implements Listener {
     private static final String BUILD_PERMISSION = "arcane.build";
 
     // Sends message through Action Bar (area above item bar for e.g. bed message or dismount message)
     private void noPerm(Cancellable e, Player p) {
-        if (p.hasPermission(BUILD_PERMISSION)) {
+        if (p.hasPermission(BUILD_PERMISSION))
             return;
-        }
 
         e.setCancelled(true);
 
@@ -42,11 +44,10 @@ public class BuildPermission implements Listener {
         not.setColor(ArcaneColor.NEGATIVE);
         apply.setColor(ArcaneColor.POSITIVE);
 
-        BaseComponent msg = new TextComponent("You do ");
-        msg.addExtra(not);
-        msg.addExtra(" have build permissions! Apply for it via ");
-        msg.addExtra(apply);
-        msg.addExtra("!");
+        String[] l = p.getLocale().split("_");
+        Locale locale = new Locale(l[0],l[1]);
+
+        BaseComponent msg = ArcaneText.translatable(locale, "messages.build.nopermission", not, apply);
 
         p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(msg));
     }

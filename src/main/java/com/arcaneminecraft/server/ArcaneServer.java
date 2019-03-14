@@ -2,6 +2,8 @@ package com.arcaneminecraft.server;
 
 import com.arcaneminecraft.api.ArcaneColor;
 import com.arcaneminecraft.server.command.*;
+import com.arcaneminecraft.server.listener.AlertListener;
+import com.arcaneminecraft.server.listener.BuildPermissionListener;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -40,11 +42,11 @@ public final class ArcaneServer extends JavaPlugin {
 
         // X-Ray and other notification alert
         getServer().getMessenger().registerOutgoingPluginChannel(this, "arcaneserver:alert");
-        getServer().getPluginManager().registerEvents(new Alert(this), this);
+        getServer().getPluginManager().registerEvents(new AlertListener(this), this);
 
         // General stuff
         getServer().getPluginManager().registerEvents(new PlayerEvents(this), this);
-        getServer().getPluginManager().registerEvents(new BuildPermission(), this);
+        getServer().getPluginManager().registerEvents(new BuildPermissionListener(), this);
 
         // Tab List Modifying Events
         getLogger().info(
@@ -52,25 +54,22 @@ public final class ArcaneServer extends JavaPlugin {
                 + getConfig().getBoolean("modify-tablist", false)
         );
         if (getConfig().getBoolean("modify-tablist", false))
-            getServer().getPluginManager().registerEvents(new TabListRole(this), this); // this must come before AFK
+            getServer().getPluginManager().registerEvents(new TabListRoleModule(this), this); // this must come before AFK
 
         // Commands
         LocalChatCommands lc = new LocalChatCommands(this);
+        HelpCommand hc = new HelpCommand(this);
+        SpawnCommand sc = new SpawnCommand(this);
+
         if (getConfig().getBoolean("localchat.enabled", true)) {
             getCommand("local").setExecutor(lc);
             getCommand("localtoggle").setExecutor(lc);
             getCommand("localrange").setExecutor(lc);
+            getServer().getPluginManager().registerEvents(lc, this);
         }
         getCommand("global").setExecutor(lc);
-
-        if (getConfig().getBoolean("localchat.enabled", true))
-            getServer().getPluginManager().registerEvents(lc, this);
-
-        HelpCommand hc = new HelpCommand(this);
         getCommand("help").setExecutor(hc);
         getServer().getPluginManager().registerEvents(hc, this);
-
-        SpawnCommand sc = new SpawnCommand(this);
         if (getConfig().getBoolean("spawn.command-enabled", false)) {
             getCommand("spawn").setExecutor(sc);
         }

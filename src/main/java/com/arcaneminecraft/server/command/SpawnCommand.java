@@ -1,7 +1,8 @@
-package com.arcaneminecraft.server;
+package com.arcaneminecraft.server.command;
 
 import com.arcaneminecraft.api.ArcaneColor;
 import com.arcaneminecraft.api.ArcaneText;
+import com.arcaneminecraft.server.ArcaneServer;
 import com.google.common.collect.ImmutableList;
 import org.bukkit.Location;
 import org.bukkit.World;

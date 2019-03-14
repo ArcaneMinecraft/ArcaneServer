@@ -124,12 +124,12 @@ public class PluginMessenger implements PluginMessageListener, Listener {
         pluginMessageSender.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
     }
 
-    void xRayAlert(Player p, Block b) {
+    public void xRayAlert(Player p, Block b) {
         if (xRayAlert && p.hasPermission("arcane.spy.on.xray"))
             ArcaneAlertChannel(p, "XRay", b, b.getType().toString());
     }
 
-    void signAlert(Player p, Block b, String[] l) {
+    public void signAlert(Player p, Block b, String[] l) {
         if (signAlert && p.hasPermission("arcane.spy.on.sign"))
             ArcaneAlertChannel(p, "Sign", b, l);
     }
