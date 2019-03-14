@@ -31,6 +31,8 @@ import java.util.*;
 
 // TODO: Split this up into AFK listener
 public class ArcAFKCommand implements TabExecutor, Listener {
+    private static final String AFK_OTHER_PERMISSION = "arcane.command.afk.other";
+
     private final ArcaneServer plugin;
     private final HashMap<Player, Integer> afkCounter = new HashMap<>();
     private final HashMap<Player, BukkitRunnable> unsetAFKCondition = new HashMap<>();
@@ -79,20 +81,38 @@ public class ArcAFKCommand implements TabExecutor, Listener {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (args.length > 0 && sender.hasPermission(AFK_OTHER_PERMISSION)) {
+            Player p = Bukkit.getPlayer(args[0]);
+            if (p == null) {
+                if (sender instanceof Player)
+                    ((Player) sender).spigot().sendMessage(ChatMessageType.SYSTEM, ArcaneText.playerNotFound());
+                else
+                    sender.spigot().sendMessage(ArcaneText.playerNotFound());
+            }
+
+            if (!isAFK(p)) setAFK(p);
+            afkCounter.remove(p); // Cannot include with setAFK() because timer also uses it.
+            // can create an exception if put into setAFK().
+
+            return true;
+        }
+
         if (!(sender instanceof Player)) {
-            sender.spigot().sendMessage(ArcaneText.noConsoleMsg());
+            sender.spigot().sendMessage(ArcaneText.usage("/afk <player>"));
             return true;
         }
 
         Player p = (Player) sender;
         if (!isAFK(p)) setAFK(p);
-        afkCounter.remove(p);
+        afkCounter.remove(p); // see above
 
         return true;
     }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        if (sender.hasPermission(AFK_OTHER_PERMISSION))
+            return null;
         return Collections.emptyList();
     }
 
