@@ -125,7 +125,7 @@ public class LocalChatCommands implements TabExecutor, Listener {
                 r = Integer.parseInt(args[0]);
             } catch (NumberFormatException e) {
                 BaseComponent send = new TranslatableComponent("parsing.int.invalid", args[0]);
-                send.setColor(ChatColor.RED);
+                send.setColor(ArcaneColor.NEGATIVE);
                 p.spigot().sendMessage(ChatMessageType.SYSTEM, send);
                 return true;
             }
