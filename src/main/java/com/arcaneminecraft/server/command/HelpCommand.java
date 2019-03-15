@@ -347,7 +347,12 @@ public class HelpCommand implements TabExecutor, Listener {
 
             if (cs == null) {
                 this.permission = command.getPermission();
-                this.usage = command.getUsage().equals("") ? "/" + name : command.getUsage().replace("<command>", name);
+
+                String usage = command.getUsage();
+
+                this.usage = usage.isEmpty()
+                        ? "/" + name
+                        : (usage.startsWith("/") ? "" : "/") + usage.replace("<command>", name);
                 this.description = (command instanceof BukkitCommand) ? "" : command.getDescription();
                 this.aliases = command.getAliases().toArray(new String[0]);
                 return;
