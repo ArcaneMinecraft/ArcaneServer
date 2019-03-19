@@ -2,6 +2,7 @@ package com.arcaneminecraft.server.listener;
 
 import com.arcaneminecraft.api.ArcaneColor;
 import com.arcaneminecraft.api.ArcaneText;
+import com.arcaneminecraft.server.SpigotLocaleTool;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -44,8 +45,7 @@ public class BuildPermissionListener implements Listener {
         not.setColor(ArcaneColor.NEGATIVE);
         apply.setColor(ArcaneColor.POSITIVE);
 
-        String[] l = p.getLocale().split("_");
-        Locale locale = new Locale(l[0],l[1]);
+        Locale locale = SpigotLocaleTool.parse(p.getLocale());
 
         BaseComponent msg = ArcaneText.translatable(locale, "messages.build.nopermission", not, apply);
 

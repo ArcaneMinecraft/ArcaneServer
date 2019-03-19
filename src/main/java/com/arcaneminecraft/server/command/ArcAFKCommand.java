@@ -3,6 +3,7 @@ package com.arcaneminecraft.server.command;
 import com.arcaneminecraft.api.ArcaneColor;
 import com.arcaneminecraft.api.ArcaneText;
 import com.arcaneminecraft.server.ArcaneServer;
+import com.arcaneminecraft.server.SpigotLocaleTool;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -135,8 +136,7 @@ public class ArcAFKCommand implements TabExecutor, Listener {
         task.runTaskLaterAsynchronously(plugin, 200L);
         unsetAFKCondition.put(p, task);
 
-        String[] l = p.getLocale().split("_");
-        Locale locale = new Locale(l[0], l[1]);
+        Locale locale = SpigotLocaleTool.parse(p.getLocale());
 
         BaseComponent send = ArcaneText.translatable(locale, "commands.afk.self");
         send.setColor(ArcaneColor.CONTENT);
@@ -150,9 +150,9 @@ public class ArcAFKCommand implements TabExecutor, Listener {
 
         Bukkit.getConsoleSender().spigot().sendMessage(broadcast);
         for (Player pl : plugin.getServer().getOnlinePlayers()) {
-            if (pl == p) continue;
-            l = pl.getLocale().split("_");
-            broadcast.setTranslate(ArcaneText.translatableString(new Locale(l[0], l[1]), "commands.afk.other"));
+            if (pl == p)
+                continue;
+            broadcast.setTranslate(ArcaneText.translatableString(SpigotLocaleTool.parse(pl.getLocale()), "commands.afk.other"));
             pl.spigot().sendMessage(ChatMessageType.SYSTEM, broadcast);
         }
     }
@@ -173,8 +173,7 @@ public class ArcAFKCommand implements TabExecutor, Listener {
         if (task != null)
             task.cancel();
 
-        String[] l = p.getLocale().split("_");
-        Locale locale = new Locale(l[0], l[1]);
+        Locale locale = SpigotLocaleTool.parse(p.getLocale());
 
         BaseComponent send = ArcaneText.translatable(locale, "commands.afk.unset.self");
         send.setColor(ArcaneColor.CONTENT);
@@ -188,9 +187,9 @@ public class ArcAFKCommand implements TabExecutor, Listener {
 
         Bukkit.getConsoleSender().spigot().sendMessage(broadcast);
         for (Player pl : plugin.getServer().getOnlinePlayers()) {
-            if (pl == p) continue;
-            l = pl.getLocale().split("_");
-            broadcast.setTranslate(ArcaneText.translatableString(new Locale(l[0], l[1]), "commands.afk.unset.other"));
+            if (pl == p)
+                continue;
+            broadcast.setTranslate(ArcaneText.translatableString(SpigotLocaleTool.parse(pl.getLocale()), "commands.afk.unset.other"));
             pl.spigot().sendMessage(ChatMessageType.SYSTEM, broadcast);
         }
     }
@@ -204,8 +203,7 @@ public class ArcAFKCommand implements TabExecutor, Listener {
                     if (p.hasPermission("arcane.afk.stayonfullserver"))
                         continue;
 
-                    String[] l = p.getLocale().split("_");
-                    Locale locale = new Locale(l[0], l[1]);
+                    Locale locale = SpigotLocaleTool.parse(p.getLocale());
 
                     p.kickPlayer(ArcaneText.translatableString(locale, "messages.kick.afk.full")); // TODO: Maybe move it to the BungeeCord plugin?
                     kicked.add(p);
@@ -293,8 +291,7 @@ public class ArcAFKCommand implements TabExecutor, Listener {
             if (!kicked.add(p))
                 return;
 
-            String[] la = p.getLocale().split("_");
-            Locale locale = new Locale(la[0],la[1]);
+            Locale locale = SpigotLocaleTool.parse(p.getLocale());
 
             p.kickPlayer(ArcaneText.translatableString(locale, e.getCause().name().toLowerCase()));
 

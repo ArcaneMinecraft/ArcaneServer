@@ -228,8 +228,7 @@ public class PluginMessenger implements PluginMessageListener, Listener {
                     send.setColor(ArcaneColor.CONTENT);
 
                     for (Player p : plugin.getServer().getOnlinePlayers()) {
-                        String[] l = p.getLocale().split("_");
-                        Locale locale = new Locale(l[0], l[1]);
+                        Locale locale = SpigotLocaleTool.parse(p.getLocale());
                         send.setTranslate(ArcaneText.translatableString(locale, translatable));
                         p.spigot().sendMessage(ChatMessageType.SYSTEM, send);
                     }

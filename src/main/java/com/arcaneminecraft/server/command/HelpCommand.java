@@ -4,6 +4,7 @@ import com.arcaneminecraft.api.ArcaneColor;
 import com.arcaneminecraft.api.ArcaneText;
 import com.arcaneminecraft.api.BungeeCommandUsage;
 import com.arcaneminecraft.server.ArcaneServer;
+import com.arcaneminecraft.server.SpigotLocaleTool;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.*;
 import org.bukkit.command.*;
@@ -142,8 +143,7 @@ public class HelpCommand implements TabExecutor, Listener {
 
         Locale locale;
         if (sender instanceof Player) {
-            String[] l = ((Player) sender).getLocale().split("_");
-            locale = new Locale(l[0],l[1]);
+            locale = SpigotLocaleTool.parse(((Player) sender).getLocale());
         } else {
             locale = null;
         }
