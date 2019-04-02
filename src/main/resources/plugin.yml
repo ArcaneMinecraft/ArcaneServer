@@ -13,6 +13,12 @@ commands:
   afk:
     description: Mark yourself as afk
     usage: /afk
+  diamondstoneratio:
+    aliases: [diastone, ds]
+    description: Checks the player's x-ray potential (Diamonds:Stone)
+    usage: /diamondtostoneratio <player>
+    #TODO: or /xraycheck <blockFrom blockTo> [player]
+    permission: arcane.command.diamondstoneeratio
   global:
     aliases: [g]
     usage: /global <chat message ...>
@@ -23,6 +29,11 @@ commands:
     description: End the suffering of your life just to revive you with a click of a button
     usage: /kill
     permission: arcane.command.kill
+  killdeathratio:
+    aliases: [killdeath, kd]
+    description: Get the K/D ratio for player
+    usage: /killdeathratio [player]
+    permission: arcane.command.killdeathratio
   local:
     aliases: [l]
     usage: /local <local message ...>
@@ -71,12 +82,18 @@ permissions:
   arcane.command.afk.other:
     description: Allows player to set others to afk
     default: op
+  arcane.command.diamondstoneratio:
+    description: Allows /diamondstoneratio
+    default: op
   arcane.command.help.details:
     description: Shows origin of each entry in /help
     default: op
   arcane.command.kill:
     description: Allows /kill only to kill themselves
     default: op
+  arcane.command.killdeathratio:
+    description: Allows /killdeathratio
+    default: true
   arcane.command.local:
     description: Allows /local, /localchat, and /localradius
     default: true
