@@ -1,5 +1,6 @@
 package com.arcaneminecraft.server;
 
+import com.arcaneminecraft.api.ArcaneColor;
 import com.arcaneminecraft.api.ArcaneText;
 import me.lucko.luckperms.LuckPerms;
 import me.lucko.luckperms.api.Contexts;
@@ -33,6 +34,8 @@ public class PlayerEvents implements Listener {
 
         BaseComponent send = new TranslatableComponent("chat.type.text", ArcaneText.playerComponentSpigot(e.getPlayer()),
                 ArcaneText.url(e.getMessage()));
+
+        send.setColor(ArcaneColor.FOCUS);
 
         // TODO: Make it not require LuckPerms
         LuckPermsApi lpApi = LuckPerms.getApi();

@@ -184,6 +184,9 @@ public class PluginMessenger implements PluginMessageListener, Listener {
 
                     BaseComponent chat = new TranslatableComponent("chat.type.text",
                             pc, ArcaneText.url(msg));
+
+                    chat.setColor(ArcaneColor.FOCUS);
+
                     BaseComponent send;
 
                     if (tag.isEmpty()) {
