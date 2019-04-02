@@ -162,6 +162,7 @@ public class PluginMessenger implements PluginMessageListener, Listener {
 
         try {
             if (subChannel.equals("Chat") || subChannel.equals("ChatAndLog")) {
+                // TODO: Centralize chat message builder
                 if (!networkChat)
                     return;
 

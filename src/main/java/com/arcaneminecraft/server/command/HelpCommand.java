@@ -84,9 +84,6 @@ public class HelpCommand implements TabExecutor, Listener {
         // Second: Registered commands
         for (Command c : commandMap.getCommands()) {
 
-            // No Permission Message Hack
-            c.setPermissionMessage(ArcaneColor.NEGATIVE + "Unknown command or insufficient permissions");
-
             if (nameToCommandMap.containsKey(c.getName()) || cf.getBoolean(c.getName() + ".is-alias"))
                 continue;
 
