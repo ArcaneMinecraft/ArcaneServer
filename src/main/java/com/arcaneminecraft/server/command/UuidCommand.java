@@ -2,6 +2,7 @@ package com.arcaneminecraft.server.command;
 
 import com.arcaneminecraft.api.ArcaneText;
 import com.arcaneminecraft.server.ArcaneServer;
+import com.arcaneminecraft.server.SpigotLocaleTool;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -37,8 +38,7 @@ public class UuidCommand implements TabExecutor {
 
             Locale locale;
             if (sender instanceof Player) {
-                String[] l = ((Player) sender).getLocale().split("_");
-                locale = new Locale(l[0],l[1]);
+                locale = SpigotLocaleTool.parse(((Player) sender).getLocale());
             } else {
                 locale = null;
             }

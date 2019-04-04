@@ -1,9 +1,10 @@
 package com.arcaneminecraft.server.command;
 
+import com.arcaneminecraft.api.ArcaneColor;
 import com.arcaneminecraft.api.ArcaneText;
 import com.arcaneminecraft.api.BungeeCommandUsage;
 import com.arcaneminecraft.server.ArcaneServer;
-import net.md_5.bungee.api.ChatColor;
+import com.arcaneminecraft.server.SpigotLocaleTool;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.*;
 import org.bukkit.command.*;
@@ -34,7 +35,7 @@ public class HelpCommand implements TabExecutor, Listener {
     public HelpCommand(ArcaneServer plugin) {
         this.plugin = plugin;
         this.notFoundMsg = new TranslatableComponent("commands.help.failed");
-        this.notFoundMsg.setColor(ChatColor.RED);
+        this.notFoundMsg.setColor(ArcaneColor.NEGATIVE);
 
         SimpleCommandMap commandMap = null;
         try {
@@ -82,9 +83,6 @@ public class HelpCommand implements TabExecutor, Listener {
 
         // Second: Registered commands
         for (Command c : commandMap.getCommands()) {
-
-            // No Permission Message Hack
-            c.setPermissionMessage(ChatColor.RED + "Unknown command or insufficient permissions");
 
             if (nameToCommandMap.containsKey(c.getName()) || cf.getBoolean(c.getName() + ".is-alias"))
                 continue;
@@ -142,8 +140,7 @@ public class HelpCommand implements TabExecutor, Listener {
 
         Locale locale;
         if (sender instanceof Player) {
-            String[] l = ((Player) sender).getLocale().split("_");
-            locale = new Locale(l[0],l[1]);
+            locale = SpigotLocaleTool.parse(((Player) sender).getLocale());
         } else {
             locale = null;
         }
@@ -170,7 +167,7 @@ public class HelpCommand implements TabExecutor, Listener {
 
             // First line
             BaseComponent header = ArcaneText.translatable(locale, "commands.help.header", page, totalPages);
-            header.setColor(ChatColor.DARK_GREEN);
+            header.setColor(ArcaneColor.LIST);
             if (sender instanceof Player)
                 ((Player) sender).spigot().sendMessage(ChatMessageType.SYSTEM, header);
             else
@@ -187,7 +184,7 @@ public class HelpCommand implements TabExecutor, Listener {
             // Last Line
             if (page == 1) {
                 BaseComponent footer = ArcaneText.translatable(locale, "commands.help.tip");
-                footer.setColor(ChatColor.GREEN);
+                footer.setColor(ArcaneColor.LIST_VARS);
                 if (sender instanceof Player)
                     ((Player) sender).spigot().sendMessage(ChatMessageType.SYSTEM, footer);
                 else
@@ -222,7 +219,7 @@ public class HelpCommand implements TabExecutor, Listener {
         if (!cw.getDescription().isEmpty()) {
             BaseComponent desc = new TextComponent(" ");
             desc.addExtra(ArcaneText.translatable(locale, "commands.help.description", cw.getDescription()));
-            desc.setColor(ChatColor.RED);
+            desc.setColor(ArcaneColor.NEGATIVE);
 
             if (sender instanceof Player) {
                 ((Player) sender).spigot().sendMessage(ChatMessageType.SYSTEM, desc);
@@ -235,7 +232,7 @@ public class HelpCommand implements TabExecutor, Listener {
         if (cw.getAliases().length != 0) {
             BaseComponent desc = new TextComponent(cw.getAliases().length > 1 ? " Aliases: " : " Alias: ");
             desc.addExtra(String.join(", ", cw.getAliases()));
-            desc.setColor(ChatColor.RED);
+            desc.setColor(ArcaneColor.NEGATIVE);
 
             if (sender instanceof Player) {
                 ((Player) sender).spigot().sendMessage(ChatMessageType.SYSTEM, desc);
@@ -251,7 +248,7 @@ public class HelpCommand implements TabExecutor, Listener {
                 perm.addExtra(cw.getOrigin());
                 perm.addExtra(", Permission: ");
                 perm.addExtra(cw.getPermission());
-                perm.setColor(ChatColor.GRAY);
+                perm.setColor(ArcaneColor.CONTENT);
                 perm.setItalic(true);
 
                 if (sender instanceof Player) {
@@ -347,7 +344,12 @@ public class HelpCommand implements TabExecutor, Listener {
 
             if (cs == null) {
                 this.permission = command.getPermission();
-                this.usage = command.getUsage().equals("") ? "/" + name : command.getUsage().replace("<command>", name);
+
+                String usage = command.getUsage();
+
+                this.usage = usage.isEmpty()
+                        ? "/" + name
+                        : (usage.startsWith("/") ? "" : "/") + usage.replace("<command>", name);
                 this.description = (command instanceof BukkitCommand) ? "" : command.getDescription();
                 this.aliases = command.getAliases().toArray(new String[0]);
                 return;
@@ -388,7 +390,7 @@ public class HelpCommand implements TabExecutor, Listener {
         }
 
         private void __originFormatting() {
-            this.origin.setColor(ChatColor.GRAY);
+            this.origin.setColor(ArcaneColor.CONTENT);
             this.origin.setItalic(true);
         }
 
@@ -407,7 +409,7 @@ public class HelpCommand implements TabExecutor, Listener {
                 ret.addExtra(origin);
                 if (permission != null) {
                     BaseComponent perm = new TextComponent(" Permission: " + permission);
-                    perm.setColor(ChatColor.GRAY);
+                    perm.setColor(ArcaneColor.CONTENT);
                     perm.setItalic(true);
                     if (cb == null) {
                         cb = new ComponentBuilder(perm);

@@ -3,6 +3,7 @@ package com.arcaneminecraft.server.command;
 import com.arcaneminecraft.api.ArcaneText;
 import com.arcaneminecraft.api.ArcaneColor;
 import com.arcaneminecraft.server.ArcaneServer;
+import com.arcaneminecraft.server.SpigotLocaleTool;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.*;
@@ -17,7 +18,6 @@ import java.util.*;
 
 public class LocalChatCommands implements TabExecutor, Listener {
     private final ArcaneServer plugin;
-    private static final String CHAT_TAG = "(local)";
     private final int maxRange;
     private final int defaultRange;
     private final HashSet<Player> toggled;
@@ -82,6 +82,7 @@ public class LocalChatCommands implements TabExecutor, Listener {
         }
 
         Player p = (Player) sender;
+        Locale locale = SpigotLocaleTool.parse(p.getLocale());
 
         if (cmd.getName().equalsIgnoreCase("local")) {
             if (args.length == 0) {
@@ -94,18 +95,17 @@ public class LocalChatCommands implements TabExecutor, Listener {
         }
 
         if (cmd.getName().equalsIgnoreCase("localtoggle")) {
-            BaseComponent send = new TextComponent("Local chat toggle is ");
-            send.setColor(ArcaneColor.CONTENT);
+            BaseComponent tog;
             if (toggled.add(p)){
-                BaseComponent on = new TranslatableComponent("options.on");
-                on.setColor(ArcaneColor.POSITIVE);
-                send.addExtra(on);
+                tog = new TranslatableComponent("options.on");
+                tog.setColor(ArcaneColor.POSITIVE);
             } else {
                 toggled.remove(p);
-                BaseComponent off = new TranslatableComponent("options.off");
-                off.setColor(ArcaneColor.NEGATIVE);
-                send.addExtra(off);
+                tog = new TranslatableComponent("options.off");
+                tog.setColor(ArcaneColor.NEGATIVE);
             }
+            BaseComponent send = ArcaneText.translatable(locale, "commands.localtoggle", tog);
+            send.setColor(ArcaneColor.CONTENT);
 
             p.spigot().sendMessage(ChatMessageType.SYSTEM, send);
             return true;
@@ -113,7 +113,7 @@ public class LocalChatCommands implements TabExecutor, Listener {
 
         if (cmd.getName().equalsIgnoreCase("localrange")) {
             if (args.length == 0) {
-                BaseComponent send = new TextComponent("Your local chat range is " + getRadius(p));
+                BaseComponent send = ArcaneText.translatable(locale, "commands.localrange", getRadius(p));
                 send.setColor(ArcaneColor.CONTENT);
 
                 p.spigot().sendMessage(ChatMessageType.SYSTEM, send);
@@ -125,7 +125,7 @@ public class LocalChatCommands implements TabExecutor, Listener {
                 r = Integer.parseInt(args[0]);
             } catch (NumberFormatException e) {
                 BaseComponent send = new TranslatableComponent("parsing.int.invalid", args[0]);
-                send.setColor(ChatColor.RED);
+                send.setColor(ArcaneColor.NEGATIVE);
                 p.spigot().sendMessage(ChatMessageType.SYSTEM, send);
                 return true;
             }
@@ -139,7 +139,7 @@ public class LocalChatCommands implements TabExecutor, Listener {
 
             range.put(p, r);
 
-            BaseComponent send = new TextComponent("Local chat range is set to " + getRadius(p));
+            BaseComponent send = ArcaneText.translatable(locale, "commands.localrange.success", getRadius(p));
             send.setColor(ArcaneColor.CONTENT);
             p.spigot().sendMessage(ChatMessageType.SYSTEM, send);
             return true;
@@ -173,9 +173,11 @@ public class LocalChatCommands implements TabExecutor, Listener {
                     recipients.add(recipient);
             }
 
+            Locale locale = SpigotLocaleTool.parse(p.getLocale());
+
             // Error: No player to send message to
             if (recipients.size() == 1) {
-                BaseComponent send = new TextComponent("Nobody is within your vicinity. Your Local chat range is " + r);
+                BaseComponent send = ArcaneText.translatable(locale, "commands.local.nobody", r);
                 send.setColor(ArcaneColor.CONTENT);
                 p.spigot().sendMessage(ChatMessageType.SYSTEM, send);
                 return;
@@ -189,7 +191,7 @@ public class LocalChatCommands implements TabExecutor, Listener {
                 list.append(", ").append(i.next().getDisplayName());
 
             // 3. Prepare messages
-            BaseComponent tag = new TextComponent(CHAT_TAG);
+            TextComponent tag = new TextComponent(ArcaneText.translatableString(locale, "commands.local.tag"));
             tag.setColor(ChatColor.GREEN);
             tag.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/l "));
             tag.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{new TextComponent(list.toString())}));
@@ -204,8 +206,10 @@ public class LocalChatCommands implements TabExecutor, Listener {
             BaseComponent chat = new TranslatableComponent("chat.type.text", player, msgB);
 
             // Send Messages
-            for (Player rp : recipients)
+            for (Player rp : recipients) {
+                tag.setText(ArcaneText.translatableString(SpigotLocaleTool.parse(rp.getLocale()), "commands.local.tag"));
                 rp.spigot().sendMessage(ChatMessageType.CHAT, tag, chat);
+            }
         });
     }
 

@@ -34,38 +34,41 @@ public class PlayerEvents implements Listener {
         BaseComponent send = new TranslatableComponent("chat.type.text", ArcaneText.playerComponentSpigot(e.getPlayer()),
                 ArcaneText.url(e.getMessage()));
 
-        // TODO: Make it not require LuckPerms
-        LuckPermsApi lpApi = LuckPerms.getApi();
-        User u = lpApi.getUser(e.getPlayer().getUniqueId());
-        String tag = null;
+        try {
+            // Check if LuckPerms exists
+            Class.forName( "me.lucko.luckperms.LuckPerms" );
+            LuckPermsApi lpApi = LuckPerms.getApi();
+            User u = lpApi.getUser(e.getPlayer().getUniqueId());
+            String tag = null;
 
-        if (u != null) {
-            MetaData metaData = u.getCachedData().getMetaData(Contexts.global());
-            try {
-                int index = Integer.valueOf(metaData.getMeta().get("PrefixPriority"));
-                if (index != -1)
-                    tag = metaData.getPrefixes().get(index);
-            } catch (NumberFormatException ignored) {
-                tag = metaData.getPrefix();
+            if (u != null) {
+                MetaData metaData = u.getCachedData().getMetaData(Contexts.global());
+                try {
+                    int index = Integer.valueOf(metaData.getMeta().get("PrefixPriority"));
+                    if (index != -1)
+                        tag = metaData.getPrefixes().get(index);
+                } catch (NumberFormatException ignored) {
+                    tag = metaData.getPrefix();
+                }
+
+                if (tag != null) {
+                    tag = ChatColor.translateAlternateColorCodes('&', tag);
+                    e.setFormat(tag + ChatColor.RESET + " " + e.getFormat());
+
+                    BaseComponent chat = send;
+                    send = new TextComponent();
+                    for (BaseComponent tp : TextComponent.fromLegacyText(tag))
+                        send.addExtra(tp);
+                    send.addExtra(" ");
+                    send.addExtra(chat);
+                }
             }
 
-            if (tag != null) {
-                tag = ChatColor.translateAlternateColorCodes('&',tag);
-                e.setFormat(tag + ChatColor.RESET + " " + e.getFormat());
-
-                BaseComponent chat = send;
-                send = new TextComponent();
-                for (BaseComponent tp : TextComponent.fromLegacyText(tag))
-                    send.addExtra(tp);
-                send.addExtra(" ");
-                send.addExtra(chat);
-            }
-        }
+            plugin.getPluginMessenger().chat(e.getPlayer(), e.getMessage(), tag);
+        } catch (ClassNotFoundException ignored) {}
 
         for (Player p : e.getRecipients())
             p.spigot().sendMessage(ChatMessageType.CHAT, send);
-
-        plugin.getPluginMessenger().chat(e.getPlayer(), e.getMessage(), tag);
 
         e.getRecipients().clear(); // Destroy default event.
     }
