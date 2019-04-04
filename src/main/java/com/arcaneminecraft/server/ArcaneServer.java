@@ -84,6 +84,8 @@ public final class ArcaneServer extends JavaPlugin {
         getCommand("kill").setExecutor(new KillCommand());
         getCommand("uuid").setExecutor(new UuidCommand());
         getCommand("opme").setExecutor(new OpmeCommand());
+        getCommand("diamondstoneratio").setExecutor(new DiamondStoneRatioCommand());
+        getCommand("killdeathratio").setExecutor(new KillDeathRatioCommand());
     }
 
     @Override
