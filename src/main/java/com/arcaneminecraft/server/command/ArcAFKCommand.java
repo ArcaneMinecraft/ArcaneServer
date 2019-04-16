@@ -117,7 +117,7 @@ public class ArcAFKCommand implements TabExecutor, Listener {
         return Collections.emptyList();
     }
 
-    private boolean isAFK(Player p) {
+    public boolean isAFK(Player p) {
         return !afkCounter.containsKey(p);
     }
 
@@ -135,6 +135,8 @@ public class ArcAFKCommand implements TabExecutor, Listener {
         BukkitRunnable task = new JustSetCondition(p);
         task.runTaskLaterAsynchronously(plugin, 200L);
         unsetAFKCondition.put(p, task);
+
+        plugin.getSleepListener().removePlayer(p);
 
         Locale locale = SpigotLocaleTool.parse(p.getLocale());
 
@@ -172,6 +174,8 @@ public class ArcAFKCommand implements TabExecutor, Listener {
         BukkitRunnable task = unsetAFKCondition.get(p);
         if (task != null)
             task.cancel();
+
+        plugin.getSleepListener().addPlayer(p);
 
         Locale locale = SpigotLocaleTool.parse(p.getLocale());
 

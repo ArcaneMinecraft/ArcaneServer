@@ -19,6 +19,22 @@ commands:
     usage: /diamondtostoneratio <player>
     #TODO: or /xraycheck <blockFrom blockTo> [player]
     permission: arcane.command.diamondstoneeratio
+  gms:
+    aliases: [gm0]
+    usage: /gms
+    permission: arcane.command.gms
+  gmc:
+    aliases: [gm1]
+    usage: /gmc
+    permission: arcane.command.gmc
+  gma:
+    aliases: [gm2]
+    usage: /gma
+    permission: arcane.command.gma
+  gmsp:
+    aliases: [gm3]
+    usage: /gmsp
+    permission: arcane.command.gmsp
   global:
     aliases: [g]
     usage: /global <chat message ...>
@@ -85,6 +101,56 @@ permissions:
   arcane.command.diamondstoneratio:
     description: Allows /diamondstoneratio
     default: op
+
+  arcane.command.gm*:
+    description: Allows /gm<s|c|a|sp>
+    default: op
+    children:
+      arcane.command.gms: true
+      arcane.command.gmc: true
+      arcane.command.gma: true
+      arcane.command.gmsp: true
+  arcane.command.gm*.other:
+    description: Allows /gm<s|c|a|sp> <player>
+    default: op
+    children:
+      arcane.command.gms.other: true
+      arcane.command.gmc.other: true
+      arcane.command.gma.other: true
+      arcane.command.gmsp.other: true
+  arcane.command.gms:
+    description: Allows /gms
+    default: op
+  arcane.command.gms.other:
+    description: Allows /gms <player>
+    default: op
+    children:
+      arcane.command.gms: true
+  arcane.command.gmc:
+    description: Allows /gmc
+    default: op
+  arcane.command.gmc.other:
+    description: Allows /gmc <player>
+    default: op
+    children:
+      arcane.command.gmc: true
+  arcane.command.gma:
+    description: Allows /gma
+    default: op
+  arcane.command.gma.other:
+    description: Allows /gma <player>
+    default: op
+    children:
+      arcane.command.gma: true
+  arcane.command.gmsp:
+    description: Allows /gmsp
+    default: op
+  arcane.command.gmsp.other:
+    description: Allows /gmsp <player>
+    default: op
+    children:
+      arcane.command.gmsp: true
+
   arcane.command.help.details:
     description: Shows origin of each entry in /help
     default: op

@@ -81,6 +81,14 @@ public final class ArcaneServer extends JavaPlugin {
         getCommand("afk").setExecutor(arcAFK);
         getServer().getPluginManager().registerEvents(arcAFK, this);
 
+        this.sleepListner = new SleepDayListener(this);
+        getServer().getPluginManager().registerEvents(sleepListner, this);
+
+        GmCommands gm = new GmCommands();
+        getCommand("gms").setExecutor(gm);
+        getCommand("gmc").setExecutor(gm);
+        getCommand("gma").setExecutor(gm);
+        getCommand("gmsp").setExecutor(gm);
         getCommand("kill").setExecutor(new KillCommand());
         getCommand("uuid").setExecutor(new UuidCommand());
         getCommand("opme").setExecutor(new OpmeCommand());
@@ -95,10 +103,21 @@ public final class ArcaneServer extends JavaPlugin {
         for (Player p : getServer().getOnlinePlayers()) {
             p.setPlayerListName(p.getName());
         }
+
+        this.arcAFK = null;
+        this.pluginMessenger = null;
+        this.sleepListner = null;
+        ArcaneServer.instance = null;
     }
 
     public PluginMessenger getPluginMessenger() {
         return pluginMessenger;
+    }
+
+    public SleepDayListener getSleepListener() {return sleepListner;}
+
+    public boolean isAFK(Player p) {
+        return arcAFK.isAFK(p);
     }
 
     @Override
