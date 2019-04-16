@@ -4,6 +4,7 @@ import com.arcaneminecraft.api.ArcaneColor;
 import com.arcaneminecraft.server.command.*;
 import com.arcaneminecraft.server.listener.AlertListener;
 import com.arcaneminecraft.server.listener.BuildPermissionListener;
+import com.arcaneminecraft.server.listener.SleepDayListener;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -17,6 +18,7 @@ public final class ArcaneServer extends JavaPlugin {
 
     private ArcAFKCommand arcAFK;
     private PluginMessenger pluginMessenger;
+    private SleepDayListener sleepListner;
 
     public static ArcaneServer getInstance() {
         return instance;
